@@ -1,26 +1,110 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5f5f4;
+  --foreground: hsl(120, 10.34%, 22.75%);
+  --muted: hsl(82.5, 23.53%, 93.33%);
+  --muted-foreground: hsl(120, 8.46%, 39.41%);
+  --popover: hsl(60, 4.76%, 95.88%);
+  --popover-foreground: hsl(120, 10.34%, 22.75%);
+  --card: rgb(245, 245, 244);
+  --card-foreground: hsl(120, 10.34%, 22.75%);
+  --border: hsl(85.71, 17.07%, 83.92%);
+  --input: hsl(85.71, 17.07%, 83.92%);
+  --primary: hsl(120, 8%, 39%);
+  --primary-foreground: hsl(60, 4.76%, 95.88%);
+  --secondary: hsl(30, 33.87%, 48.63%);
+  --secondary-foreground: hsl(30, 100%, 96.71%);
+  --accent: hsl(82.5, 23.53%, 93.33%);
+  --accent-foreground: hsl(120, 10.34%, 22.75%);
+  --destructive: hsl(348.19, 71.75%, 34.71%);
+  --destructive-foreground: hsl(348.19, 100%, 97.15%);
+  --ring: hsl(120, 8%, 39%);
+  --chart-1: hsl(120, 8%, 39%);
+  --chart-2: hsl(30, 33.87%, 48.63%);
+  --chart-3: hsl(300, 8%, 39%);
+  --chart-4: hsl(40.17, 100%, 76.86%);
+  --chart-5: hsl(120, 11%, 39%);
+  --radius: 0;
+}
+
+.dark {
+  --background: hsl(120, 10%, 6%);
+  --foreground: hsl(120, 35%, 90%);
+  --muted: hsl(120, 15%, 14%);
+  --muted-foreground: hsl(120, 10%, 65%);
+  --popover: hsl(120, 15%, 8%);
+  --popover-foreground: hsl(120, 35%, 95%);
+  --card: hsl(120, 12%, 7%);
+  --card-foreground: hsl(120, 35%, 90%);
+  --border: hsl(120, 15%, 20%);
+  --input: hsl(120, 15%, 20%);
+  --primary: hsl(122.22, 26.21%, 59.61%);
+  --primary-foreground: hsl(120 9.68% 6.08%);
+  --secondary: hsl(30, 50%, 45%);
+  --secondary-foreground: hsl(30, 100%, 98%);
+  --accent: hsl(120, 15.49%, 13.92%);
+  --accent-foreground: hsl(120, 33.33%, 90%);
+  --destructive: hsl(348, 80%, 50%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --ring: hsl(210, 90%, 55%);
+  --chart-1: hsl(120, 50%, 40%);
+  --chart-2: hsl(30, 50%, 45%);
+  --chart-3: hsl(300, 45%, 45%);
+  --chart-4: hsl(40, 100%, 55%);
+  --chart-5: hsl(200, 70%, 50%);
 }
 
 @theme inline {
+  --radius-sm: calc(var(--radius) - 0px);
+  --radius-md: calc(var(--radius) - 0px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + px);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@utility container {
+  padding-inline: 2rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
   }
-}
-
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    @apply bg-background text-foreground;
+  }
 }

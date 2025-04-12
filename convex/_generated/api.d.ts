@@ -15,7 +15,11 @@ import type {
 } from "convex/server";
 import type * as auth from "../auth.js";
 import type * as http from "../http.js";
-import type * as myFunctions from "../myFunctions.js";
+import type * as session_mutations from "../session/mutations.js";
+import type * as session_queries from "../session/queries.js";
+import type * as tasks_mutations from "../tasks/mutations.js";
+import type * as tasks_queries from "../tasks/queries.js";
+import type * as user from "../user.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -28,7 +32,11 @@ import type * as myFunctions from "../myFunctions.js";
 declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   http: typeof http;
-  myFunctions: typeof myFunctions;
+  "session/mutations": typeof session_mutations;
+  "session/queries": typeof session_queries;
+  "tasks/mutations": typeof tasks_mutations;
+  "tasks/queries": typeof tasks_queries;
+  user: typeof user;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
