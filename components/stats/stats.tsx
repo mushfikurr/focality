@@ -2,6 +2,7 @@
 
 import { Authenticated } from "convex/react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Scroller } from "../ui/scroller";
 
 export default function Stats() {
   return (
@@ -13,32 +14,36 @@ export default function Stats() {
 
 function AuthenticatedStats() {
   return (
-    <Card className="max-h-full">
+    <Card className="flex h-full flex-col">
       <CardHeader>
         <CardTitle>Your Stats</CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs">Today's Focus Time</span>
-            <span className="text-xs font-medium">1h 15m</span>
-          </div>
+      <CardContent className="min-h-0 flex-1">
+        <Scroller className="max-h-full overflow-auto">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs">Today's Focus Time</span>
+              <span className="text-xs font-medium">1h 15m</span>
+            </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-xs">Sessions Completed</span>
-            <span className="text-xs font-medium">3</span>
-          </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs">Sessions Completed</span>
+              <span className="text-xs font-medium">3</span>
+            </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-xs">Current Streak</span>
-            <span className="text-xs font-medium text-[#D6A45D]">5 days</span>
-          </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs">Current Streak</span>
+              <span className="text-xs font-medium text-[#D6A45D]">5 days</span>
+            </div>
 
-          <div className="flex items-center justify-between">
-            <span className="text-xs">XP Earned Today</span>
-            <span className="text-xs font-medium text-[#D6A45D]">+150 XP</span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs">XP Earned Today</span>
+              <span className="text-xs font-medium text-[#D6A45D]">
+                +150 XP
+              </span>
+            </div>
           </div>
-        </div>
+        </Scroller>
       </CardContent>
     </Card>
   );

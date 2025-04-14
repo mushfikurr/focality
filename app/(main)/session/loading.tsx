@@ -1,30 +1,12 @@
-import { TasksSkeleton } from "@/components/tasks/skeleton";
-import { SessionSkeleton } from "@/components/timer/elements/skeleton";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Loader2 } from "lucide-react";
 
 export default function SessionLoading() {
   return (
-    <div className="container mx-auto grid min-h-0 flex-1 grid-cols-1 gap-6 py-8 lg:grid-cols-3">
-      {/* Left Section (2 cols on large) */}
-      <section className="col-span-1 flex min-h-0 flex-col gap-y-8 lg:col-span-2">
-        {/* Current Session Card */}
-        <div className="shrink-0">
-          <SessionSkeleton />
-        </div>
-
-        {/* Session Tasks Card */}
-        <div className="min-h-0 flex-1">
-          <TasksSkeleton />
-        </div>
-      </section>
-
-      {/* Right Sidebar */}
-      <section className="flex flex-col gap-y-8 lg:col-span-1">
-        <div className="shrink-0">
-          <Skeleton className="bg-card h-22 w-full border" />
-        </div>
-        <div className="min-h-0 flex-1" />
-      </section>
+    <div className="container mx-auto flex h-full w-full justify-center gap-6 py-16">
+      <Loader2 className="text-primary h-8 w-8 animate-spin" />
+      <h1 className="text-muted-foreground animate-pulse text-xl">
+        Getting your session ready...
+      </h1>
     </div>
   );
 }

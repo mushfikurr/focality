@@ -1,12 +1,12 @@
 import { ChevronDown, LucideIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "../ui/collapsible";
-import { Button } from "../ui/button";
-import { ScrollArea } from "../ui/scroll-area";
-import { cn } from "@/lib/utils";
+} from "@/components/ui/collapsible";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface SectionProps {
   header: {
@@ -25,7 +25,10 @@ export default function Section({
   bottom,
 }: SectionProps) {
   return (
-    <Collapsible className="group space-y-1" defaultOpen={true}>
+    <Collapsible
+      className="group flex min-h-full flex-col space-y-1"
+      defaultOpen={true}
+    >
       <CollapsibleTrigger asChild>
         <div className="flex w-full items-center justify-between gap-3">
           <span className="flex items-center gap-3">
@@ -41,7 +44,7 @@ export default function Section({
         </div>
       </CollapsibleTrigger>
       <CollapsibleContent className={cn(hasBorder && "border")}>
-        <ScrollArea className="max-h-[200px] overflow-y-auto text-xs">
+        <ScrollArea className="max-h-full overflow-y-auto text-xs">
           {children}
         </ScrollArea>
         {bottom}

@@ -1,8 +1,10 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { mutation, MutationCtx } from "../_generated/server";
 import { api } from "../_generated/api";
 import { Doc } from "../_generated/dataModel";
+import { WithoutSystemFields } from "convex/server";
+import { isUserAuthenticated, isUserHost } from "./queries";
 
 export const setCurrentTask = mutation({
   args: {
@@ -125,9 +127,28 @@ export const createSession = mutation({
     };
 
     const sessionId = await ctx.db.insert("sessions", session);
+
+    const room = {
+      sessionId,
+      userId,
+      title: args.title,
+      participants: [userId],
+      shareId: generateUniqueShareId(),
+    } satisfies WithoutSystemFields<Doc<"rooms">>;
+
+    const roomId = await ctx.db.insert("rooms", room);
+
+    await ctx.db.patch(sessionId, {
+      roomId: roomId,
+    });
+
     return sessionId;
   },
 });
+
+function generateUniqueShareId(): string {
+  return Math.random().toString(36).substring(2, 15); // Simple unique ID generator
+}
 
 export const startSession = mutation({
   args: {
@@ -138,7 +159,7 @@ export const startSession = mutation({
     const session = await ctx.db.get(args.sessionId);
     if (!user) throw new Error("Not authenticated");
     if (!session) throw new Error("Session not found");
-    if (user._id !== session.hostId) throw new Error("Not authorized");
+    if (!isUserHost) return;
 
     if (!session.startTime) {
       await ctx.db.patch(args.sessionId, {
@@ -190,20 +211,30 @@ export const resetSessionTimer = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    // const user = await ctx.runQuery(api.user.currentUser);
-    // const session = await ctx.db.get(args.sessionId);
-    // if (!user) throw new Error("Not authenticated");
-    // if (!session) throw new Error("Session not found");
-    // if (user._id !== session.hostId) throw new Error("Not authorized");
-    // if (session.currentTaskId) {
-    //   const currentTask = await ctx.db.get(session.currentTaskId);
-    //   if (currentTask) {
-    //     timer = currentTask.duration;
-    //   }
-    // }
-    // await ctx.db.patch(args.sessionId, {
-    //   running: false,
-    // });
+    const userId = await isUserAuthenticated(ctx);
+
+    const user = await ctx.db.get(userId);
+    const session = await ctx.db.get(args.sessionId);
+
+    if (!session) throw new Error("Session not found");
+    if (!user) throw new Error("User not found");
+    if (!isUserHost) return;
+
+    if (session.currentTaskId) {
+      const currentTask = await ctx.db.get(session.currentTaskId);
+      if (currentTask) {
+        await ctx.db.patch(currentTask._id, {
+          elapsed: 0,
+        });
+
+        await ctx.db.patch(args.sessionId, {
+          startTime: undefined,
+        });
+      }
+    }
+    await ctx.db.patch(args.sessionId, {
+      running: false,
+    });
   },
 });
 

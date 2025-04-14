@@ -1,5 +1,5 @@
 import { useLocalPomodoroTasks } from "@/lib/hooks/use-local-pomodoro-tasks";
-import { TrashIcon } from "lucide-react";
+import { Loader2, TrashIcon } from "lucide-react";
 import { Task } from "../providers/LocalPomodoroProvider";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -8,10 +8,11 @@ import { Skeleton } from "../ui/skeleton";
 interface TaskItemProps {
   removeTask: any;
   task: Task;
+  pending?: boolean;
 }
 
 export function TaskItem(props: TaskItemProps) {
-  const { removeTask, task } = props;
+  const { removeTask, task, pending } = props;
   return (
     <div className="flex w-full items-center gap-3 border border-b-0 text-sm last:border-b">
       <Checkbox
@@ -25,8 +26,17 @@ export function TaskItem(props: TaskItemProps) {
       >
         {task.description}
       </label>
-      <Button variant="ghost" size="icon" onClick={removeTask}>
-        <TrashIcon />
+      <Button
+        variant="ghost"
+        disabled={pending}
+        size="icon"
+        onClick={removeTask}
+      >
+        {pending ? (
+          <Loader2 className="text-muted absolute animate-spin" />
+        ) : (
+          <TrashIcon />
+        )}
       </Button>
     </div>
   );

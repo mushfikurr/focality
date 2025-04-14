@@ -3,6 +3,7 @@ import { mutation } from "../_generated/server";
 import { taskType } from "./queries";
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { api } from "../_generated/api";
+import { isUserHost } from "../session/queries";
 
 // Add Task
 // If there is no current task, set this one as the current task
@@ -16,6 +17,7 @@ export const addTask = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+    if (!isUserHost) return;
 
     const task = {
       userId,
@@ -79,7 +81,7 @@ export const deleteTask = mutation({
 
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new Error("Task not found");
-    if (task.userId !== userId) throw new Error("Not authorized");
+    if (!isUserHost) return;
 
     const session = await ctx.db.get(task.sessionId);
     if (!session) throw new Error("Session not found");
@@ -115,7 +117,7 @@ export const updateTask = mutation({
 
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new Error("Task not found");
-    if (task.userId !== userId) throw new Error("Not authorized");
+    if (!isUserHost) return;
 
     await ctx.db.patch(args.taskId, {
       type: args.type,

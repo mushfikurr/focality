@@ -18,6 +18,7 @@ import { forwardRef, useRef } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
+import { redirect } from "next/navigation";
 
 export default function UserNavbar() {
   const auth = useAuthActions();
@@ -26,6 +27,7 @@ export default function UserNavbar() {
   const handleLogout = async () => {
     await auth.signOut();
     toast.success("Successfully logged out!");
+    redirect("/");
   };
 
   return (

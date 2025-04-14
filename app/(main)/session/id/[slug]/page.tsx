@@ -1,9 +1,11 @@
+import { SyncedRoom } from "@/components/room/synced-room";
+import Stats from "@/components/stats/stats";
+import { SyncedTasks } from "@/components/tasks/synced-tasks";
+import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
-import { preloadQuery } from "convex/nextjs";
-import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
-import { SyncedTasks } from "@/components/tasks/synced-tasks";
+import { preloadQuery } from "convex/nextjs";
 
 export default async function SessionIdPage({
   params,
@@ -25,25 +27,61 @@ export default async function SessionIdPage({
     },
     { token: await convexAuthNextjsToken() },
   );
+  const preloadedChat = await preloadQuery(
+    api.chat.queries.listChatMessages,
+    {
+      sessionId: slug as Id<"sessions">,
+    },
+    { token: await convexAuthNextjsToken() },
+  );
+  const preloadedParticipants = await preloadQuery(
+    api.rooms.queries.listParticipants,
+    {
+      sessionId: slug as Id<"sessions">,
+    },
+    { token: await convexAuthNextjsToken() },
+  );
+  const preloadedRoom = await preloadQuery(
+    api.rooms.queries.getRoomBySession,
+    {
+      sessionId: slug as Id<"sessions">,
+    },
+    { token: await convexAuthNextjsToken() },
+  );
+
+  // TODO: When adding joining sessions make sure to implement check if the user is actually in participants list to avoid joining rooms that you are not authenticated to join
 
   return (
-    <div className="container mx-auto grid min-h-0 flex-1 grid-cols-1 gap-6 py-8 lg:grid-cols-3">
-      <section className="col-span-1 flex min-h-0 flex-col gap-y-8 lg:col-span-2">
-        <div className="shrink-0">
+    <div className="container mx-auto flex h-full min-h-0 gap-4">
+      {/* Left Column */}
+      <div className="flex max-h-full w-3/5 flex-col gap-4 py-8">
+        <div className="flex-[1]">
           <SyncedTimer
-            preloadedSession={preloadedSession}
             preloadedTasks={preloadedTasks}
+            preloadedSession={preloadedSession}
           />
         </div>
-        <div className="min-h-0 flex-1">
+
+        <div className="min-h-[250px] flex-1">
           <SyncedTasks sessionId={slug} preloadedTasks={preloadedTasks} />
         </div>
-      </section>
-      <section className="flex flex-col gap-y-8 lg:col-span-1">
-        <div className="shrink-0">{/* <Room /> */}</div>
+      </div>
 
-        <div className="min-h-0 flex-1">{/* <Stats /> */}</div>
-      </section>
+      {/* Right Column */}
+      <div className="flex max-h-full min-h-0 w-2/5 flex-col gap-4 py-8">
+        <div className="min-h-[200px] flex-[3]">
+          <SyncedRoom
+            preloadedSession={preloadedSession}
+            preloadedChat={preloadedChat}
+            preloadedRoom={preloadedRoom}
+            preloadedParticipants={preloadedParticipants}
+          />
+        </div>
+
+        <div className="min-h-0 flex-[1]">
+          <Stats />
+        </div>
+      </div>
     </div>
   );
 }

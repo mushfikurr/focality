@@ -36,7 +36,21 @@ export function SyncedTasks({ sessionId, preloadedTasks }: SyncedTasksProps) {
     });
   };
 
-  const removeTaskMtn = useMutation(api.tasks.mutations.deleteTask);
+  const removeTaskMtn = useMutation(
+    api.tasks.mutations.deleteTask,
+  ).withOptimisticUpdate((localStore, args) => {
+    const { taskId } = args;
+    const currentValue = localStore.getQuery(api.tasks.queries.listTasks, {
+      sessionId: sessionId as Id<"sessions">,
+    });
+    if (currentValue !== undefined) {
+      localStore.setQuery(
+        api.tasks.queries.listTasks,
+        { sessionId: sessionId as Id<"sessions"> },
+        currentValue.filter((t) => t._id !== taskId),
+      );
+    }
+  });
   const handleRemoveTask = async (taskId: string) => {
     await removeTaskMtn({ taskId: taskId as Id<"tasks"> });
   };

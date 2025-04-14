@@ -1,9 +1,27 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation, query } from "../_generated/server";
+import { mutation, MutationCtx, query } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
+
+export const isUserAuthenticated = async (ctx: MutationCtx) => {
+  const userId = await getAuthUserId(ctx);
+  if (!userId) throw new Error("Not authenticated");
+  return userId;
+};
+
+export const isUserHost = async (
+  ctx: MutationCtx,
+  sessionId: Id<"sessions">,
+) => {
+  const userId = await isUserAuthenticated(ctx);
+  const session = await ctx.db.get(sessionId);
+  if (!session) throw new Error("Session not found");
+  if (!userId) throw new Error("User not found");
+
+  return userId === session.hostId;
+};
 
 export const listSessions = query({
   handler: async (ctx, args) => {

@@ -4,7 +4,6 @@ import { LocalPomodoroProvider } from "@/components/providers/LocalPomodoroProvi
 import Room from "@/components/room/room";
 import Stats from "@/components/stats/stats";
 import Tasks from "@/components/tasks/tasks";
-import SessionTimer from "@/components/timer";
 import { LocalTimer } from "@/components/timer/elements/local-timer";
 import { useConvexAuth } from "convex/react";
 import { useRouter } from "next/navigation";

@@ -4,8 +4,18 @@ import { v } from "convex/values";
 
 export default defineSchema({
   ...authTables,
+  ...authTables,
+  users: defineTable({
+    name: v.optional(v.string()),
+    image: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    phone: v.optional(v.string()),
+    phoneVerificationTime: v.optional(v.number()),
+    isAnonymous: v.optional(v.boolean()),
+    roomId: v.optional(v.id("rooms")),
+  }).index("by_room", ["roomId"]),
 
-  // TODO: Remove timer and use current tasks duration instead. Clients should interpret the timer.
   sessions: defineTable({
     hostId: v.id("users"),
     userIds: v.array(v.id("users")),
@@ -20,14 +30,23 @@ export default defineSchema({
     .index("by_room", ["roomId"]),
 
   rooms: defineTable({
+    sessionId: v.id("sessions"),
     userId: v.id("users"),
     title: v.string(),
     participants: v.array(v.id("users")),
-    chat: v.array(v.string()),
     shareId: v.string(),
   })
     .index("by_user", ["userId"])
-    .index("by_shareId", ["shareId"]),
+    .index("by_shareId", ["shareId"])
+    .index("by_session", ["sessionId"]),
+
+  chats: defineTable({
+    roomId: v.id("rooms"),
+    userId: v.id("users"),
+    content: v.string(),
+  })
+    .index("by_room", ["roomId"])
+    .index("by_user", ["userId"]),
 
   tasks: defineTable({
     userId: v.id("users"),

@@ -31,7 +31,7 @@ export function Timer(props: TimerProps) {
     type === "task" ? "Task" : "Break";
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col justify-between">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
           <h1>Current Session</h1>
@@ -42,7 +42,7 @@ export function Timer(props: TimerProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex w-full flex-col items-center justify-center gap-8 py-6">
+        <div className="flex w-full flex-col items-center justify-center gap-8">
           <div className="text-center">
             <h2 className="mb-2 font-mono text-6xl font-semibold tracking-tight">
               {formatTime(timer)}

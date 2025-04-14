@@ -10,8 +10,9 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { ScrollArea } from "../ui/scroll-area";
+import { Scroller } from "../ui/scroller";
 import { TaskItem } from "./task-item";
+import { cn } from "@/lib/utils";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
@@ -24,6 +25,9 @@ interface TasksProps {
     removeTask: ActionFunctionWithId;
     completeTask: ActionFunctionWithId;
   };
+  pending?: {
+    removeTask?: boolean;
+  };
 }
 
 export default function Tasks(props: TasksProps) {
@@ -33,7 +37,7 @@ export default function Tasks(props: TasksProps) {
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
 
   return (
-    <Card className="max-h-full">
+    <Card className="max-h-full min-h-fit">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
           <h3>Session Tasks</h3>
@@ -47,28 +51,35 @@ export default function Tasks(props: TasksProps) {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="max-h-full overflow-auto">
-        <ScrollArea className="max-h-full overflow-auto">
+      <CardContent className="flex h-full flex-col overflow-auto">
+        <Scroller className="max-h-full overflow-auto">
           {!!tasks?.length ? (
             tasks.map((t: Task) => (
               <TaskItem
                 key={t.id}
                 task={t}
-                removeTask={() => actions.removeTask(t.id)} // Removing task by ID
+                removeTask={() => actions.removeTask(t.id)}
               />
             ))
           ) : (
             <EmptyTasks />
           )}
-        </ScrollArea>
+        </Scroller>
       </CardContent>
       <CardFooter className="text-xs">
         <div className="text-muted-foreground flex h-full gap-3">
-          <div className="flex h-full items-center gap-3 border-r pr-3">
-            <div className="bg-primary mt-0.5 aspect-square h-4"></div>
-            {tasksCompleted && <p>{tasksCompleted} task completed</p>}
+          <div
+            className={cn(
+              "flex h-full items-center gap-3 pr-3",
+              !!tasksRemaining && "border-r",
+            )}
+          >
+            <div className="bg-primary aspect-square h-4"></div>
+
+            {!!tasksCompleted && <p>{tasksCompleted} task completed</p>}
+            {!!!tasksCompleted && <p>Awaiting tasks</p>}
           </div>
-          {tasksRemaining && <p>{tasksRemaining} remaining</p>}
+          {!!tasksRemaining && <p>{tasksRemaining} remaining</p>}
         </div>
       </CardFooter>
     </Card>

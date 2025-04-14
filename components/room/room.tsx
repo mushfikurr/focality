@@ -1,12 +1,10 @@
 "use client";
 
-import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Chat } from "./chat";
-import PariticpantList from "./participant-list";
-import { Button, buttonVariants } from "../ui/button";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { AuthLoading, Unauthenticated } from "convex/react";
+import Link from "next/link";
+import { buttonVariants } from "../ui/button";
+import { Card, CardContent } from "../ui/card";
 import { Skeleton } from "../ui/skeleton";
 
 export default function Room() {
@@ -18,27 +16,7 @@ export default function Room() {
       <Unauthenticated>
         <UnauthenticatedRoom />
       </Unauthenticated>
-      <Authenticated>
-        <AuthenticatedRoom />
-      </Authenticated>
     </>
-  );
-}
-
-export function AuthenticatedRoom() {
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center justify-between gap-3">
-          <h1>Room: Sample Room</h1>
-          <p className="text-muted-foreground text-xs">ID: 123456789</p>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="h-full space-y-4 text-sm">
-        <PariticpantList />
-        <Chat />
-      </CardContent>
-    </Card>
   );
 }
 
