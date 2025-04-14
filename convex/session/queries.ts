@@ -75,3 +75,16 @@ export const getSession = query({
     };
   },
 });
+
+export const getDriftTimeForSession = query({
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+
+    const dateNow = new Date().toISOString();
+    return dateNow;
+  },
+});

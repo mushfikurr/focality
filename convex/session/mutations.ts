@@ -144,6 +144,8 @@ export const startSession = mutation({
       await ctx.db.patch(args.sessionId, {
         startTime: new Date().toISOString(),
       });
+
+      console.log("start time for session is now", session.startTime);
     }
 
     await ctx.db.patch(args.sessionId, {
@@ -165,17 +167,20 @@ export const pauseSession = mutation({
     if (session.currentTaskId && session.startTime) {
       const startTime = new Date(session.startTime);
       const now = new Date();
-      console.log(startTime, now);
       const elapsedTime = now.getTime() - startTime.getTime();
-      console.log(elapsedTime);
+
+      console.log("elapsed time for current task is now", elapsedTime);
+
+      const currentTask = await ctx.db.get(session.currentTaskId);
+
       await ctx.db.patch(session.currentTaskId, {
-        elapsed: elapsedTime,
+        elapsed: (currentTask?.elapsed ?? 0) + elapsedTime,
       });
     }
 
     await ctx.db.patch(args.sessionId, {
       running: false,
-      startTime: new Date().toISOString(),
+      startTime: undefined,
     });
   },
 });

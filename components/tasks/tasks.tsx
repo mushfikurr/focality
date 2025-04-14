@@ -29,8 +29,8 @@ interface TasksProps {
 export default function Tasks(props: TasksProps) {
   const { tasks, actions } = props;
 
-  const tasksCompleted = tasks.filter((t: Task) => t.completed).length;
-  const tasksRemaining = tasks.length - tasksCompleted;
+  const tasksCompleted = tasks?.filter((t: Task) => t.completed).length;
+  const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
 
   return (
     <Card className="max-h-full">
@@ -49,7 +49,7 @@ export default function Tasks(props: TasksProps) {
       </CardHeader>
       <CardContent className="max-h-full overflow-auto">
         <ScrollArea className="max-h-full overflow-auto">
-          {!!tasks.length ? (
+          {!!tasks?.length ? (
             tasks.map((t: Task) => (
               <TaskItem
                 key={t.id}
@@ -66,9 +66,9 @@ export default function Tasks(props: TasksProps) {
         <div className="text-muted-foreground flex h-full gap-3">
           <div className="flex h-full items-center gap-3 border-r pr-3">
             <div className="bg-primary mt-0.5 aspect-square h-4"></div>
-            <p>{tasksCompleted} task completed</p>
+            {tasksCompleted && <p>{tasksCompleted} task completed</p>}
           </div>
-          <p>{tasksRemaining} remaining</p>
+          {tasksRemaining && <p>{tasksRemaining} remaining</p>}
         </div>
       </CardFooter>
     </Card>
