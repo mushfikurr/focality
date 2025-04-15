@@ -3,7 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
-import { Link, Users2 } from "lucide-react";
+import { MoreVertical } from "lucide-react";
 import { useEffect } from "react";
 import { AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -30,10 +30,6 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const room = usePreloadedQuery(preloadedRoom);
   const chatMessages = usePreloadedQuery(preloadedChat);
   const session = usePreloadedQuery(preloadedSession);
-  const participantList = participants?.filter(Boolean).map((p) => ({
-    id: p?._id as string,
-    name: p?.name as string,
-  }));
   const user = usePreloadedQuery(preloadedUser);
   console.log(chatMessages);
   const messages = chatMessages.filter(Boolean).map((m) => {
@@ -69,17 +65,17 @@ export function SyncedRoom(props: SyncedRoomProps) {
     <Card className="flex h-full flex-col gap-2">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <div className="flex items-center">
+          <div className="flex h-full items-center">
             <div className="flex">
-              {participants?.map((p) => (
-                <Avatar key={p._id}>
+              {participants?.slice(0, 3).map((p) => (
+                <Avatar key={p._id} className="h-9 border last:border-r-0">
                   <AvatarImage src={p.image} />
                   <AvatarFallback>{p?.name?.[0] ?? "A"}</AvatarFallback>
                 </Avatar>
               ))}
             </div>
             <Button variant="outline" size="icon">
-              <Users2 />
+              <MoreVertical />
             </Button>
           </div>
           <h1 className="text-secondary-foreground inline-flex items-center gap-2 border border-dashed p-1 px-3 text-xs">
