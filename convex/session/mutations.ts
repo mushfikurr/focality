@@ -67,33 +67,36 @@ export const findAndSetCurrentTask = mutation({
     if (!session) throw new Error("Session not found");
     if (session.hostId !== userId) throw new Error("Not authorized");
 
-    let currentTask: Doc<"tasks"> | null = null;
-
+    // Check if current task is still valid and not completed
     if (session.currentTaskId) {
-      currentTask = await ctx.db.get(session.currentTaskId);
-      if (currentTask) {
-        console.log("✅ currentTaskId is valid:", currentTask._id);
+      const currentTask = await ctx.db.get(session.currentTaskId);
+      if (currentTask && !currentTask.completed) {
+        console.log("✅ currentTaskId is still valid:", currentTask._id);
         return currentTask;
       } else {
-        console.log("⚠️ currentTaskId is stale. Will find a new task.");
+        console.log(
+          "⚠️ currentTaskId is stale or completed. Finding new task.",
+        );
       }
     }
 
+    // Find the next incomplete task
     const nextTask = await ctx.db
       .query("tasks")
       .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+      .filter((q) => q.eq(q.field("completed"), false))
       .order("asc")
       .first();
 
     if (!nextTask) {
-      console.log("❌ No tasks available to set as current.");
+      console.log("❌ No incomplete tasks available.");
       await ctx.runMutation(api.session.mutations.clearCurrentTask, {
         sessionId: session._id,
       });
       return null;
     }
 
-    console.log("✅ Found next task to set as current:", nextTask._id);
+    console.log("✅ Found next task:", nextTask._id);
 
     await ctx.runMutation(api.session.mutations.setCurrentTask, {
       sessionId: session._id,

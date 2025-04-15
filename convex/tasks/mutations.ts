@@ -28,16 +28,17 @@ export const addTask = mutation({
       elapsed: 0,
       completed: false,
     };
+
     const id = await ctx.db.insert("tasks", task);
 
-    // If there is no current task, set this one as the current task
-    const session = await ctx.runQuery(api.session.queries.getSession, {
-      sessionId: args.sessionId,
-    });
-    if (!session.currentTask) {
-      await ctx.runMutation(api.session.mutations.setCurrentTask, {
+    // Always check if we need to assign a current task
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+
+    if (!session.currentTaskId) {
+      console.log("🆕 No current task. Will try to set the new one.");
+      await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
         sessionId: args.sessionId,
-        taskId: id,
       });
     }
 
@@ -45,26 +46,42 @@ export const addTask = mutation({
   },
 });
 
-export const completeTask = mutation({
+export const completeTaskIfElapsed = mutation({
   args: {
-    taskId: v.id("tasks"),
+    sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const session = await ctx.db.get(args.sessionId);
+    if (!session || !session.currentTaskId) return;
 
-    const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
-    if (task.userId !== userId) throw new Error("Not authorized");
+    const task = await ctx.db.get(session.currentTaskId);
+    if (!task || task.completed) return;
 
-    await ctx.db.patch(args.taskId, { completed: true });
+    const now = new Date().getTime();
+    const start = session.startTime
+      ? new Date(session.startTime).getTime()
+      : null;
+    const elapsed = (task.elapsed ?? 0) + (start ? now - start : 0);
 
-    const session = await ctx.db.get(task.sessionId);
-    if (!session) throw new Error("Session not found");
+    if (elapsed >= (task.duration ?? 0)) {
+      console.log(`✅ Task ${task._id} completed.`);
 
-    if (session.currentTaskId === task._id) {
+      await ctx.db.patch(task._id, {
+        completed: true,
+        elapsed: task.duration,
+      });
+
+      await ctx.db.patch(session._id, {
+        running: false,
+        startTime: undefined,
+      });
+
+      await ctx.db.patch(session._id, {
+        currentTaskId: undefined,
+      });
+
       await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
-        sessionId: task.sessionId,
+        sessionId: session._id,
       });
     }
   },
