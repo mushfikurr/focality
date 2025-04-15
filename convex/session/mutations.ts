@@ -1,10 +1,10 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
+import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { mutation, MutationCtx } from "../_generated/server";
 import { api } from "../_generated/api";
 import { Doc } from "../_generated/dataModel";
-import { WithoutSystemFields } from "convex/server";
-import { isUserAuthenticated, isUserHost } from "./queries";
+import { mutation } from "../_generated/server";
+import { authenticatedUser, validateSessionHost } from "../utils/auth";
+import { getDocumentOrThrow } from "../utils/db";
 
 export const setCurrentTask = mutation({
   args: {
@@ -12,18 +12,12 @@ export const setCurrentTask = mutation({
     taskId: v.id("tasks"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    await validateSessionHost(ctx, args.sessionId);
+    const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
 
-    const session = await ctx.db.get(args.sessionId);
-    if (!session) throw new Error("Session not found");
-    if (session.hostId !== userId)
-      throw new Error("Only the host can set the current task");
-
-    const task = await ctx.db.get(args.taskId);
-    if (!task) throw new Error("Task not found");
-    if (task.sessionId !== args.sessionId)
+    if (task.sessionId !== args.sessionId) {
       throw new Error("Task not associated with session");
+    }
 
     await ctx.db.patch(args.sessionId, {
       currentTaskId: args.taskId,
@@ -36,13 +30,8 @@ export const clearCurrentTask = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
-    const session = await ctx.db.get(args.sessionId);
-    if (!session) throw new Error("Session not found");
-    if (session.hostId !== userId)
-      throw new Error("Only the host can delete the current task");
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     return await ctx.db.patch(args.sessionId, {
       currentTaskId: undefined,
@@ -60,12 +49,8 @@ export const findAndSetCurrentTask = mutation({
       args.sessionId,
     );
 
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
-    const session = await ctx.db.get(args.sessionId);
-    if (!session) throw new Error("Session not found");
-    if (session.hostId !== userId) throw new Error("Not authorized");
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     // Check if current task is still valid and not completed
     if (session.currentTaskId) {
@@ -115,8 +100,7 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await authenticatedUser(ctx);
 
     const session = {
       hostId: userId,
@@ -158,11 +142,8 @@ export const startSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.user.currentUser);
-    const session = await ctx.db.get(args.sessionId);
-    if (!user) throw new Error("Not authenticated");
-    if (!session) throw new Error("Session not found");
-    if (!isUserHost) return;
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     if (!session.startTime) {
       await ctx.db.patch(args.sessionId, {
@@ -183,10 +164,8 @@ export const pauseSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.user.currentUser);
-    const session = await ctx.db.get(args.sessionId);
-    if (!user) throw new Error("Not authenticated");
-    if (!session) throw new Error("Session not found");
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     if (session.currentTaskId && session.startTime) {
       const startTime = new Date(session.startTime);
@@ -214,14 +193,8 @@ export const resetSessionTimer = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userId = await isUserAuthenticated(ctx);
-
-    const user = await ctx.db.get(userId);
-    const session = await ctx.db.get(args.sessionId);
-
-    if (!session) throw new Error("Session not found");
-    if (!user) throw new Error("User not found");
-    if (!isUserHost) return;
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     if (session.currentTaskId) {
       const currentTask = await ctx.db.get(session.currentTaskId);
@@ -246,13 +219,8 @@ export const deleteSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
-    const session = await ctx.db.get(args.sessionId);
-    if (!session) throw new Error("Session not found");
-    if (session.hostId !== userId)
-      throw new Error("Only the host can delete the session");
+    await validateSessionHost(ctx, args.sessionId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     await ctx.db.delete(args.sessionId);
   },

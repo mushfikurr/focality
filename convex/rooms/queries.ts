@@ -1,16 +1,28 @@
 import { v } from "convex/values";
 import { query } from "../_generated/server";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { getDocumentOrThrow } from "../utils/db";
+import { authenticatedUser } from "../utils/auth";
 
 export const getRoomBySession = query({
   args: {
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db.get(args.sessionId);
-    if (!session?.roomId) return null;
+    const session = await getDocumentOrThrow(
+      ctx,
+      "sessions",
+      args.sessionId,
+      "Session not found",
+    );
+    if (!session.roomId) return null;
 
-    return await ctx.db.get(session.roomId);
+    return await getDocumentOrThrow(
+      ctx,
+      "rooms",
+      session.roomId,
+      "Room not found",
+    );
   },
 });
 
@@ -19,15 +31,13 @@ export const listParticipants = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db.get(args.sessionId);
-    if (!session?.roomId) return null;
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+    if (!session.roomId) return [];
 
-    const participants = await ctx.db
+    return await ctx.db
       .query("users")
       .withIndex("by_room", (q) => q.eq("roomId", session.roomId))
       .collect();
-
-    return participants;
   },
 });
 
@@ -41,21 +51,18 @@ export const getRoomByShareId = query({
       .withIndex("by_shareId", (q) => q.eq("shareId", args.shareId))
       .first();
 
-    return room;
+    return room ?? null;
   },
 });
 
 export const listUserRooms = query({
   handler: async (ctx) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await authenticatedUser(ctx);
 
-    const rooms = await ctx.db
+    return await ctx.db
       .query("rooms")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
-
-    return rooms;
   },
 });
 
@@ -64,13 +71,16 @@ export const getRoomParticipants = query({
     roomId: v.id("rooms"),
   },
   handler: async (ctx, args) => {
-    const room = await ctx.db.get(args.roomId);
-    if (!room) return [];
+    const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
     const users = await Promise.all(
-      room.participants.map((id) => ctx.db.get(id)),
+      room.participants.map(async (id) => {
+        const user = await ctx.db.get(id);
+        if (!user) throw new Error(`User ${id} not found`);
+        return user;
+      }),
     );
 
-    return users.filter(Boolean);
+    return users;
   },
 });

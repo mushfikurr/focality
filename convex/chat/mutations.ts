@@ -1,23 +1,8 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { Id } from "../_generated/dataModel";
-import { mutation, MutationCtx } from "../_generated/server";
-
-async function sendMessageHelper(
-  ctx: MutationCtx,
-  args: { userId: Id<"users">; roomId: Id<"rooms">; content: string },
-) {
-  const room = await ctx.db.get(args.roomId);
-  if (!room?.participants.includes(args.userId)) {
-    throw new Error("Not in room");
-  }
-
-  return await ctx.db.insert("chats", {
-    roomId: args.roomId,
-    userId: args.userId,
-    content: args.content,
-  });
-}
+import { mutation } from "../_generated/server";
+import { api } from "../_generated/api";
+import { validateRoomParticipant, authenticatedUser } from "../utils/auth";
+import { getDocumentOrThrow } from "../utils/db";
 
 export const createChat = mutation({
   args: {
@@ -25,18 +10,67 @@ export const createChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
+    const userId = await authenticatedUser(ctx);
+    const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
-    const room = await ctx.db.get(args.roomId);
-    if (!room) throw new Error("Room not found");
-    
-    const session = await ctx.db.get(room.sessionId);
-    if (!session) throw new Error("Session not found");
+    // Validate user is a participant in the room
+    if (!room.participants.includes(userId)) {
+      throw new Error(
+        "You must be a participant to send messages in this room",
+      );
+    }
 
-    if (session.running)
-      throw new Error("Session is running. Chat is disabled");
+    // Get and validate session status
+    const session = await getDocumentOrThrow(ctx, "sessions", room.sessionId);
+    if (session.running) {
+      throw new Error("Cannot send messages while session is running");
+    }
 
-    await sendMessageHelper(ctx, { userId: userId, ...args });
+    // Create the chat message
+    const chatMessage = {
+      roomId: args.roomId,
+      userId: userId,
+      content: args.content.trim(),
+      createdAt: new Date().toISOString(),
+    };
+
+    return await ctx.db.insert("chats", chatMessage);
+  },
+});
+
+export const deleteChat = mutation({
+  args: {
+    chatId: v.id("chats"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await authenticatedUser(ctx);
+    const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
+
+    // Only message author can delete their messages
+    if (chat.userId !== userId) {
+      throw new Error("You can only delete your own messages");
+    }
+
+    await ctx.db.delete(args.chatId);
+  },
+});
+
+export const updateChat = mutation({
+  args: {
+    chatId: v.id("chats"),
+    content: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await authenticatedUser(ctx);
+    const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
+
+    // Only message author can edit their messages
+    if (chat.userId !== userId) {
+      throw new Error("You can only edit your own messages");
+    }
+
+    await ctx.db.patch(args.chatId, {
+      content: args.content.trim(),
+    });
   },
 });

@@ -24,6 +24,8 @@ import type * as session_queries from "../session/queries.js";
 import type * as tasks_mutations from "../tasks/mutations.js";
 import type * as tasks_queries from "../tasks/queries.js";
 import type * as user from "../user.js";
+import type * as utils_auth from "../utils/auth.js";
+import type * as utils_db from "../utils/db.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -45,6 +47,8 @@ declare const fullApi: ApiFromModules<{
   "tasks/mutations": typeof tasks_mutations;
   "tasks/queries": typeof tasks_queries;
   user: typeof user;
+  "utils/auth": typeof utils_auth;
+  "utils/db": typeof utils_db;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,
