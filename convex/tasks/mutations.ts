@@ -51,7 +51,9 @@ export const completeTaskIfElapsed = mutation({
     if (task.completed) return;
 
     const now = new Date().getTime();
-    const start = session.startTime ? new Date(session.startTime).getTime() : null;
+    const start = session.startTime
+      ? new Date(session.startTime).getTime()
+      : null;
     const elapsed = (task.elapsed ?? 0) + (start ? now - start : 0);
 
     if (elapsed >= task.duration) {
@@ -103,18 +105,16 @@ export const deleteTask = mutation({
 export const updateTask = mutation({
   args: {
     taskId: v.id("tasks"),
-    type: taskType,
-    duration: v.number(),
-    description: v.string(),
+    type: v.optional(taskType),
+    duration: v.optional(v.number()),
+    description: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    console.log("📌 Running updateTask mutation");
     const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
     await validateSessionHost(ctx, task.sessionId);
 
-    await ctx.db.patch(args.taskId, {
-      type: args.type,
-      duration: args.duration,
-      description: args.description,
-    });
+    const { taskId, ...toUpdate } = args;
+    await ctx.db.patch(args.taskId, toUpdate);
   },
 });

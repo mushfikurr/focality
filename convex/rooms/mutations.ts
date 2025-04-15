@@ -1,21 +1,24 @@
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { api } from "../_generated/api";
-import { validateRoomParticipant, authenticatedUser } from "../utils/auth";
+import { authenticatedUser } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const joinRoom = mutation({
   args: {
     roomId: v.id("rooms"),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, { roomId }) => {
+    const room = await getDocumentOrThrow(ctx, "rooms", roomId);
     const userId = await authenticatedUser(ctx);
-    const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
-    if (room.participants.includes(userId)) return;
+    if (!room.participants.includes(userId)) {
+      await ctx.db.patch(roomId, {
+        participants: [...room.participants, userId],
+      });
+    }
 
-    await ctx.db.patch(args.roomId, {
-      participants: [...room.participants, userId],
+    await ctx.db.patch(userId, {
+      roomId,
     });
   },
 });
