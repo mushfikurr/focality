@@ -17,12 +17,17 @@ import { cn } from "@/lib/utils";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
+type UpdateActionFunctionWithId = (
+  taskId: string,
+  task: Partial<Task>,
+) => void | Promise<void>;
 
 interface TasksProps {
   tasks: Task[];
   actions: {
     addTask: ActionFunction;
     addBreak: ActionFunction;
+    updateTask: UpdateActionFunctionWithId;
     removeTask: ActionFunctionWithId;
     completeTask: ActionFunctionWithId;
   };
@@ -70,6 +75,7 @@ export default function Tasks(props: TasksProps) {
                 key={t.id}
                 task={t}
                 removeTask={() => actions.removeTask(t.id)}
+                updateTask={actions.updateTask}
                 currentTaskId={currentTaskId}
               />
             ))

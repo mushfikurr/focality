@@ -8,7 +8,8 @@ import {
 } from "convex/react";
 import Tasks from "./tasks";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Task } from "../providers/LocalPomodoroProvider";
 
 interface SyncedTasksProps {
   sessionId: Id<"sessions">;
@@ -21,7 +22,34 @@ export function SyncedTasks({
   sessionId,
   preloadedTasks,
 }: SyncedTasksProps) {
-  const addTaskMtn = useMutation(api.tasks.mutations.addTask);
+  const addTaskMtn = useMutation(
+    api.tasks.mutations.addTask,
+  ).withOptimisticUpdate((localStore, args) => {
+    const { sessionId, description, duration, type } = args;
+    const currentValue = localStore.getQuery(api.tasks.queries.listTasks, {
+      sessionId: sessionId as Id<"sessions">,
+    });
+    if (currentValue !== undefined) {
+      const newTaskItem: Doc<"tasks"> = {
+        _id: crypto.randomUUID() as Id<"tasks">,
+        elapsed: 0,
+        _creationTime: new Date().getTime(),
+        userId: "1" as Id<"users">,
+        completed: false,
+        description: description,
+        duration: duration,
+        type: type,
+        sessionId: sessionId as Id<"sessions">,
+      };
+
+      localStore.setQuery(
+        api.tasks.queries.listTasks,
+        { sessionId: sessionId },
+        [...currentValue, newTaskItem],
+      );
+    }
+  });
+
   const session = useQuery(api.session.queries.getSession, {
     sessionId: sessionId,
   });
@@ -70,6 +98,16 @@ export function SyncedTasks({
     await completeTaskMtn({ sessionId: sessionId as Id<"sessions"> });
   };
 
+  const updateTaskMtn = useMutation(api.tasks.mutations.updateTask);
+  const handleUpdateTask = async (taskId: string, task: Partial<Task>) => {
+    await updateTaskMtn({
+      taskId: taskId as Id<"tasks">,
+      description: task.description,
+      duration: task.duration,
+      type: task.type,
+    });
+  };
+
   const tasksQuery = usePreloadedQuery(preloadedTasks);
 
   const tasks =
@@ -88,6 +126,7 @@ export function SyncedTasks({
         addTask: handleAddTask,
         removeTask: handleRemoveTask,
         completeTask: handleCompleteTask,
+        updateTask: handleUpdateTask,
       }}
       currentTaskId={session?.session.currentTaskId}
       tasks={tasks}
