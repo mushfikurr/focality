@@ -11,12 +11,20 @@ import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 
 interface SyncedTasksProps {
-  sessionId: string;
+  sessionId: Id<"sessions">;
+  preloadedSession: Preloaded<typeof api.session.queries.getSession>;
   preloadedTasks: Preloaded<typeof api.tasks.queries.listTasks>;
 }
 
-export function SyncedTasks({ sessionId, preloadedTasks }: SyncedTasksProps) {
+export function SyncedTasks({
+  preloadedSession,
+  sessionId,
+  preloadedTasks,
+}: SyncedTasksProps) {
   const addTaskMtn = useMutation(api.tasks.mutations.addTask);
+  const session = useQuery(api.session.queries.getSession, {
+    sessionId: sessionId,
+  });
 
   const handleAddBreak = async () => {
     await addTaskMtn({
@@ -81,6 +89,7 @@ export function SyncedTasks({ sessionId, preloadedTasks }: SyncedTasksProps) {
         removeTask: handleRemoveTask,
         completeTask: handleCompleteTask,
       }}
+      currentTaskId={session?.session.currentTaskId}
       tasks={tasks}
     />
   );

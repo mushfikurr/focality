@@ -19,28 +19,21 @@ function AuthenticatedStats() {
         <CardTitle>Your Stats</CardTitle>
       </CardHeader>
       <CardContent className="min-h-0 flex-1">
-        <Scroller className="max-h-full overflow-auto">
+        <Scroller className="h-full max-h-full overflow-auto text-sm">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs">Today's Focus Time</span>
-              <span className="text-xs font-medium">1h 15m</span>
+              <span>Today's Focus Time</span>
+              <span className="font-medium">1h 15m</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs">Sessions Completed</span>
-              <span className="text-xs font-medium">3</span>
+              <span>Current Streak</span>
+              <span className="font-medium text-[#D6A45D]">5 days</span>
             </div>
 
             <div className="flex items-center justify-between">
-              <span className="text-xs">Current Streak</span>
-              <span className="text-xs font-medium text-[#D6A45D]">5 days</span>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-xs">XP Earned Today</span>
-              <span className="text-xs font-medium text-[#D6A45D]">
-                +150 XP
-              </span>
+              <span>XP Earned Today</span>
+              <span className="font-medium text-[#D6A45D]">+150 XP</span>
             </div>
           </div>
         </Scroller>

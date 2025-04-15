@@ -64,7 +64,11 @@ export default async function SessionIdPage({
         </div>
 
         <div className="min-h-0 flex-1">
-          <SyncedTasks sessionId={slug} preloadedTasks={preloadedTasks} />
+          <SyncedTasks
+            sessionId={slug as Id<"sessions">}
+            preloadedSession={preloadedSession}
+            preloadedTasks={preloadedTasks}
+          />
         </div>
       </div>
 

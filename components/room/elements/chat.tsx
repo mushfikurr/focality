@@ -75,7 +75,7 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
       >
         <div
           className={cn(
-            "bg-card h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-xs opacity-100 transition-opacity duration-300 ease-out",
+            "h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-sm opacity-100 transition-opacity duration-300 ease-out",
             disabled && "border-muted opacity-50",
           )}
         >

@@ -3,7 +3,7 @@
 import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
-import { Users2 } from "lucide-react";
+import { Link, Users2 } from "lucide-react";
 import { useEffect } from "react";
 import { AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
@@ -69,7 +69,6 @@ export function SyncedRoom(props: SyncedRoomProps) {
     <Card className="flex h-full flex-col gap-2">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <h1>Room: {room.shareId}</h1>
           <div className="flex items-center">
             <div className="flex">
               {participants?.map((p) => (
@@ -83,6 +82,9 @@ export function SyncedRoom(props: SyncedRoomProps) {
               <Users2 />
             </Button>
           </div>
+          <h1 className="text-secondary-foreground inline-flex items-center gap-2 border border-dashed p-1 px-3 text-xs">
+            {room.shareId}
+          </h1>
         </CardTitle>
       </CardHeader>
 

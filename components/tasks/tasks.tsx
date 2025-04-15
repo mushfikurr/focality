@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -25,13 +26,14 @@ interface TasksProps {
     removeTask: ActionFunctionWithId;
     completeTask: ActionFunctionWithId;
   };
+  currentTaskId?: string;
   pending?: {
     removeTask?: boolean;
   };
 }
 
 export default function Tasks(props: TasksProps) {
-  const { tasks, actions } = props;
+  const { tasks, actions, currentTaskId } = props;
 
   const tasksCompleted = tasks?.filter((t: Task) => t.completed).length;
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
@@ -50,15 +52,25 @@ export default function Tasks(props: TasksProps) {
             </Button>
           </div>
         </CardTitle>
+        <CardDescription className="text-balance">
+          Treat these as focused session blocks. You can add, remove, and
+          complete them as you go.
+        </CardDescription>
       </CardHeader>
-      <CardContent className="flex h-full flex-col overflow-auto">
-        <Scroller className="max-h-full overflow-auto">
+      <CardContent className="flex h-full flex-col overflow-auto py-1">
+        <Scroller
+          className={cn(
+            "max-h-full overflow-auto",
+            !!tasks.length && "shadow-sm",
+          )}
+        >
           {!!tasks?.length ? (
             tasks.map((t: Task) => (
               <TaskItem
                 key={t.id}
                 task={t}
                 removeTask={() => actions.removeTask(t.id)}
+                currentTaskId={currentTaskId}
               />
             ))
           ) : (
@@ -88,7 +100,7 @@ export default function Tasks(props: TasksProps) {
 
 function EmptyTasks() {
   return (
-    <p className="text-muted-foreground text-sm font-semibold">
+    <p className="text-muted-foreground text-sm">
       You currently have no tasks. Get started by adding one!
     </p>
   );

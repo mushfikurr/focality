@@ -37,7 +37,7 @@ export function Timer(props: TimerProps) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
           <h1>{title ? title : "Current Session"}</h1>
-          <span className="text-primary flex items-center gap-2.5 text-xs font-medium">
+          <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
             <p>●</p>
             <p className="mb-[2px]">{isRunning ? "Working" : "Paused"}</p>
           </span>
@@ -49,7 +49,7 @@ export function Timer(props: TimerProps) {
             <h2 className="mb-2 font-mono text-6xl font-semibold tracking-tight">
               {formatTime(timer)}
             </h2>
-            <p className="text-muted-foreground text-xs">
+            <p className="text-muted-foreground text-sm">
               {currentTask
                 ? `${formatType(currentTask.type)}: ${currentTask.description}`
                 : "No current task"}
@@ -77,7 +77,7 @@ export function Timer(props: TimerProps) {
         </div>
       </CardContent>
       <CardFooter>
-        <div className="flex w-full flex-col gap-3 text-xs">
+        <div className="flex w-full flex-col gap-3 text-sm">
           <div className="flex items-center justify-between gap-2 font-medium">
             <p>Task progress</p>
             <p>{Math.floor(progressPercentage)}%</p>

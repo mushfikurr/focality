@@ -129,6 +129,7 @@ export function SyncedTimer({
         startTimer: startSession,
         resetTimer: resetSessionTimer,
       }}
+      title={session.title}
       timer={currentTask ? localTimeLeft / 1000 : 0}
       isRunning={session.running}
       currentTask={currentTaskProp}
