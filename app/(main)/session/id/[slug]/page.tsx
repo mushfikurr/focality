@@ -13,6 +13,7 @@ export default async function SessionIdPage({
   params: { slug: string };
 }) {
   const { slug } = await params;
+  const preloadedUser = await preloadQuery(api.user.currentUser);
   const preloadedSession = await preloadQuery(
     api.session.queries.getSession,
     {
@@ -54,7 +55,7 @@ export default async function SessionIdPage({
   return (
     <div className="container mx-auto flex h-full min-h-0 gap-4">
       {/* Left Column */}
-      <div className="flex max-h-full w-3/5 flex-col gap-4 py-8">
+      <div className="flex max-h-full w-4/6 flex-col gap-5 py-5">
         <div className="flex-[1]">
           <SyncedTimer
             preloadedTasks={preloadedTasks}
@@ -62,15 +63,16 @@ export default async function SessionIdPage({
           />
         </div>
 
-        <div className="min-h-[250px] flex-1">
+        <div className="min-h-0 flex-1">
           <SyncedTasks sessionId={slug} preloadedTasks={preloadedTasks} />
         </div>
       </div>
 
       {/* Right Column */}
-      <div className="flex max-h-full min-h-0 w-2/5 flex-col gap-4 py-8">
+      <div className="flex max-h-full min-h-0 w-2/6 flex-col gap-5 py-5">
         <div className="min-h-[200px] flex-[3]">
           <SyncedRoom
+            preloadedUser={preloadedUser}
             preloadedSession={preloadedSession}
             preloadedChat={preloadedChat}
             preloadedRoom={preloadedRoom}
