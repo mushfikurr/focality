@@ -12,6 +12,7 @@ import {
 interface TimerProps {
   timer: number;
   isRunning: boolean;
+  title?: string;
   actions: {
     startTimer: any;
     pauseTimer: any;
@@ -22,7 +23,8 @@ interface TimerProps {
   tasks: Task[];
 }
 export function Timer(props: TimerProps) {
-  const { timer, isRunning, actions, currentTask, tasks, nextTask } = props;
+  const { timer, isRunning, actions, currentTask, tasks, title, nextTask } =
+    props;
 
   const progressPercentage = currentTask
     ? ((currentTask.duration - timer) / currentTask.duration) * 100
@@ -34,7 +36,7 @@ export function Timer(props: TimerProps) {
     <Card className="flex h-full flex-col justify-between">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <h1>Current Session</h1>
+          <h1>{title ? title : "Current Session"}</h1>
           <span className="text-primary flex items-center gap-2.5 text-xs font-medium">
             <p>●</p>
             <p className="mb-[2px]">{isRunning ? "Working" : "Paused"}</p>

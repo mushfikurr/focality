@@ -30,7 +30,7 @@ export function SyncedTasks({ sessionId, preloadedTasks }: SyncedTasksProps) {
   const handleAddTask = async () => {
     await addTaskMtn({
       type: "task",
-      duration: 25 * 60 * 1000,
+      duration: 1 * 60 * 1000,
       description: "Task",
       sessionId: sessionId as Id<"sessions">,
     });
@@ -55,9 +55,11 @@ export function SyncedTasks({ sessionId, preloadedTasks }: SyncedTasksProps) {
     await removeTaskMtn({ taskId: taskId as Id<"tasks"> });
   };
 
-  const completeTaskMtn = useMutation(api.tasks.mutations.completeTask);
+  const completeTaskMtn = useMutation(
+    api.tasks.mutations.completeTaskIfElapsed,
+  );
   const handleCompleteTask = async (taskId: string) => {
-    await completeTaskMtn({ taskId: taskId as Id<"tasks"> });
+    await completeTaskMtn({ sessionId: sessionId as Id<"sessions"> });
   };
 
   const tasksQuery = usePreloadedQuery(preloadedTasks);

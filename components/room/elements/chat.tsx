@@ -2,11 +2,10 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MessageSquare, Send } from "lucide-react";
-import Section from "./section";
-import { useEffect, useRef, useState } from "react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Scroller } from "@/components/ui/scroller";
+import { cn } from "@/lib/utils";
+import { Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 
 interface ChatMessage {
   id: string;
@@ -69,9 +68,17 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
   }, [messages]);
 
   return (
-    <div className="flex h-full flex-col gap-2">
-      <Scroller className="h-full max-h-full overflow-auto" ref={scrollRef}>
-        <div className="bg-card h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-xs">
+    <div className={cn("flex h-full flex-col gap-2")}>
+      <Scroller
+        className={cn("h-full max-h-full overflow-auto")}
+        ref={scrollRef}
+      >
+        <div
+          className={cn(
+            "bg-card h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-xs opacity-100 transition-opacity duration-300 ease-out",
+            disabled && "border-muted opacity-50",
+          )}
+        >
           {messages.length > 0 ? (
             messages.map((msg) => (
               <p key={msg.id} className="text-muted-foreground">

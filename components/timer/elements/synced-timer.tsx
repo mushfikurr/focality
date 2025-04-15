@@ -23,6 +23,9 @@ export function SyncedTimer({
   const resetSessionTimerMutation = useMutation(
     api.session.mutations.resetSessionTimer,
   );
+  const completeIfElapsed = useMutation(
+    api.tasks.mutations.completeTaskIfElapsed,
+  );
 
   const getClientTimeLeft = () => {
     if (!currentTask) return 0;
@@ -41,74 +44,72 @@ export function SyncedTimer({
   const [localTimeLeft, setLocalTimeLeft] = useState(getClientTimeLeft());
   const localStartRef = useRef<number | null>(null);
 
-  // Sync when session or task updates
   useEffect(() => {
-    const now = Date.now();
     const clientLeft = getClientTimeLeft();
     setLocalTimeLeft(clientLeft);
 
-    if (session.running) {
-      localStartRef.current = now;
+    if (session.running && session.startTime) {
+      localStartRef.current = new Date(session.startTime).getTime();
     } else {
       localStartRef.current = null;
     }
   }, [session, currentTask]);
 
-  // More accurate ticking
   useEffect(() => {
-    if (!session.running) return;
+    if (!session.running || !currentTask) return;
 
     const interval = setInterval(() => {
       if (!localStartRef.current) return;
 
       const now = Date.now();
-      const elapsedSinceLocalStart = now - localStartRef.current;
-      const totalElapsed = (currentTask?.elapsed ?? 0) + elapsedSinceLocalStart;
-      const timeLeft = (currentTask?.duration ?? 0) - totalElapsed;
+      const elapsedSinceStart = now - localStartRef.current;
+      const totalElapsed = (currentTask.elapsed ?? 0) + elapsedSinceStart;
+      const timeLeft = (currentTask.duration ?? 0) - totalElapsed;
 
-      setLocalTimeLeft(Math.max(0, timeLeft));
-    }, 250); // use a tighter tick for smoother display
+      const clampedTime = Math.max(0, timeLeft);
+      setLocalTimeLeft(clampedTime);
+
+      if (clampedTime <= 0) {
+        completeIfElapsed({ sessionId: session._id }).catch(console.error);
+      }
+    }, 250);
 
     return () => clearInterval(interval);
   }, [session.running, currentTask]);
 
   // Format tasks
-  const currentTaskProp = currentTask
-    ? ({
+  const currentTaskProp: Task | undefined = currentTask
+    ? {
         id: currentTask._id,
         completed: currentTask.completed,
         description: currentTask.description,
         duration: currentTask.duration / 1000,
         type: currentTask.type,
-      } satisfies Task)
+      }
     : undefined;
 
-  const tasksProp = tasks.map(
-    (task) =>
-      ({
-        id: task._id,
-        completed: task.completed,
-        description: task.description,
-        duration: task.duration / 1000,
-        type: task.type,
-      }) satisfies Task,
-  );
+  const tasksProp: Task[] = tasks.map((task) => ({
+    id: task._id,
+    completed: task.completed,
+    description: task.description,
+    duration: task.duration / 1000,
+    type: task.type,
+  }));
 
   const currentTaskIndex = tasks.findIndex((task) => !task.completed);
   const nextTask =
     currentTaskIndex >= 0 ? tasks[currentTaskIndex + 1] : undefined;
 
-  const nextTaskProp = nextTask
-    ? ({
+  const nextTaskProp: Task | undefined = nextTask
+    ? {
         id: nextTask._id,
         completed: nextTask.completed,
         description: nextTask.description,
         duration: nextTask.duration / 1000,
         type: nextTask.type,
-      } satisfies Task)
+      }
     : undefined;
 
-  // Actions
   const startSession = async () => {
     await startSessionMutation({ sessionId: session._id });
   };
@@ -128,7 +129,7 @@ export function SyncedTimer({
         startTimer: startSession,
         resetTimer: resetSessionTimer,
       }}
-      timer={localTimeLeft / 1000} // still pass in seconds
+      timer={currentTask ? localTimeLeft / 1000 : 0}
       isRunning={session.running}
       currentTask={currentTaskProp}
       nextTask={nextTaskProp}
