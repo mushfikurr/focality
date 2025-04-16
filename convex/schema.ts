@@ -13,6 +13,9 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
     roomId: v.optional(v.id("rooms")),
+    streak: v.optional(v.number()),
+    level: v.optional(v.number()),
+    xp: v.optional(v.number()),
   }).index("by_room", ["roomId"]),
 
   sessions: defineTable({

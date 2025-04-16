@@ -4,12 +4,12 @@ import { api } from "@/convex/_generated/api";
 import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { MoreVertical } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Chat } from "./elements/chat";
-import ParticipantList from "./elements/participant-list";
+import ParticipantsTrigger from "./elements/participants-trigger";
 
 interface SyncedRoomProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
@@ -61,6 +61,8 @@ export function SyncedRoom(props: SyncedRoomProps) {
     joinRoomMtn({ roomId: room._id });
   }, []);
 
+  const [isParticipantsOpen, setIsParticipantsOpen] = useState(false);
+
   return (
     <Card className="flex h-full flex-col gap-2">
       <CardHeader>
@@ -71,7 +73,11 @@ export function SyncedRoom(props: SyncedRoomProps) {
               {room.shareId}
             </h2>
             <div className="flex h-full items-center">
-              <ParticipantList participants={participants} />
+              <ParticipantsTrigger
+                setIsParticipantsOpen={setIsParticipantsOpen}
+                isParticipantsOpen={isParticipantsOpen}
+                participants={participants}
+              />
             </div>
           </div>
         </CardTitle>
@@ -79,8 +85,11 @@ export function SyncedRoom(props: SyncedRoomProps) {
 
       <CardContent className="min-h-0 flex-1">
         <Chat
+          isParticipantsOpen={isParticipantsOpen}
+          setIsParticipantsOpen={setIsParticipantsOpen}
           onSendMessage={onSendMessage}
           messages={messages}
+          participants={participants}
           disabled={session.session.running}
         />
       </CardContent>

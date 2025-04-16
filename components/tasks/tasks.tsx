@@ -66,7 +66,7 @@ export default function Tasks(props: TasksProps) {
         <Scroller
           className={cn(
             "max-h-full overflow-auto",
-            !!tasks.length && "border-b shadow-sm",
+            !!tasks.length && "border-b shadow-xs",
           )}
         >
           {!!tasks?.length ? (

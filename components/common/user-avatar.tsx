@@ -1,50 +1,38 @@
 import { Doc } from "@/convex/_generated/dataModel";
+import { Clock, Crown, Star, Trophy, User2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Badge } from "../ui/badge";
-import {
-  Ban,
-  Clock,
-  Crown,
-  MessageCircle,
-  Star,
-  Trophy,
-  UserPlus,
-  Volume2,
-} from "lucide-react";
-import { Separator } from "../ui/separator";
 import { Button } from "../ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
+import { Separator } from "../ui/separator";
 
 type User = Doc<"users">;
 
 export default function UserAvatar({ user }: { user: User }) {
   return (
-    <Popover key={user._id}>
+    <Popover>
       <PopoverTrigger>
-        <Avatar
-          key={user._id}
-          className="h-7 w-7 rounded-none border shadow-sm"
-        >
+        <Avatar className="h-7 w-7 rounded-none border shadow-sm">
           <AvatarImage src={user.image} />
           <AvatarFallback className="h-full w-full rounded-none">
             {user.name?.[0] ?? "A"}
           </AvatarFallback>
         </Avatar>
       </PopoverTrigger>
-      <PopoverContent className="max-w-[500px]">
+      <PopoverContent className="bg-popover max-w-xl shadow-md">
         <UserCard user={user} />
       </PopoverContent>
     </Popover>
   );
 }
 
-function UserCard({ user }: { user: User }) {
+export function UserCard({ user }: { user: User }) {
   return (
     <div className="flex flex-col">
       {/* Header with background */}
       <div className="rounded-t-lg p-0">
         <div className="flex gap-2.5">
-          <Avatar className="h-14 w-14 rounded-none border">
+          <Avatar className="h-14 w-14 rounded-none border shadow-xs">
             <AvatarImage src={user.image} alt={user.name} />
             <AvatarFallback>
               {user.name?.substring(0, 2).toUpperCase()}
@@ -81,10 +69,10 @@ function UserCard({ user }: { user: User }) {
       </div>
 
       {/* User stats */}
-      <div className="mx-auto grid grid-cols-2 gap-x-8 gap-y-3 py-4">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-3 py-4">
         <div className="col-span-1 flex items-center gap-2">
-          <div className="bg-primary/10 flex h-8 w-8 items-center justify-center">
-            <Clock className="icon-primary h-4 w-4" />
+          <div className="bg-primary/10 border-primary/20 flex h-8 w-8 items-center justify-center border shadow-sm">
+            <Clock className="icon-primary text-primary h-4 w-4" />
           </div>
           <div>
             <p className="text-muted-foreground text-xs">Focus</p>
@@ -92,7 +80,7 @@ function UserCard({ user }: { user: User }) {
           </div>
         </div>
         <div className="col-span-1 flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center bg-amber-500/10">
+          <div className="flex h-8 w-8 items-center justify-center border border-amber-500/20 bg-amber-500/10 shadow-sm">
             <Trophy className="h-4 w-4 text-amber-500" />
           </div>
           <div>
@@ -101,7 +89,7 @@ function UserCard({ user }: { user: User }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center bg-purple-500/10">
+          <div className="flex h-8 w-8 items-center justify-center border border-purple-500/20 bg-purple-500/10 shadow-sm">
             <Star className="h-4 w-4 text-purple-500" />
           </div>
           <div>
@@ -110,7 +98,7 @@ function UserCard({ user }: { user: User }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex h-8 w-8 items-center justify-center bg-blue-500/10">
+          <div className="flex h-8 w-8 items-center justify-center border border-blue-500/20 bg-blue-500/10 shadow-sm">
             <Trophy className="h-4 w-4 text-blue-500" />
           </div>
           <div>
@@ -124,25 +112,9 @@ function UserCard({ user }: { user: User }) {
 
       {/* Action buttons */}
       <div className="grid grid-cols-2 gap-2 pt-3">
-        <Button variant="secondary" size="sm" className="w-full">
-          <MessageCircle className="h-4 w-4" />
-          Message
-        </Button>
-        <Button variant="secondary" size="sm" className="w-full">
-          <Volume2 className="h-4 w-4" />
-          Call
-        </Button>
         <Button variant="outline" size="sm" className="w-full">
-          <UserPlus className="h-4 w-4" />
-          Add Friend
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="text-destructive hover:text-destructive w-full"
-        >
-          <Ban className="h-4 w-4" />
-          Block
+          <User2 className="h-4 w-4" />
+          View Profile
         </Button>
       </div>
     </div>

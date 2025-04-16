@@ -39,7 +39,7 @@ export function Timer(props: TimerProps) {
         <CardTitle className="flex items-center justify-between gap-3">
           <h1>{title ? title : "Current Session"}</h1>
           <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
-            <p>●</p>
+            <span className={`bg-primary h-2 w-2`}></span>
             <p className="mb-[2px]">{isRunning ? "Working" : "Paused"}</p>
           </span>
         </CardTitle>
@@ -83,7 +83,7 @@ export function Timer(props: TimerProps) {
             <p>Task progress</p>
             <p>{Math.floor(progressPercentage)}%</p>
           </div>
-          <Progress className="rounded-none" value={progressPercentage} />
+          <Progress className="h-3 rounded-none" value={progressPercentage} />
           <div className="text-muted-foreground flex justify-between gap-2">
             {currentTask ? (
               <p>

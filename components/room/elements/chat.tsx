@@ -1,11 +1,11 @@
-"use client";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Scroller } from "@/components/ui/scroller";
+import { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { ParticipantsPopover } from "./participants-inline-modal";
 
 interface ChatMessage {
   id: string;
@@ -17,6 +17,9 @@ interface ChatProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   disabled: boolean;
+  isParticipantsOpen: boolean;
+  setIsParticipantsOpen: (isOpen: boolean) => void;
+  participants: Doc<"users">[];
 }
 
 function ChatInput({
@@ -60,49 +63,76 @@ function ChatInput({
   );
 }
 
-export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
+export function Chat({
+  messages,
+  onSendMessage,
+  disabled,
+  isParticipantsOpen,
+  setIsParticipantsOpen,
+  participants,
+}: ChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const lastMessageRef = useRef<HTMLDivElement>(null); // Ref for the last message
 
   useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
+    // Scroll the last message into view when messages change
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+    }
   }, [messages]);
 
   return (
-    <div className={cn("flex h-full flex-col gap-2")}>
-      <Scroller
-        className={cn("h-full max-h-full overflow-auto")}
-        ref={scrollRef}
-      >
-        <div
-          className={cn(
-            "h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-sm opacity-100 transition-opacity duration-300 ease-out",
-            disabled && "border-muted opacity-70",
-          )}
+    <div className={cn("relative flex h-full flex-col gap-2 shadow-xs")}>
+      {/* Participants Inline Modal */}
+      <ParticipantsPopover
+        setIsParticipantsOpen={setIsParticipantsOpen}
+        isParticipantsOpen={isParticipantsOpen}
+        participants={participants}
+      />
+
+      <div className="flex-1 overflow-hidden">
+        <Scroller
+          className={cn("h-full max-h-full overflow-auto")}
+          ref={scrollRef}
         >
-          {messages.length > 0 ? (
-            messages.map((msg) => (
-              <p key={msg.id} className="text-muted-foreground">
-                <strong className="text-card-foreground">{msg.sender}:</strong>{" "}
-                {msg.content}
-              </p>
-            ))
-          ) : (
-            <>
-              <p className="">
-                Welcome to <span className="italic">focality</span>. Get started
-                by adding a task, and start your focus session.
-              </p>
-              <p className="text-muted-foreground">
-                You can invite others to join your session by sending them the
-                link or the room ID.
-              </p>
-              <p className="text-muted-foreground">
-                The chat will be disabled when you start a session.
-              </p>
-            </>
-          )}
-        </div>
-      </Scroller>
+          <div
+            className={cn(
+              "h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-sm opacity-100 transition-opacity duration-300 ease-out",
+              disabled && "border-muted opacity-70",
+            )}
+          >
+            {messages.length > 0 ? (
+              messages.map((msg, index) => (
+                <p
+                  key={msg.id}
+                  className="text-muted-foreground"
+                  ref={index === messages.length - 1 ? lastMessageRef : null} // Set ref to the last message
+                >
+                  <strong className="text-card-foreground">
+                    {msg.sender}:
+                  </strong>{" "}
+                  {msg.content}
+                </p>
+              ))
+            ) : (
+              <>
+                <p className="">
+                  Welcome to <span className="italic">focality</span>. Get
+                  started by adding a task, and start your focus session.
+                </p>
+                <p className="text-muted-foreground">
+                  You can invite others to join your session by sending them the
+                  link or the room ID.
+                </p>
+                <p className="text-muted-foreground">
+                  The chat will be disabled when you start a session.
+                </p>
+              </>
+            )}
+          </div>
+        </Scroller>
+      </div>
+
       <ChatInput onSendMessage={onSendMessage} disabled={disabled} />
     </div>
   );
