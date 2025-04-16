@@ -41,6 +41,9 @@ export function TaskItem(props: TaskItemProps) {
     defaultValues: {
       description: task.description,
     },
+    values: {
+      description: task.description,
+    },
   });
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
