@@ -9,6 +9,7 @@ import { AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Chat } from "./elements/chat";
+import ParticipantList from "./elements/participant-list";
 
 interface SyncedRoomProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
@@ -31,7 +32,6 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const chatMessages = usePreloadedQuery(preloadedChat);
   const session = usePreloadedQuery(preloadedSession);
   const user = usePreloadedQuery(preloadedUser);
-  console.log(chatMessages);
   const messages = chatMessages.filter(Boolean).map((m) => {
     if (m.sender?._id === user?._id) {
       return {
@@ -64,28 +64,20 @@ export function SyncedRoom(props: SyncedRoomProps) {
   return (
     <Card className="flex h-full flex-col gap-2">
       <CardHeader>
-        <CardTitle className="flex items-center justify-between gap-3">
-          <div className="flex h-full items-center">
-            <div className="flex">
-              {participants?.slice(0, 3).map((p) => (
-                <Avatar key={p._id} className="h-9 border last:border-r-0">
-                  <AvatarImage src={p.image} />
-                  <AvatarFallback>{p?.name?.[0] ?? "A"}</AvatarFallback>
-                </Avatar>
-              ))}
+        <CardTitle className="flex flex-col gap-4">
+          <h1>Session Chat</h1>
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="text-secondary-foreground inline-flex items-center gap-2 border border-dashed p-1 px-3 text-xs">
+              {room.shareId}
+            </h2>
+            <div className="flex h-full items-center">
+              <ParticipantList participants={participants} />
             </div>
-            <Button variant="outline" size="icon">
-              <MoreVertical />
-            </Button>
           </div>
-          <h1 className="text-secondary-foreground inline-flex items-center gap-2 border border-dashed p-1 px-3 text-xs">
-            {room.shareId}
-          </h1>
         </CardTitle>
       </CardHeader>
 
       <CardContent className="min-h-0 flex-1">
-        {/* <PariticpantList participants={participantList} /> */}
         <Chat
           onSendMessage={onSendMessage}
           messages={messages}
