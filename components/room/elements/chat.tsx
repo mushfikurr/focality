@@ -76,7 +76,7 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
         <div
           className={cn(
             "h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-sm opacity-100 transition-opacity duration-300 ease-out",
-            disabled && "border-muted opacity-50",
+            disabled && "border-muted opacity-70",
           )}
         >
           {messages.length > 0 ? (
@@ -88,7 +88,7 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
             ))
           ) : (
             <>
-              <p className="text-muted-foreground">
+              <p className="">
                 Welcome to <span className="italic">focality</span>. Get started
                 by adding a task, and start your focus session.
               </p>

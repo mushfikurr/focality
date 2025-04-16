@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
+import { Progress } from "@/components/ui/progress";
 
 interface TimerProps {
   timer: number;
@@ -82,12 +83,7 @@ export function Timer(props: TimerProps) {
             <p>Task progress</p>
             <p>{Math.floor(progressPercentage)}%</p>
           </div>
-          <div className="bg-muted relative h-3 border">
-            <div
-              className="bg-primary h-full"
-              style={{ width: `${progressPercentage}%` }}
-            />
-          </div>
+          <Progress className="rounded-none" value={progressPercentage} />
           <div className="text-muted-foreground flex justify-between gap-2">
             {currentTask ? (
               <p>

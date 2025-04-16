@@ -169,9 +169,9 @@ const Editable = React.forwardRef<HTMLDivElement, EditableProps>(
             <div className="absolute right-1 flex">
               <Button
                 type="submit"
-                variant="ghost"
+                variant="outline"
                 size="icon"
-                className="h-full"
+                className="h-full border-r-0"
                 onClick={handleConfirm}
                 disabled={disabled}
               >
@@ -179,7 +179,7 @@ const Editable = React.forwardRef<HTMLDivElement, EditableProps>(
               </Button>
               <Button
                 type="button"
-                variant="ghost"
+                variant="outline"
                 size="icon"
                 className="hover:bg-destructive h-full"
                 onClick={handleCancel}
