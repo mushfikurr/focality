@@ -22,33 +22,7 @@ export function SyncedTasks({
   sessionId,
   preloadedTasks,
 }: SyncedTasksProps) {
-  const addTaskMtn = useMutation(
-    api.tasks.mutations.addTask,
-  ).withOptimisticUpdate((localStore, args) => {
-    const { sessionId, description, duration, type } = args;
-    const currentValue = localStore.getQuery(api.tasks.queries.listTasks, {
-      sessionId: sessionId as Id<"sessions">,
-    });
-    if (currentValue !== undefined) {
-      const newTaskItem: Doc<"tasks"> = {
-        _id: crypto.randomUUID() as Id<"tasks">,
-        elapsed: 0,
-        _creationTime: new Date().getTime(),
-        userId: "1" as Id<"users">,
-        completed: false,
-        description: description,
-        duration: duration,
-        type: type,
-        sessionId: sessionId as Id<"sessions">,
-      };
-
-      localStore.setQuery(
-        api.tasks.queries.listTasks,
-        { sessionId: sessionId },
-        [...currentValue, newTaskItem],
-      );
-    }
-  });
+  const addTaskMtn = useMutation(api.tasks.mutations.addTask);
 
   const session = useQuery(api.session.queries.getSession, {
     sessionId: sessionId,
