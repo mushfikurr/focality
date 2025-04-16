@@ -153,7 +153,7 @@ export const startSession = mutation({
       console.log("start time for session is now", session.startTime);
     }
 
-    await ctx.db.patch(args.sessionId, {
+    return await ctx.db.patch(args.sessionId, {
       running: true,
     });
   },

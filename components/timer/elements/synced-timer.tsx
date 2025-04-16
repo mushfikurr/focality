@@ -2,9 +2,15 @@
 
 import { Task } from "@/components/providers/LocalPomodoroProvider";
 import { api } from "@/convex/_generated/api";
-import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
+import {
+  Preloaded,
+  useMutation,
+  usePreloadedQuery,
+  useQuery,
+} from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { Timer } from "./timer";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface SyncedTimerProps {
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
@@ -18,123 +24,101 @@ export function SyncedTimer({
   const { session, currentTask } = usePreloadedQuery(preloadedSession);
   const tasks = usePreloadedQuery(preloadedTasks);
 
-  const startSessionMutation = useMutation(api.session.mutations.startSession);
-  const pauseSessionMutation = useMutation(api.session.mutations.pauseSession);
-  const resetSessionTimerMutation = useMutation(
+  const startSession = useMutation(api.session.mutations.startSession);
+  const pauseSession = useMutation(api.session.mutations.pauseSession);
+  const resetSessionTimer = useMutation(
     api.session.mutations.resetSessionTimer,
   );
   const completeIfElapsed = useMutation(
     api.tasks.mutations.completeTaskIfElapsed,
   );
 
-  const getClientTimeLeft = () => {
-    if (!currentTask) return 0;
+  const [localTimeLeft, setLocalTimeLeft] = useState(0);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-    const now = Date.now();
-    const start = session.startTime
-      ? new Date(session.startTime).getTime()
-      : null;
-    const elapsedSinceStart = session.running && start ? now - start : 0;
-    const totalElapsed = (currentTask.elapsed ?? 0) + elapsedSinceStart;
+  const serverNow = useQuery(api.time.queries.getCurrentServerTime);
 
-    const timeLeft = (currentTask.duration ?? 0) - totalElapsed;
-    return Math.max(0, timeLeft);
-  };
-
-  const [localTimeLeft, setLocalTimeLeft] = useState(getClientTimeLeft());
-  const localStartRef = useRef<number | null>(null);
+  const [timeOffset, setTimeOffset] = useState(0);
 
   useEffect(() => {
-    const clientLeft = getClientTimeLeft();
-    setLocalTimeLeft(clientLeft);
-
-    if (session.running && session.startTime) {
-      localStartRef.current = new Date(session.startTime).getTime();
-    } else {
-      localStartRef.current = null;
+    if (serverNow) {
+      const localNow = Date.now();
+      setTimeOffset(serverNow - localNow);
     }
+  }, [serverNow]);
+
+  const calculateTimeLeft = () => {
+    if (!currentTask) return 0;
+
+    const now = Date.now() + timeOffset; // Adjust for clock drift
+    const taskDuration = currentTask.duration ?? 0;
+    const previouslyElapsed = currentTask.elapsed ?? 0;
+
+    if (!session.running || !session.startTime) {
+      return Math.max(0, taskDuration - previouslyElapsed);
+    }
+
+    const sessionStart = new Date(session.startTime).getTime();
+    const elapsedSinceStart = now - sessionStart;
+    const totalElapsed = previouslyElapsed + elapsedSinceStart;
+
+    return Math.max(0, taskDuration - totalElapsed);
+  };
+
+  // Sync timer on initial render and when session/task changes
+  useEffect(() => {
+    const initialTimeLeft = calculateTimeLeft();
+    setLocalTimeLeft(initialTimeLeft);
   }, [session, currentTask]);
 
+  // Setup ticking interval
   useEffect(() => {
     if (!session.running || !currentTask) return;
 
-    const interval = setInterval(() => {
-      if (!localStartRef.current) return;
+    const tick = () => {
+      const timeLeft = calculateTimeLeft();
+      setLocalTimeLeft(timeLeft);
 
-      const now = Date.now();
-      const elapsedSinceStart = now - localStartRef.current;
-      const totalElapsed = (currentTask.elapsed ?? 0) + elapsedSinceStart;
-      const timeLeft = (currentTask.duration ?? 0) - totalElapsed;
-
-      const clampedTime = Math.max(0, timeLeft);
-      setLocalTimeLeft(clampedTime);
-
-      if (clampedTime <= 0) {
+      if (timeLeft <= 0) {
         completeIfElapsed({ sessionId: session._id }).catch(console.error);
       }
-    }, 250);
+    };
 
-    return () => clearInterval(interval);
-  }, [session.running, currentTask]);
+    intervalRef.current = setInterval(tick, 250);
+    return () => clearInterval(intervalRef.current!);
+  }, [session.running, session.startTime, currentTask?.elapsed]);
 
-  // Format tasks
-  const currentTaskProp: Task | undefined = currentTask
-    ? {
-        id: currentTask._id,
-        completed: currentTask.completed,
-        description: currentTask.description,
-        duration: currentTask.duration / 1000,
-        type: currentTask.type,
-      }
-    : undefined;
-
-  const tasksProp: Task[] = tasks.map((task) => ({
+  // Task formatting for <Timer /> props
+  const formatTask = (task: Doc<"tasks">): Task => ({
     id: task._id,
     completed: task.completed,
     description: task.description,
     duration: task.duration / 1000,
     type: task.type,
-  }));
+  });
 
-  const currentTaskIndex = tasks.findIndex((task) => !task.completed);
+  const currentTaskProp = currentTask ? formatTask(currentTask) : undefined;
+
+  const tasksProp: Task[] = tasks.map(formatTask);
+
+  const currentTaskIndex = tasks.findIndex((t) => !t.completed);
   const nextTask =
     currentTaskIndex >= 0 ? tasks[currentTaskIndex + 1] : undefined;
-
-  const nextTaskProp: Task | undefined = nextTask
-    ? {
-        id: nextTask._id,
-        completed: nextTask.completed,
-        description: nextTask.description,
-        duration: nextTask.duration / 1000,
-        type: nextTask.type,
-      }
-    : undefined;
-
-  const startSession = async () => {
-    await startSessionMutation({ sessionId: session._id });
-  };
-
-  const pauseSession = async () => {
-    await pauseSessionMutation({ sessionId: session._id });
-  };
-
-  const resetSessionTimer = async () => {
-    await resetSessionTimerMutation({ sessionId: session._id });
-  };
+  const nextTaskProp = nextTask ? formatTask(nextTask) : undefined;
 
   return (
     <Timer
-      actions={{
-        pauseTimer: pauseSession,
-        startTimer: startSession,
-        resetTimer: resetSessionTimer,
-      }}
       title={session.title}
-      timer={currentTask ? localTimeLeft / 1000 : 0}
       isRunning={session.running}
+      timer={currentTask ? localTimeLeft / 1000 : 0}
       currentTask={currentTaskProp}
       nextTask={nextTaskProp}
       tasks={tasksProp}
+      actions={{
+        startTimer: () => startSession({ sessionId: session._id }),
+        pauseTimer: () => pauseSession({ sessionId: session._id }),
+        resetTimer: () => resetSessionTimer({ sessionId: session._id }),
+      }}
     />
   );
 }

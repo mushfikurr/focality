@@ -23,6 +23,7 @@ import type * as session_mutations from "../session/mutations.js";
 import type * as session_queries from "../session/queries.js";
 import type * as tasks_mutations from "../tasks/mutations.js";
 import type * as tasks_queries from "../tasks/queries.js";
+import type * as time_queries from "../time/queries.js";
 import type * as user from "../user.js";
 import type * as utils_auth from "../utils/auth.js";
 import type * as utils_db from "../utils/db.js";
@@ -46,6 +47,7 @@ declare const fullApi: ApiFromModules<{
   "session/queries": typeof session_queries;
   "tasks/mutations": typeof tasks_mutations;
   "tasks/queries": typeof tasks_queries;
+  "time/queries": typeof time_queries;
   user: typeof user;
   "utils/auth": typeof utils_auth;
   "utils/db": typeof utils_db;

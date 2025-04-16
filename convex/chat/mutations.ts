@@ -31,7 +31,6 @@ export const createChat = mutation({
       roomId: args.roomId,
       userId: userId,
       content: args.content.trim(),
-      createdAt: new Date().toISOString(),
     };
 
     return await ctx.db.insert("chats", chatMessage);
