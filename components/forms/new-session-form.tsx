@@ -32,7 +32,11 @@ const formSchema = z.object({
   visibility: z.boolean(),
 });
 
-export default function NewSessionForm() {
+export default function NewSessionForm({
+  authenticated,
+}: {
+  authenticated: boolean;
+}) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -123,7 +127,7 @@ export default function NewSessionForm() {
             <Button
               type="submit"
               className="w-fit"
-              disabled={!form.formState.isValid}
+              disabled={!form.formState.isValid || !authenticated}
               loading={isLoading}
             >
               Start Focusing

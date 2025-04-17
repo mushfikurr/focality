@@ -1,7 +1,6 @@
 "use client";
 
 import { Plus } from "lucide-react";
-import { Task } from "../providers/LocalPomodoroProvider";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -15,16 +14,17 @@ import { Scroller } from "../ui/scroller";
 import { TaskItem } from "./task-item";
 import { cn } from "@/lib/utils";
 import { MobileAddButton } from "./mobile-add-button";
+import { Doc } from "@/convex/_generated/dataModel";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
 type UpdateActionFunctionWithId = (
   taskId: string,
-  task: Partial<Task>,
+  task: Partial<Doc<"tasks">>,
 ) => void | Promise<void>;
 
 interface TasksProps {
-  tasks: Task[];
+  tasks: Doc<"tasks">[];
   actions: {
     addTask: ActionFunction;
     addBreak: ActionFunction;
@@ -41,7 +41,7 @@ interface TasksProps {
 export default function Tasks(props: TasksProps) {
   const { tasks, actions, currentTaskId } = props;
 
-  const tasksCompleted = tasks?.filter((t: Task) => t.completed).length;
+  const tasksCompleted = tasks?.filter((t) => t.completed).length;
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
 
   return (
@@ -72,11 +72,11 @@ export default function Tasks(props: TasksProps) {
           )}
         >
           {!!tasks?.length ? (
-            tasks.map((t: Task) => (
+            tasks.map((t) => (
               <TaskItem
-                key={t.id}
+                key={t._id}
                 task={t}
-                removeTask={() => actions.removeTask(t.id)}
+                removeTask={() => actions.removeTask(t._id)}
                 updateTask={actions.updateTask}
                 currentTaskId={currentTaskId}
               />

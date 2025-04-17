@@ -6,7 +6,6 @@ import { Loader2, Pencil, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Task } from "../providers/LocalPomodoroProvider";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
@@ -19,11 +18,12 @@ import {
   FormItem,
   FormMessage,
 } from "../ui/form";
+import { Doc } from "@/convex/_generated/dataModel";
 
 interface TaskItemProps {
   removeTask: any;
   updateTask: any;
-  task: Task;
+  task: Doc<"tasks">;
   pending?: boolean;
   currentTaskId?: string;
 }
@@ -47,7 +47,7 @@ export function TaskItem(props: TaskItemProps) {
   });
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    props.updateTask(task.id, data);
+    props.updateTask(task._id, data);
   };
 
   const handleEditingChange = (isEditing: boolean) => {
@@ -63,10 +63,10 @@ export function TaskItem(props: TaskItemProps) {
           )}
         >
           <Checkbox
-            id={task.id}
+            id={task._id}
             className={cn(
               "ml-3 rounded-none",
-              currentTaskId === task.id && "bg-secondary",
+              currentTaskId === task._id && "bg-secondary",
             )}
             checked={task.completed}
           />
@@ -76,7 +76,7 @@ export function TaskItem(props: TaskItemProps) {
             render={({ field }) => (
               <>
                 <label
-                  htmlFor={task.id}
+                  htmlFor={task._id}
                   className={cn(
                     "inline-flex w-full items-center gap-3 text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
                   )}
@@ -95,7 +95,7 @@ export function TaskItem(props: TaskItemProps) {
                     }}
                     onEditingChange={handleEditingChange}
                     className={cn(
-                      currentTaskId === task.id && "font-medium",
+                      currentTaskId === task._id && "font-medium",
                       "max-w-[100px] truncate md:max-w-full",
                     )}
                   />

@@ -1,5 +1,7 @@
 "use client";
 
+import { api } from "@/convex/_generated/api";
+import { Doc, Id } from "@/convex/_generated/dataModel";
 import {
   Preloaded,
   useMutation,
@@ -7,9 +9,6 @@ import {
   useQuery,
 } from "convex/react";
 import Tasks from "./tasks";
-import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
-import { Task } from "../providers/LocalPomodoroProvider";
 
 interface SyncedTasksProps {
   sessionId: Id<"sessions">;
@@ -73,7 +72,10 @@ export function SyncedTasks({
   };
 
   const updateTaskMtn = useMutation(api.tasks.mutations.updateTask);
-  const handleUpdateTask = async (taskId: string, task: Partial<Task>) => {
+  const handleUpdateTask = async (
+    taskId: string,
+    task: Partial<Doc<"tasks">>,
+  ) => {
     await updateTaskMtn({
       taskId: taskId as Id<"tasks">,
       description: task.description,
@@ -83,15 +85,6 @@ export function SyncedTasks({
   };
 
   const tasksQuery = usePreloadedQuery(preloadedTasks);
-
-  const tasks =
-    tasksQuery?.map((t) => ({
-      id: t._id,
-      completed: t.completed,
-      description: t.description,
-      duration: t.duration,
-      type: t.type,
-    })) ?? [];
 
   return (
     <Tasks
@@ -103,7 +96,7 @@ export function SyncedTasks({
         updateTask: handleUpdateTask,
       }}
       currentTaskId={session?.session.currentTaskId}
-      tasks={tasks}
+      tasks={tasksQuery}
     />
   );
 }

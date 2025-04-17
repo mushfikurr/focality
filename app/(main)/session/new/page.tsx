@@ -1,6 +1,5 @@
 import GuestAlert from "@/components/common/guest-alert";
 import NewSessionForm from "@/components/forms/new-session-form";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -9,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
-import Link from "next/link";
 
 export default async function NewSessionPage() {
   const authenticated = await isAuthenticatedNextjs();
@@ -28,7 +26,7 @@ export default async function NewSessionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NewSessionForm />
+          <NewSessionForm authenticated={authenticated} />
         </CardContent>
       </Card>
     </div>
