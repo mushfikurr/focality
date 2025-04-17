@@ -94,10 +94,13 @@ export function TaskItem(props: TaskItemProps) {
                       field.onBlur();
                     }}
                     onEditingChange={handleEditingChange}
-                    className={cn(currentTaskId === task.id && "font-medium")}
+                    className={cn(
+                      currentTaskId === task.id && "font-medium",
+                      "max-w-[100px] truncate md:max-w-full",
+                    )}
                   />
                 </label>
-                <Badge variant="outline" className="capitalize">
+                <Badge variant="outline" className="hidden capitalize md:block">
                   {task.type}
                 </Badge>
                 <div className="flex items-center">

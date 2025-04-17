@@ -1,5 +1,5 @@
 import { Doc } from "@/convex/_generated/dataModel";
-import { Clock, Crown, Star, Trophy, User2 } from "lucide-react";
+import { Clock, Crown, Flame, Star, Trophy, User2 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -70,7 +70,7 @@ export function UserCard({ user }: { user: User }) {
 
       {/* User stats */}
       <div className="grid grid-cols-2 gap-x-8 gap-y-3 py-4">
-        <div className="col-span-1 flex items-center gap-2">
+        <div className="col-span-1 flex items-center gap-3">
           <div className="bg-primary/10 border-primary/20 flex h-8 w-8 items-center justify-center border shadow-sm">
             <Clock className="icon-primary text-primary h-4 w-4" />
           </div>
@@ -79,16 +79,16 @@ export function UserCard({ user }: { user: User }) {
             <p className="font-medium">{"0h 0m"}</p>
           </div>
         </div>
-        <div className="col-span-1 flex items-center gap-2">
+        <div className="col-span-1 flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center border border-amber-500/20 bg-amber-500/10 shadow-sm">
-            <Trophy className="h-4 w-4 text-amber-500" />
+            <Flame className="h-4 w-4 text-amber-500" />
           </div>
           <div>
             <p className="text-muted-foreground text-xs">Streak</p>
             <p className="font-medium">{0} days</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center border border-purple-500/20 bg-purple-500/10 shadow-sm">
             <Star className="h-4 w-4 text-purple-500" />
           </div>
@@ -97,7 +97,7 @@ export function UserCard({ user }: { user: User }) {
             <p className="font-medium">{1}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           <div className="flex h-8 w-8 items-center justify-center border border-blue-500/20 bg-blue-500/10 shadow-sm">
             <Trophy className="h-4 w-4 text-blue-500" />
           </div>

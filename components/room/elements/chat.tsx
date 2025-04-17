@@ -77,9 +77,9 @@ export function Chat({
   useEffect(() => {
     // Scroll the last message into view when messages change
     if (lastMessageRef.current) {
-      lastMessageRef.current.scrollIntoView({ behavior: "smooth" });
+      lastMessageRef.current.scrollTo({ behavior: "smooth" });
     }
-  }, [messages]);
+  }, [messages, lastMessageRef]);
 
   return (
     <div className={cn("relative flex h-full flex-col gap-2 shadow-xs")}>

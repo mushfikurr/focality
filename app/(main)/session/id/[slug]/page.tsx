@@ -50,13 +50,11 @@ export default async function SessionIdPage({
     { token: await convexAuthNextjsToken() },
   );
 
-  // TODO: When adding joining sessions make sure to implement check if the user is actually in participants list to avoid joining rooms that you are not authenticated to join
-
   return (
-    <div className="container mx-auto flex h-full min-h-0 gap-4">
+    <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
       {/* Left Column */}
-      <div className="flex max-h-full w-4/6 flex-col gap-5 py-5">
-        <div className="flex-[1]">
+      <div className="flex max-h-full flex-col gap-5 py-5 md:w-4/6">
+        <div className="flex-1">
           <SyncedTimer
             preloadedTasks={preloadedTasks}
             preloadedSession={preloadedSession}
@@ -73,8 +71,8 @@ export default async function SessionIdPage({
       </div>
 
       {/* Right Column */}
-      <div className="flex max-h-full min-h-0 w-2/6 flex-col gap-5 py-5">
-        <div className="min-h-[200px] flex-[3]">
+      <div className="hidden max-h-full min-h-0 flex-col gap-5 py-5 md:flex md:w-2/6">
+        <div className="max-h-[70vh] min-h-[200px] flex-[3]">
           <SyncedRoom
             preloadedUser={preloadedUser}
             preloadedSession={preloadedSession}

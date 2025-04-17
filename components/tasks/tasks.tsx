@@ -14,6 +14,7 @@ import {
 import { Scroller } from "../ui/scroller";
 import { TaskItem } from "./task-item";
 import { cn } from "@/lib/utils";
+import { MobileAddButton } from "./mobile-add-button";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
@@ -48,16 +49,17 @@ export default function Tasks(props: TasksProps) {
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
           <h3>Session Tasks</h3>
-          <div className="-mr-2 flex gap-0 text-xs">
+          <div className="-mr-2 hidden gap-0 text-xs md:flex">
             <Button variant="ghost" size="sm" onClick={actions.addBreak}>
-              <Plus className="mr-1" /> Add Break
+              <Plus /> Add Break
             </Button>
             <Button variant="ghost" size="sm" onClick={actions.addTask}>
-              <Plus className="mr-1" /> Add Task
+              <Plus /> Add Task
             </Button>
           </div>
+          <MobileAddButton actions={actions} />
         </CardTitle>
-        <CardDescription className="text-balance">
+        <CardDescription>
           Treat these as focused session blocks. You can add, remove, and
           complete them as you go.
         </CardDescription>

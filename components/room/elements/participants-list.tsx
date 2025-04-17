@@ -30,7 +30,7 @@ export default function ParticipantsList({
   return (
     <>
       {participants.map((p) => (
-        <Popover key={p._id}>
+        <Popover modal={false} key={p._id}>
           <PopoverTrigger className="w-full">
             <Participant user={p} />
           </PopoverTrigger>
