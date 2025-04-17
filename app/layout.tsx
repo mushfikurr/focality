@@ -22,7 +22,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      <html lang="en" className="dark">
+      <html lang="en" className="light">
         <body className={`${spaceGrotesk.className} relative antialiased`}>
           <ConvexClientProvider>{children}</ConvexClientProvider>
           <Toaster />

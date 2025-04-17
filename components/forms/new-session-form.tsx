@@ -58,7 +58,7 @@ export default function NewSessionForm() {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid gap-4">
+        <div className="grid gap-6">
           <FormField
             control={form.control}
             name="title"
@@ -102,16 +102,19 @@ export default function NewSessionForm() {
             name="description"
             render={({ field }) => (
               <FormItem className="grid gap-3">
-                <div className="flex items-center justify-between">
-                  <FormLabel htmlFor="description">Study together?</FormLabel>
+                <div className="flex items-center gap-3">
+                  <FormControl>
+                    <Checkbox
+                      className="rounded-none"
+                      id="visibility"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormLabel htmlFor="description">
+                    Make session joinable
+                  </FormLabel>
                 </div>
-                <FormControl>
-                  <Checkbox
-                    className="rounded-none"
-                    id="visibility"
-                    {...field}
-                  />
-                </FormControl>
+
                 <FormMessage />
               </FormItem>
             )}
