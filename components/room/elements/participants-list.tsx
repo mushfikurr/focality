@@ -1,6 +1,6 @@
 import { UserCard } from "@/components/common/user-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,11 +9,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import { Scroller } from "@/components/ui/scroller";
 import { Doc } from "@/convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
 import {
   Crown,
   MessageCircle,
@@ -28,35 +30,48 @@ export default function ParticipantsList({
   participants: Doc<"users">[];
 }) {
   return (
-    <>
-      {participants.map((p) => (
-        <Popover modal={false} key={p._id}>
-          <PopoverTrigger className="w-full">
-            <Participant user={p} />
-          </PopoverTrigger>
-          <PopoverContent align="start">
+    <Scroller className="h-full overflow-auto">
+      {participants.map((p, idx) => (
+        <HoverCard key={p._id}>
+          <HoverCardTrigger className="w-full">
+            <Participant
+              user={p}
+              className={cn(idx === participants.length - 1 && "border-b")}
+            />
+          </HoverCardTrigger>
+          <HoverCardContent align="start">
             <UserCard user={p} />
-          </PopoverContent>
-        </Popover>
+          </HoverCardContent>
+        </HoverCard>
       ))}
-    </>
+    </Scroller>
   );
 }
 
-const Participant = ({ user }: { user: Doc<"users"> }) => {
+const Participant = ({
+  user,
+  className,
+}: {
+  user: Doc<"users">;
+  className?: string;
+}) => {
   return (
     <div
       key={user._id}
-      className="hover:bg-secondary/50 flex cursor-pointer items-center justify-between rounded-md border p-2 transition-colors"
+      className={cn(
+        "hover:bg-secondary/50 flex cursor-pointer items-center justify-between rounded-md border border-b-0 p-2 transition-colors",
+        className,
+      )}
     >
       <div className="flex items-center gap-3">
         <div className="relative">
           <Avatar className="border-border h-8 w-8 rounded-none border">
             <AvatarImage
-              src={user.image || "/placeholder.svg"}
+              src={user.image}
               alt={user.name}
+              className="rounded-none"
             />
-            <AvatarFallback>
+            <AvatarFallback className="rounded-none">
               {user.name?.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -89,10 +104,15 @@ const ParticipantDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="h-8 w-8">
+        <div
+          className={cn(
+            buttonVariants({ size: "icon", variant: "outline" }),
+            "h-8 w-8",
+          )}
+        >
           <MoreHorizontal className="h-4 w-4" />
           <span className="sr-only">More options</span>
-        </Button>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem>

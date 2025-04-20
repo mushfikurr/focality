@@ -2,10 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Scroller } from "@/components/ui/scroller";
 import { Doc } from "@/convex/_generated/dataModel";
-import { cn } from "@/lib/utils";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { ParticipantsPopover } from "./participants-inline-modal";
 
 interface ChatMessage {
   id: string;
@@ -17,8 +15,6 @@ interface ChatProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   disabled: boolean;
-  isParticipantsOpen: boolean;
-  setIsParticipantsOpen: (isOpen: boolean) => void;
   participants: Doc<"users">[];
 }
 
@@ -44,7 +40,7 @@ function ChatInput({
         e.preventDefault();
         handleSendClick();
       }}
-      className="py-1"
+      className="p-1"
     >
       <div className="flex w-full items-center gap-2">
         <Input
@@ -63,14 +59,7 @@ function ChatInput({
   );
 }
 
-export function Chat({
-  messages,
-  onSendMessage,
-  disabled,
-  isParticipantsOpen,
-  setIsParticipantsOpen,
-  participants,
-}: ChatProps) {
+export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null); // Ref for the last message
 
@@ -82,58 +71,47 @@ export function Chat({
   }, [messages, lastMessageRef]);
 
   return (
-    <div className={cn("relative flex h-full flex-col gap-2 shadow-xs")}>
-      {/* Participants Inline Modal */}
-      <ParticipantsPopover
-        setIsParticipantsOpen={setIsParticipantsOpen}
-        isParticipantsOpen={isParticipantsOpen}
-        participants={participants}
-      />
-
-      <div className="flex-1 overflow-hidden">
-        <Scroller
-          className={cn("h-full max-h-full overflow-auto")}
-          ref={scrollRef}
-        >
-          <div
-            className={cn(
-              "h-full flex-1 space-y-2 overflow-y-auto border px-3 py-2 text-sm opacity-100 transition-opacity duration-300 ease-out",
-              disabled && "border-muted opacity-70",
-            )}
-          >
-            {messages.length > 0 ? (
-              messages.map((msg, index) => (
-                <p
-                  key={msg.id}
-                  className="text-muted-foreground"
-                  ref={index === messages.length - 1 ? lastMessageRef : null} // Set ref to the last message
-                >
-                  <strong className="text-card-foreground">
-                    {msg.sender}:
-                  </strong>{" "}
-                  {msg.content}
-                </p>
-              ))
-            ) : (
-              <>
-                <p className="">
-                  Welcome to <span className="italic">focality</span>. Get
-                  started by adding a task, and start your focus session.
-                </p>
-                <p className="text-muted-foreground">
-                  You can invite others to join your session by sending them the
-                  link or the room ID.
-                </p>
-                <p className="text-muted-foreground">
-                  The chat will be disabled when you start a session.
-                </p>
-              </>
-            )}
-          </div>
-        </Scroller>
-      </div>
-
+    <div className="flex h-full flex-col gap-5">
+      <Scroller className="h-full space-y-2 overflow-auto border px-3 py-2 text-sm">
+        {messages.length > 0 ? (
+          messages.map((m) => <Message key={m.id} message={m} />)
+        ) : (
+          <EmptyChat />
+        )}
+      </Scroller>
       <ChatInput onSendMessage={onSendMessage} disabled={disabled} />
+    </div>
+  );
+}
+
+function Message({ message }: { message: ChatMessage }) {
+  return (
+    <div className="flex gap-1">
+      <p className="font-semibold">{message.sender}:</p>
+      <p>{message.content}</p>
+    </div>
+  );
+}
+
+function EmptyChat() {
+  return (
+    <div className="text-muted-foreground space-y-2">
+      <p className="text-foreground font-semibold">
+        Welcome to <span className="italic">focality</span>!
+      </p>
+      <p>
+        Chats will appear here. When a task is started, the chat will
+        temporarily pause to allow you to focus on the task.
+      </p>
+      <p>
+        If you are the host, start by adding a task, and then click start to
+        begin focusing on your work.
+      </p>
+      <p>
+        Invite others by sharing the link of this page with them. You can also
+        grab the room code from the Participants section.
+      </p>
+      <p>Good luck, and remember to start small.</p>
     </div>
   );
 }

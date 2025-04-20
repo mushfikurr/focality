@@ -1,5 +1,6 @@
+import { Progress } from "@/components/ui/progress";
+import { Doc } from "@/convex/_generated/dataModel";
 import { formatTime } from "@/lib/utils";
-import { Task } from "../../providers/LocalPomodoroProvider";
 import { Button } from "../../ui/button";
 import {
   Card,
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "../../ui/card";
-import { Progress } from "@/components/ui/progress";
 
 interface TimerProps {
   timer: number;
@@ -19,9 +19,9 @@ interface TimerProps {
     pauseTimer: any;
     resetTimer: any;
   };
-  currentTask?: Task;
-  nextTask?: Task;
-  tasks: Task[];
+  currentTask?: Doc<"tasks">;
+  nextTask?: Doc<"tasks">;
+  tasks: Doc<"tasks">[];
 }
 export function Timer(props: TimerProps) {
   const { timer, isRunning, actions, currentTask, tasks, title, nextTask } =
@@ -88,7 +88,7 @@ export function Timer(props: TimerProps) {
             {currentTask ? (
               <p>
                 {formatType(currentTask.type)}:{" "}
-                {formatTime(currentTask.duration)}
+                {formatTime(currentTask.duration / 1000)}
               </p>
             ) : (
               !currentTask &&
@@ -99,7 +99,7 @@ export function Timer(props: TimerProps) {
             {nextTask && (
               <p>
                 Next: {formatType(nextTask.type)} -{" "}
-                {formatTime(nextTask.duration)}
+                {formatTime(nextTask.duration / 1000)}
               </p>
             )}
           </div>

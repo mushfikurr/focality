@@ -1,15 +1,13 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { Avatar, AvatarFallback } from "@radix-ui/react-avatar";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
-import { MoreVertical } from "lucide-react";
-import { useEffect, useState } from "react";
-import { AvatarImage } from "../ui/avatar";
-import { Button } from "../ui/button";
+import { MessageCircle, Users2 } from "lucide-react";
+import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Chat } from "./elements/chat";
-import ParticipantsTrigger from "./elements/participants-trigger";
+import ParticipantsList from "./elements/participants-list";
 
 interface SyncedRoomProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
@@ -61,38 +59,59 @@ export function SyncedRoom(props: SyncedRoomProps) {
     joinRoomMtn({ roomId: room._id });
   }, []);
 
-  const [isParticipantsOpen, setIsParticipantsOpen] = useState(false);
-
   return (
-    <Card className="flex h-full flex-col gap-2">
-      <CardHeader>
-        <CardTitle className="flex flex-col gap-4">
-          <h1>Session Chat</h1>
-          <div className="flex items-center justify-between gap-3">
-            <h2 className="text-secondary-foreground inline-flex items-center gap-2 border border-dashed p-1 px-3 text-xs">
-              {room.shareId}
-            </h2>
-            <div className="flex h-full items-center">
-              <ParticipantsTrigger
-                setIsParticipantsOpen={setIsParticipantsOpen}
-                isParticipantsOpen={isParticipantsOpen}
-                participants={participants}
-              />
+    <Tabs defaultValue="chat" className="flex h-full flex-col">
+      <TabsList className="shadow-sm">
+        <TabsTrigger value="chat">
+          <MessageCircle /> Chat
+        </TabsTrigger>
+        <TabsTrigger value="participants">
+          <Users2 /> Participants
+        </TabsTrigger>
+      </TabsList>
+      <TabsContent value="chat" className="flex-1 overflow-hidden shadow-sm">
+        <Card className="flex h-full flex-col">
+          <CardHeader>
+            <CardTitle>
+              <h1>Session Chat</h1>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden">
+            <div className="flex h-full flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <Chat
+                  onSendMessage={onSendMessage}
+                  messages={messages}
+                  participants={participants}
+                  disabled={session.session.running}
+                />
+              </div>
             </div>
-          </div>
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className="min-h-0 flex-1">
-        <Chat
-          isParticipantsOpen={isParticipantsOpen}
-          setIsParticipantsOpen={setIsParticipantsOpen}
-          onSendMessage={onSendMessage}
-          messages={messages}
-          participants={participants}
-          disabled={session.session.running}
-        />
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      </TabsContent>
+      <TabsContent
+        value="participants"
+        className="flex-1 overflow-hidden shadow-sm"
+      >
+        <Card className="flex h-full flex-col">
+          <CardHeader>
+            <CardTitle className="flex justify-between gap-2">
+              Participants
+              <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                <Users2 className="h-4 w-4" /> {participants.length}
+              </p>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="flex-1 overflow-hidden">
+            <div className="flex h-full flex-col">
+              <div className="flex-1 overflow-y-auto">
+                <ParticipantsList participants={participants} />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+    </Tabs>
   );
 }

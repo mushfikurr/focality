@@ -45,7 +45,7 @@ export default function Tasks(props: TasksProps) {
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
 
   return (
-    <Card className="max-h-full min-h-fit">
+    <Card className="max-h-full min-h-0 gap-0 overflow-hidden md:gap-3">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
           <h3>Session Tasks</h3>
@@ -59,7 +59,7 @@ export default function Tasks(props: TasksProps) {
           </div>
           <MobileAddButton actions={actions} />
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="hidden md:block">
           Treat these as focused session blocks. You can add, remove, and
           complete them as you go.
         </CardDescription>
@@ -68,7 +68,7 @@ export default function Tasks(props: TasksProps) {
         <Scroller
           className={cn(
             "max-h-full overflow-auto",
-            !!tasks.length && "border-b shadow-xs",
+            !!tasks.length && "border-b",
           )}
         >
           {!!tasks?.length ? (
@@ -86,7 +86,7 @@ export default function Tasks(props: TasksProps) {
           )}
         </Scroller>
       </CardContent>
-      <CardFooter className="text-xs">
+      <CardFooter className="hidden text-xs md:block">
         <div className="text-muted-foreground flex h-full gap-3">
           <div
             className={cn(

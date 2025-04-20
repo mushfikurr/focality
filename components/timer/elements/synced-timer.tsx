@@ -1,7 +1,7 @@
 "use client";
 
-import { Task } from "@/components/providers/LocalPomodoroProvider";
 import { api } from "@/convex/_generated/api";
+import { Doc } from "@/convex/_generated/dataModel";
 import {
   Preloaded,
   useMutation,
@@ -10,7 +10,6 @@ import {
 } from "convex/react";
 import { useEffect, useRef, useState } from "react";
 import { Timer } from "./timer";
-import { Doc } from "@/convex/_generated/dataModel";
 
 interface SyncedTimerProps {
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
@@ -88,23 +87,12 @@ export function SyncedTimer({
     return () => clearInterval(intervalRef.current!);
   }, [session.running, session.startTime, currentTask?.elapsed]);
 
-  // Task formatting for <Timer /> props
-  const formatTask = (task: Doc<"tasks">): Task => ({
-    id: task._id,
-    completed: task.completed,
-    description: task.description,
-    duration: task.duration / 1000,
-    type: task.type,
-  });
-
-  const currentTaskProp = currentTask ? formatTask(currentTask) : undefined;
-
-  const tasksProp: Task[] = tasks.map(formatTask);
+  const currentTaskProp = currentTask ?? undefined;
 
   const currentTaskIndex = tasks.findIndex((t) => !t.completed);
   const nextTask =
     currentTaskIndex >= 0 ? tasks[currentTaskIndex + 1] : undefined;
-  const nextTaskProp = nextTask ? formatTask(nextTask) : undefined;
+  const nextTaskProp = nextTask ? nextTask : undefined;
 
   return (
     <Timer
@@ -113,7 +101,7 @@ export function SyncedTimer({
       timer={currentTask ? localTimeLeft / 1000 : 0}
       currentTask={currentTaskProp}
       nextTask={nextTaskProp}
-      tasks={tasksProp}
+      tasks={tasks}
       actions={{
         startTimer: () => startSession({ sessionId: session._id }),
         pauseTimer: () => pauseSession({ sessionId: session._id }),

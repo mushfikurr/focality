@@ -1,5 +1,5 @@
+import MobileActions from "@/components/room/elements/mobile/mobile-actions";
 import { SyncedRoom } from "@/components/room/synced-room";
-import Stats from "@/components/stats/stats";
 import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { api } from "@/convex/_generated/api";
@@ -68,11 +68,15 @@ export default async function SessionIdPage({
             preloadedTasks={preloadedTasks}
           />
         </div>
+
+        <div className="flex w-full md:hidden">
+          <MobileActions />
+        </div>
       </div>
 
       {/* Right Column */}
-      <div className="hidden max-h-full min-h-0 flex-col gap-5 py-5 md:flex md:w-2/6">
-        <div className="max-h-[70vh] min-h-[200px] flex-[3]">
+      <div className="hidden h-full flex-col py-5 md:flex md:w-2/6">
+        <div className="h-full">
           <SyncedRoom
             preloadedUser={preloadedUser}
             preloadedSession={preloadedSession}
@@ -82,9 +86,9 @@ export default async function SessionIdPage({
           />
         </div>
 
-        <div className="min-h-0 flex-[1]">
+        {/* <div className="min-h-0 flex-[1]">
           <Stats />
-        </div>
+        </div> */}
       </div>
     </div>
   );

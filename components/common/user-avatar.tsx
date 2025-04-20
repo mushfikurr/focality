@@ -34,7 +34,7 @@ export function UserCard({ user }: { user: User }) {
         <div className="flex gap-2.5">
           <Avatar className="h-14 w-14 rounded-none border shadow-xs">
             <AvatarImage src={user.image} alt={user.name} />
-            <AvatarFallback>
+            <AvatarFallback className="rounded-none">
               {user.name?.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -111,9 +111,9 @@ export function UserCard({ user }: { user: User }) {
       <Separator />
 
       {/* Action buttons */}
-      <div className="grid grid-cols-2 gap-2 pt-3">
+      <div className="flex gap-3 pt-3">
         <Button variant="outline" size="sm" className="w-full">
-          <User2 className="h-4 w-4" />
+          <User2 />
           View Profile
         </Button>
       </div>
