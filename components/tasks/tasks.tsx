@@ -1,6 +1,9 @@
 "use client";
 
+import { Doc, Id } from "@/convex/_generated/dataModel";
+import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
+import NewTaskForm from "../forms/new-task-form";
 import { Button } from "../ui/button";
 import {
   Card,
@@ -10,11 +13,17 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
 import { Scroller } from "../ui/scroller";
-import { TaskItem } from "./task-item";
-import { cn } from "@/lib/utils";
 import { MobileAddButton } from "./mobile-add-button";
-import { Doc } from "@/convex/_generated/dataModel";
+import { TaskItem } from "./task-item";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
@@ -36,10 +45,11 @@ interface TasksProps {
   pending?: {
     removeTask?: boolean;
   };
+  sessionId: Id<"sessions">;
 }
 
 export default function Tasks(props: TasksProps) {
-  const { tasks, actions, currentTaskId } = props;
+  const { tasks, actions, currentTaskId, sessionId } = props;
 
   const tasksCompleted = tasks?.filter((t) => t.completed).length;
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
@@ -50,12 +60,8 @@ export default function Tasks(props: TasksProps) {
         <CardTitle className="flex items-center justify-between gap-3">
           <h3>Session Tasks</h3>
           <div className="-mr-2 hidden gap-0 text-xs md:flex">
-            <Button variant="ghost" size="sm" onClick={actions.addBreak}>
-              <Plus /> Add Break
-            </Button>
-            <Button variant="ghost" size="sm" onClick={actions.addTask}>
-              <Plus /> Add Task
-            </Button>
+            <AddBreakButton sessionId={sessionId} />
+            <AddTaskButton sessionId={sessionId} />
           </div>
           <MobileAddButton actions={actions} />
         </CardTitle>
@@ -105,6 +111,46 @@ export default function Tasks(props: TasksProps) {
     </Card>
   );
 }
+
+const AddBreakButton: React.FC<{
+  sessionId: Id<"sessions">;
+}> = ({ sessionId }) => (
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="ghost" size="sm">
+        <Plus /> Add Break
+      </Button>
+    </DialogTrigger>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Add a new break</DialogTitle>
+        <DialogDescription>Time to recharge your focus.</DialogDescription>
+      </DialogHeader>
+      <NewTaskForm sessionId={sessionId} break />
+    </DialogContent>
+  </Dialog>
+);
+
+const AddTaskButton: React.FC<{
+  sessionId: Id<"sessions">;
+}> = ({ sessionId }) => (
+  <Dialog>
+    <DialogTrigger asChild>
+      <Button variant="ghost" size="sm">
+        <Plus /> Add Task
+      </Button>
+    </DialogTrigger>
+    <DialogContent>
+      <DialogHeader>
+        <DialogTitle>Add a new task</DialogTitle>
+        <DialogDescription>
+          A task is a block of time to focus on something that needs doing.
+        </DialogDescription>
+      </DialogHeader>
+      <NewTaskForm sessionId={sessionId} />
+    </DialogContent>
+  </Dialog>
+);
 
 function EmptyTasks() {
   return (

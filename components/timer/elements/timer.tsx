@@ -1,3 +1,5 @@
+import { PauseIcon } from "@/components/ui/animated-icons/pause";
+import { PlayIcon } from "@/components/ui/animated-icons/play";
 import { Progress } from "@/components/ui/progress";
 import { Doc } from "@/convex/_generated/dataModel";
 import { formatTime } from "@/lib/utils";
@@ -27,8 +29,9 @@ export function Timer(props: TimerProps) {
   const { timer, isRunning, actions, currentTask, tasks, title, nextTask } =
     props;
 
+  const duration = currentTask ? currentTask.duration / 1000 : 0;
   const progressPercentage = currentTask
-    ? ((currentTask.duration - timer) / currentTask.duration) * 100
+    ? ((duration - timer) / duration) * 100
     : 0;
   const formatType = (type: "task" | "break") =>
     type === "task" ? "Task" : "Break";
@@ -57,18 +60,17 @@ export function Timer(props: TimerProps) {
             </p>
           </div>
           <div className="flex gap-3">
-            {isRunning ? (
-              <Button onClick={actions.pauseTimer}>Pause</Button>
-            ) : (
-              <Button
-                onClick={actions.startTimer}
-                disabled={!currentTask || timer === 0}
-              >
-                Start
-              </Button>
-            )}
+            <TimerToggleButton
+              actions={{
+                pauseTimer: actions.pauseTimer,
+                startTimer: actions.startTimer,
+              }}
+              isRunning={isRunning}
+              timer={timer}
+              currentTask={currentTask}
+            />
             <Button
-              variant="outline"
+              variant="secondary"
               onClick={actions.resetTimer}
               disabled={!currentTask || timer === 0}
             >
@@ -108,3 +110,38 @@ export function Timer(props: TimerProps) {
     </Card>
   );
 }
+
+type TimerToggleButtonProps = {
+  isRunning: boolean;
+  timer: number;
+  currentTask: any;
+  actions: {
+    startTimer: () => void;
+    pauseTimer: () => void;
+  };
+};
+
+const transition = {
+  type: "spring",
+  stiffness: 400,
+  damping: 20,
+  mass: 0.5,
+  visualDuration: 0.1,
+};
+
+export const TimerToggleButton: React.FC<TimerToggleButtonProps> = ({
+  isRunning,
+  timer,
+  currentTask,
+  actions,
+}) => {
+  return isRunning ? (
+    <Button onClick={actions.pauseTimer} variant="outline">
+      <PauseIcon>Pause</PauseIcon>
+    </Button>
+  ) : (
+    <Button onClick={actions.startTimer} disabled={!currentTask || timer === 0}>
+      <PlayIcon>Start</PlayIcon>
+    </Button>
+  );
+};

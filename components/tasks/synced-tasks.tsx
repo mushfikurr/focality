@@ -97,6 +97,7 @@ export function SyncedTasks({
       }}
       currentTaskId={session?.session.currentTaskId}
       tasks={tasksQuery}
+      sessionId={sessionId}
     />
   );
 }

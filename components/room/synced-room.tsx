@@ -2,12 +2,14 @@
 
 import { api } from "@/convex/_generated/api";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
-import { MessageCircle, Users2 } from "lucide-react";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { Chat } from "./elements/chat";
 import ParticipantsList from "./elements/participants-list";
+import { MessageCircleIcon } from "../ui/animated-icons/message-circle";
+import { UsersIcon } from "../ui/animated-icons/users-2";
+import { Users, Users2 } from "lucide-react";
 
 interface SyncedRoomProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
@@ -63,10 +65,10 @@ export function SyncedRoom(props: SyncedRoomProps) {
     <Tabs defaultValue="chat" className="flex h-full flex-col">
       <TabsList className="shadow-sm">
         <TabsTrigger value="chat">
-          <MessageCircle /> Chat
+          <MessageCircleIcon>Chat</MessageCircleIcon>
         </TabsTrigger>
         <TabsTrigger value="participants">
-          <Users2 /> Participants
+          <UsersIcon>Participants</UsersIcon>
         </TabsTrigger>
       </TabsList>
       <TabsContent value="chat" className="flex-1 overflow-hidden shadow-sm">
@@ -99,7 +101,7 @@ export function SyncedRoom(props: SyncedRoomProps) {
             <CardTitle className="flex justify-between gap-2">
               Participants
               <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                <Users2 className="h-4 w-4" /> {participants.length}
+                <Users className="h-4 w-4" /> {participants.length}
               </p>
             </CardTitle>
           </CardHeader>

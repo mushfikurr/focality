@@ -1,24 +1,24 @@
 "use client";
 
+import { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Pencil, TrashIcon } from "lucide-react";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { Fragment, useState } from "react";
+import UpdateTaskForm from "../forms/update-task-form";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
-import { Editable } from "../ui/editable";
-import { Skeleton } from "../ui/skeleton";
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormMessage,
-} from "../ui/form";
-import { Doc } from "@/convex/_generated/dataModel";
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { Skeleton } from "../ui/skeleton";
 
 interface TaskItemProps {
   removeTask: any;
@@ -28,114 +28,103 @@ interface TaskItemProps {
   currentTaskId?: string;
 }
 
-const formSchema = z.object({
-  description: z.string().min(3),
-});
-
 export function TaskItem(props: TaskItemProps) {
   const { removeTask, task, pending, currentTaskId } = props;
   const [isEditing, setIsEditing] = useState(false);
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      description: task.description,
-    },
-    values: {
-      description: task.description,
-    },
-  });
-
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
-    props.updateTask(task._id, data);
-  };
 
   const handleEditingChange = (isEditing: boolean) => {
     setIsEditing(isEditing);
   };
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleSubmit)}>
-        <div
-          className={cn(
-            "flex h-full w-full items-center gap-3 border border-b-0 text-sm",
-          )}
+    <div
+      className={cn(
+        "flex h-full w-full items-center gap-3 border border-b-0 text-sm",
+      )}
+    >
+      <Checkbox
+        id={task._id}
+        className={cn(
+          "ml-3 rounded-none",
+          currentTaskId === task._id && "bg-secondary",
+        )}
+        checked={task.completed}
+      />
+      <div className="flex w-full items-center justify-between">
+        <label
+          htmlFor={task._id}
+          className={cn("w-full", currentTaskId === task._id && "font-medium")}
         >
-          <Checkbox
-            id={task._id}
-            className={cn(
-              "ml-3 rounded-none",
-              currentTaskId === task._id && "bg-secondary",
+          {task.description}
+        </label>
+
+        <Badge variant="outline" className="mr-3 hidden capitalize md:block">
+          {task.type}
+        </Badge>
+        <div className="flex items-center">
+          <Dialog>
+            <DialogContent>
+              <UpdateTaskItemDialog task={task} />
+            </DialogContent>
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                disabled={pending}
+                type="button"
+                onClick={() => setIsEditing(!isEditing)}
+                className="h-full border border-t-0 border-r border-b-0 border-l"
+              >
+                {pending ? (
+                  <Loader2 className="text-muted absolute animate-spin" />
+                ) : (
+                  <Pencil className="h-full" />
+                )}
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+          <Button
+            variant="outline"
+            disabled={pending}
+            onClick={removeTask}
+            className="h-full border-none"
+          >
+            {pending ? (
+              <Loader2 className="text-muted absolute animate-spin" />
+            ) : (
+              <TrashIcon className="h-full" />
             )}
-            checked={task.completed}
-          />
-          <FormField
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <>
-                <label
-                  htmlFor={task._id}
-                  className={cn(
-                    "inline-flex w-full items-center gap-3 text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70",
-                  )}
-                >
-                  <Editable
-                    {...field}
-                    isEditing={isEditing}
-                    onConfirm={(value) => {
-                      setIsEditing(false);
-                      field.onChange(value);
-                      form.handleSubmit(handleSubmit)();
-                    }}
-                    onCancel={() => {
-                      setIsEditing(false);
-                      field.onBlur();
-                    }}
-                    onEditingChange={handleEditingChange}
-                    className={cn(
-                      currentTaskId === task._id && "font-medium",
-                      "max-w-[100px] truncate md:max-w-full",
-                    )}
-                  />
-                </label>
-                <Badge variant="outline" className="hidden capitalize md:block">
-                  {task.type}
-                </Badge>
-                <div className="flex items-center">
-                  <Button
-                    variant="outline"
-                    disabled={pending}
-                    type="button"
-                    onClick={() => setIsEditing(!isEditing)}
-                    className="h-full border border-t-0 border-r border-b-0 border-l"
-                  >
-                    {pending ? (
-                      <Loader2 className="text-muted absolute animate-spin" />
-                    ) : (
-                      <Pencil className="h-full" />
-                    )}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    disabled={pending}
-                    onClick={removeTask}
-                    className="h-full border-none"
-                  >
-                    {pending ? (
-                      <Loader2 className="text-muted absolute animate-spin" />
-                    ) : (
-                      <TrashIcon className="h-full" />
-                    )}
-                  </Button>
-                </div>
-              </>
-            )}
-          />
+          </Button>
         </div>
-      </form>
-    </Form>
+      </div>
+    </div>
+  );
+}
+
+interface TaskItemDialogProps {
+  task: Doc<"tasks">;
+}
+
+export function UpdateTaskItemDialog(props: TaskItemDialogProps) {
+  const { task } = props;
+
+  return (
+    <Fragment>
+      <DialogHeader>
+        <DialogTitle>Edit Task</DialogTitle>
+        <DialogDescription>Edit your task details.</DialogDescription>
+      </DialogHeader>
+
+      <UpdateTaskForm task={task}>
+        <DialogFooter className="mt-4">
+          <DialogClose asChild>
+            <Button variant="secondary">Cancel</Button>
+          </DialogClose>
+          <Button variant="default" type="submit">
+            Edit Task
+          </Button>
+        </DialogFooter>
+      </UpdateTaskForm>
+    </Fragment>
   );
 }
 

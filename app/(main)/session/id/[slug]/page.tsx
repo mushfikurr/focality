@@ -50,6 +50,14 @@ export default async function SessionIdPage({
     { token: await convexAuthNextjsToken() },
   );
 
+  const preloadedProps = {
+    preloadedChat: preloadedChat,
+    preloadedParticipants: preloadedParticipants,
+    preloadedRoom: preloadedRoom,
+    preloadedSession: preloadedSession,
+    preloadedUser: preloadedUser,
+  };
+
   return (
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
       {/* Left Column */}
@@ -70,20 +78,14 @@ export default async function SessionIdPage({
         </div>
 
         <div className="flex w-full md:hidden">
-          <MobileActions />
+          <MobileActions {...preloadedProps} />
         </div>
       </div>
 
       {/* Right Column */}
       <div className="hidden h-full flex-col py-5 md:flex md:w-2/6">
         <div className="h-full">
-          <SyncedRoom
-            preloadedUser={preloadedUser}
-            preloadedSession={preloadedSession}
-            preloadedChat={preloadedChat}
-            preloadedRoom={preloadedRoom}
-            preloadedParticipants={preloadedParticipants}
-          />
+          <SyncedRoom {...preloadedProps} />
         </div>
 
         {/* <div className="min-h-0 flex-[1]">
