@@ -4,49 +4,30 @@ import type { Variants } from "motion/react";
 import { motion, useAnimation } from "motion/react";
 import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
-import { cn } from "@/lib/utils";
 
-export interface PauseIconHandle {
+export interface SquarePenIconHandle {
   startAnimation: () => void;
   stopAnimation: () => void;
 }
 
-interface PauseIconProps extends HTMLAttributes<SVGElement> {
+interface SquarePenIconProps extends HTMLAttributes<SVGElement> {
   size?: number;
 }
 
-const baseRectVariants: Variants = {
+const penVariants: Variants = {
   normal: {
+    rotate: 0,
+    x: 0,
     y: 0,
   },
-};
-
-const baseRectTransition = {
-  transition: {
-    times: [0, 0.2, 0.5, 1],
-    duration: 0.5,
-    stiffness: 260,
-    damping: 20,
-  },
-};
-
-const leftRectVariants: Variants = {
-  ...baseRectVariants,
   animate: {
-    y: [0, 2, 0, 0],
-    ...baseRectTransition,
+    rotate: [-0.5, 0.5, -0.5],
+    x: [0, -1, 1.5, 0],
+    y: [0, 1.5, -1, 0],
   },
 };
 
-const rightRectVariants: Variants = {
-  ...baseRectVariants,
-  animate: {
-    y: [0, 0, 2, 0],
-    ...baseRectTransition,
-  },
-};
-
-const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
+const SquarePenIcon = forwardRef<SquarePenIconHandle, SquarePenIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
@@ -93,27 +74,16 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className={cn(className)}
+        style={{ overflow: "visible" }}
+        className={className}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.rect
-          x="6"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={leftRectVariants}
-          animate={controls}
-        />
-        <motion.rect
-          x="14"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={rightRectVariants}
+        <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+        <motion.path
+          d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"
+          variants={penVariants}
           animate={controls}
         />
       </svg>
@@ -121,6 +91,6 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
   },
 );
 
-PauseIcon.displayName = "PauseIcon";
+SquarePenIcon.displayName = "SquarePenIcon";
 
-export { PauseIcon };
+export { SquarePenIcon };

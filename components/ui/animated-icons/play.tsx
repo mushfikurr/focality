@@ -2,8 +2,8 @@
 
 import type { Variants } from "motion/react";
 import { motion, useAnimation } from "motion/react";
-import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import type { SVGMotionProps } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 export interface PlayIconHandle {
@@ -11,7 +11,7 @@ export interface PlayIconHandle {
   stopAnimation: () => void;
 }
 
-interface PlayIconProps extends HTMLAttributes<HTMLDivElement> {
+interface PlayIconProps extends SVGMotionProps<SVGSVGElement> {
   size?: number;
 }
 
@@ -33,13 +33,19 @@ const pathVariants: Variants = {
 };
 
 const PlayIcon = forwardRef<PlayIconHandle, PlayIconProps>(
-  ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
+  ({ className, size = 28, ...props }, ref) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
 
+    const userOnMouseEnter = props.onMouseEnter as
+      | React.MouseEventHandler<SVGSVGElement>
+      | undefined;
+    const userOnMouseLeave = props.onMouseLeave as
+      | React.MouseEventHandler<SVGSVGElement>
+      | undefined;
+
     useImperativeHandle(ref, () => {
       isControlledRef.current = true;
-
       return {
         startAnimation: () => controls.start("animate"),
         stopAnimation: () => controls.start("normal"),
@@ -47,52 +53,46 @@ const PlayIcon = forwardRef<PlayIconHandle, PlayIconProps>(
     });
 
     const handleMouseEnter = useCallback(
-      (e: React.MouseEvent<HTMLDivElement>) => {
+      (e: React.MouseEvent<SVGSVGElement>) => {
         if (!isControlledRef.current) {
           controls.start("animate");
         } else {
-          onMouseEnter?.(e);
+          userOnMouseEnter?.(e);
         }
       },
-      [controls, onMouseEnter],
+      [controls, userOnMouseEnter],
     );
 
     const handleMouseLeave = useCallback(
-      (e: React.MouseEvent<HTMLDivElement>) => {
+      (e: React.MouseEvent<SVGSVGElement>) => {
         if (!isControlledRef.current) {
           controls.start("normal");
         } else {
-          onMouseLeave?.(e);
+          userOnMouseLeave?.(e);
         }
       },
-      [controls, onMouseLeave],
+      [controls, userOnMouseLeave],
     );
+
     return (
-      <div
+      <motion.svg
+        xmlns="http://www.w3.org/2000/svg"
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className={cn("cursor-pointer", className)}
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
-        className="inline-flex items-center gap-1.5"
+        animate={controls}
         {...props}
       >
-        <motion.svg
-          xmlns="http://www.w3.org/2000/svg"
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <motion.polygon
-            points="6 3 20 12 6 21 6 3"
-            variants={pathVariants}
-            animate={controls}
-          />
-        </motion.svg>
-        {props.children}
-      </div>
+        <motion.polygon points="6 3 20 12 6 21 6 3" variants={pathVariants} />
+      </motion.svg>
     );
   },
 );

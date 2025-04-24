@@ -2,9 +2,9 @@
 
 import { Doc, Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
 import NewTaskForm from "../forms/new-task-form";
-import { Button } from "../ui/button";
+import { CoffeeIcon } from "../ui/animated-icons/coffee-icon";
+import { AnimatedButton } from "../ui/button";
 import {
   Card,
   CardContent,
@@ -24,6 +24,7 @@ import {
 import { Scroller } from "../ui/scroller";
 import { MobileAddButton } from "./mobile-add-button";
 import { TaskItem } from "./task-item";
+import { SquarePenIcon } from "../ui/animated-icons/square-pen";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
@@ -117,9 +118,9 @@ const AddBreakButton: React.FC<{
 }> = ({ sessionId }) => (
   <Dialog>
     <DialogTrigger asChild>
-      <Button variant="ghost" size="sm">
-        <Plus /> Add Break
-      </Button>
+      <AnimatedButton variant="ghost" size="sm" icon={<CoffeeIcon />}>
+        Add Break
+      </AnimatedButton>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>
@@ -136,9 +137,9 @@ const AddTaskButton: React.FC<{
 }> = ({ sessionId }) => (
   <Dialog>
     <DialogTrigger asChild>
-      <Button variant="ghost" size="sm">
-        <Plus /> Add Task
-      </Button>
+      <AnimatedButton variant="ghost" size="sm" icon={<SquarePenIcon />}>
+        Add Task
+      </AnimatedButton>
     </DialogTrigger>
     <DialogContent>
       <DialogHeader>

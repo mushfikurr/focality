@@ -1,4 +1,4 @@
-import { Minus, Plus } from "lucide-react";
+import { CoffeeIcon, Minus, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -22,7 +22,7 @@ export function MobileAddButton({ actions }: { actions: any }) {
             <Plus /> Add Task
           </DropdownMenuItem>
           <DropdownMenuItem onClick={actions.addBreak}>
-            <Minus /> Add Break
+            <CoffeeIcon /> Add Break
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

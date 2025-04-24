@@ -2,8 +2,8 @@ import { PauseIcon } from "@/components/ui/animated-icons/pause";
 import { PlayIcon } from "@/components/ui/animated-icons/play";
 import { Progress } from "@/components/ui/progress";
 import { Doc } from "@/convex/_generated/dataModel";
-import { formatTime } from "@/lib/utils";
-import { Button } from "../../ui/button";
+import { cn, formatTime } from "@/lib/utils";
+import { AnimatedButton, Button } from "../../ui/button";
 import {
   Card,
   CardContent,
@@ -42,8 +42,17 @@ export function Timer(props: TimerProps) {
         <CardTitle className="flex items-center justify-between gap-3">
           <h1>{title ? title : "Current Session"}</h1>
           <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
-            <span className={`bg-primary h-2 w-2`}></span>
-            <p className="mb-[2px]">{isRunning ? "Working" : "Paused"}</p>
+            <span
+              className={cn(
+                `bg-primary h-2 w-2`,
+                !isRunning && "bg-muted-foreground",
+              )}
+            ></span>
+            <p
+              className={cn("mb-[2px]", !isRunning && "text-muted-foreground")}
+            >
+              {isRunning ? "Working" : "Paused"}
+            </p>
           </span>
         </CardTitle>
       </CardHeader>
@@ -136,12 +145,20 @@ export const TimerToggleButton: React.FC<TimerToggleButtonProps> = ({
   actions,
 }) => {
   return isRunning ? (
-    <Button onClick={actions.pauseTimer} variant="outline">
-      <PauseIcon>Pause</PauseIcon>
-    </Button>
+    <AnimatedButton
+      icon={<PauseIcon />}
+      onClick={actions.pauseTimer}
+      variant="outline"
+    >
+      Pause
+    </AnimatedButton>
   ) : (
-    <Button onClick={actions.startTimer} disabled={!currentTask || timer === 0}>
-      <PlayIcon>Start</PlayIcon>
-    </Button>
+    <AnimatedButton
+      icon={<PlayIcon />}
+      onClick={actions.startTimer}
+      disabled={!currentTask || timer === 0}
+    >
+      Start
+    </AnimatedButton>
   );
 };

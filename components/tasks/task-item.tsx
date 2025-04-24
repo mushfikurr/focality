@@ -6,7 +6,7 @@ import { Loader2, Pencil, TrashIcon } from "lucide-react";
 import { Fragment, useState } from "react";
 import UpdateTaskForm from "../forms/update-task-form";
 import { Badge } from "../ui/badge";
-import { Button } from "../ui/button";
+import { AnimatedButton, Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
@@ -19,6 +19,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Skeleton } from "../ui/skeleton";
+import { FilePenLineIcon } from "../ui/animated-icons/file-pen-line";
+import { DeleteIcon } from "../ui/animated-icons/delete-icon";
 
 interface TaskItemProps {
   removeTask: any;
@@ -62,38 +64,32 @@ export function TaskItem(props: TaskItemProps) {
           {task.type}
         </Badge>
         <div className="flex items-center">
-          <Dialog>
+          <Dialog open={isEditing} onOpenChange={(o) => setIsEditing(o)}>
             <DialogContent>
-              <UpdateTaskItemDialog task={task} />
+              <UpdateTaskItemDialog
+                task={task}
+                handleEditingChange={handleEditingChange}
+              />
             </DialogContent>
             <DialogTrigger asChild>
-              <Button
+              <AnimatedButton
                 variant="outline"
                 disabled={pending}
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="h-full border border-t-0 border-r border-b-0 border-l"
-              >
-                {pending ? (
-                  <Loader2 className="text-muted absolute animate-spin" />
-                ) : (
-                  <Pencil className="h-full" />
-                )}
-              </Button>
+                icon={<FilePenLineIcon className="h-full" />}
+                className="h-full border border-t-0 border-r border-b-0 border-l px-3"
+              />
             </DialogTrigger>
           </Dialog>
-          <Button
+          <AnimatedButton
             variant="outline"
             disabled={pending}
+            type="button"
+            icon={<DeleteIcon className="h-full" />}
             onClick={removeTask}
-            className="h-full border-none"
-          >
-            {pending ? (
-              <Loader2 className="text-muted absolute animate-spin" />
-            ) : (
-              <TrashIcon className="h-full" />
-            )}
-          </Button>
+            className="h-full border border-t-0 border-r-0 border-b-0 border-l-0 px-3"
+          />
         </div>
       </div>
     </div>
@@ -102,10 +98,11 @@ export function TaskItem(props: TaskItemProps) {
 
 interface TaskItemDialogProps {
   task: Doc<"tasks">;
+  handleEditingChange: (isEditing: boolean) => void;
 }
 
 export function UpdateTaskItemDialog(props: TaskItemDialogProps) {
-  const { task } = props;
+  const { task, handleEditingChange } = props;
 
   return (
     <Fragment>
@@ -114,11 +111,12 @@ export function UpdateTaskItemDialog(props: TaskItemDialogProps) {
         <DialogDescription>Edit your task details.</DialogDescription>
       </DialogHeader>
 
-      <UpdateTaskForm task={task}>
+      <UpdateTaskForm handleEditingChange={handleEditingChange} task={task}>
         <DialogFooter className="mt-4">
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
           </DialogClose>
+
           <Button variant="default" type="submit">
             Edit Task
           </Button>

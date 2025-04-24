@@ -156,7 +156,7 @@ const NewTaskForm: FC<NewTaskFormProps> = ({ sessionId, break: isBreak }) => {
         </div>
         <div className="flex w-full justify-end gap-2">
           <DialogClose asChild>
-            <Button variant="secondary">Close</Button>
+            <Button variant="secondary">Cancel</Button>
           </DialogClose>
           <Button type="submit" variant="default">
             {isBreak ? "Add Break" : "Add Task"}

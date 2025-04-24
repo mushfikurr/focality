@@ -4,12 +4,13 @@ import { api } from "@/convex/_generated/api";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { AnimatedTabsTrigger, Tabs, TabsContent, TabsList } from "../ui/tabs";
 import { Chat } from "./elements/chat";
 import ParticipantsList from "./elements/participants-list";
-import { MessageCircleIcon } from "../ui/animated-icons/message-circle";
+
+import { Users } from "lucide-react";
+import { MessageSquareMoreIcon } from "../ui/animated-icons/message-square-more";
 import { UsersIcon } from "../ui/animated-icons/users-2";
-import { Users, Users2 } from "lucide-react";
 
 interface SyncedRoomProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
@@ -64,12 +65,12 @@ export function SyncedRoom(props: SyncedRoomProps) {
   return (
     <Tabs defaultValue="chat" className="flex h-full flex-col">
       <TabsList className="shadow-sm">
-        <TabsTrigger value="chat">
-          <MessageCircleIcon>Chat</MessageCircleIcon>
-        </TabsTrigger>
-        <TabsTrigger value="participants">
-          <UsersIcon>Participants</UsersIcon>
-        </TabsTrigger>
+        <AnimatedTabsTrigger value="chat" icon={<MessageSquareMoreIcon />}>
+          Chat
+        </AnimatedTabsTrigger>
+        <AnimatedTabsTrigger value="participants" icon={<UsersIcon />}>
+          Participants
+        </AnimatedTabsTrigger>
       </TabsList>
       <TabsContent value="chat" className="flex-1 overflow-hidden shadow-sm">
         <Card className="flex h-full flex-col">

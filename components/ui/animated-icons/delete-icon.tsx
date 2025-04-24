@@ -6,47 +6,27 @@ import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-export interface PauseIconHandle {
+export interface DeleteIconHandle {
   startAnimation: () => void;
   stopAnimation: () => void;
 }
 
-interface PauseIconProps extends HTMLAttributes<SVGElement> {
+interface DeleteIconProps extends HTMLAttributes<SVGElement> {
   size?: number;
 }
 
-const baseRectVariants: Variants = {
-  normal: {
-    y: 0,
-  },
+const lidVariants: Variants = {
+  normal: { y: 0 },
+  animate: { y: -1.1 },
 };
 
-const baseRectTransition = {
-  transition: {
-    times: [0, 0.2, 0.5, 1],
-    duration: 0.5,
-    stiffness: 260,
-    damping: 20,
-  },
+const springTransition = {
+  type: "spring",
+  stiffness: 500,
+  damping: 30,
 };
 
-const leftRectVariants: Variants = {
-  ...baseRectVariants,
-  animate: {
-    y: [0, 2, 0, 0],
-    ...baseRectTransition,
-  },
-};
-
-const rightRectVariants: Variants = {
-  ...baseRectVariants,
-  animate: {
-    y: [0, 0, 2, 0],
-    ...baseRectTransition,
-  },
-};
-
-const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
+const DeleteIcon = forwardRef<DeleteIconHandle, DeleteIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
@@ -98,29 +78,52 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.rect
-          x="6"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={leftRectVariants}
+        <motion.g
+          variants={lidVariants}
           animate={controls}
+          transition={springTransition}
+        >
+          <path d="M3 6h18" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        </motion.g>
+        <motion.path
+          d="M19 8v12c0 1-1 2-2 2H7c-1 0-2-1-2-2V8"
+          variants={{
+            normal: { d: "M19 8v12c0 1-1 2-2 2H7c-1 0-2-1-2-2V8" },
+            animate: { d: "M19 9v12c0 1-1 2-2 2H7c-1 0-2-1-2-2V9" },
+          }}
+          animate={controls}
+          transition={springTransition}
         />
-        <motion.rect
-          x="14"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={rightRectVariants}
+        <motion.line
+          x1="10"
+          x2="10"
+          y1="11"
+          y2="17"
+          variants={{
+            normal: { y1: 11, y2: 17 },
+            animate: { y1: 11.5, y2: 17.5 },
+          }}
           animate={controls}
+          transition={springTransition}
+        />
+        <motion.line
+          x1="14"
+          x2="14"
+          y1="11"
+          y2="17"
+          variants={{
+            normal: { y1: 11, y2: 17 },
+            animate: { y1: 11.5, y2: 17.5 },
+          }}
+          animate={controls}
+          transition={springTransition}
         />
       </svg>
     );
   },
 );
 
-PauseIcon.displayName = "PauseIcon";
+DeleteIcon.displayName = "DeleteIcon";
 
-export { PauseIcon };
+export { DeleteIcon };

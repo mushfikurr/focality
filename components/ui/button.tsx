@@ -71,4 +71,97 @@ function Button({
   );
 }
 
+export interface AnimatedIconHandle {
+  startAnimation: () => void;
+  stopAnimation: () => void;
+}
+
+interface AnimatedButtonProps
+  extends React.ComponentProps<"button">,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  loading?: boolean;
+  icon?: React.ReactElement;
+}
+
+export const AnimatedButton = React.forwardRef<
+  HTMLButtonElement,
+  AnimatedButtonProps
+>(
+  (
+    {
+      className,
+      variant,
+      size,
+      children,
+      disabled,
+      asChild = false,
+      loading = false,
+      icon,
+      onClick,
+      onMouseEnter,
+      onMouseLeave,
+      ...props
+    },
+    ref,
+  ) => {
+    const Comp = asChild ? Slot : "button";
+    const iconRef = React.useRef<AnimatedIconHandle>(null);
+
+    const handleMouseEnter = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        iconRef.current?.startAnimation?.();
+        onMouseEnter?.(e);
+      },
+      [onMouseEnter],
+    );
+
+    const handleMouseLeave = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        iconRef.current?.stopAnimation?.();
+        onMouseLeave?.(e);
+      },
+      [onMouseLeave],
+    );
+
+    const handleClick = React.useCallback(
+      (e: React.MouseEvent<HTMLButtonElement>) => {
+        iconRef.current?.startAnimation?.();
+        onClick?.(e);
+      },
+      [onClick],
+    );
+
+    const clonedIcon = icon
+      ? // @ts-expect-error - trust that icon supports the ref
+        React.cloneElement(icon, { ref: iconRef })
+      : null;
+
+    return (
+      <Comp
+        ref={ref}
+        data-slot="button"
+        className={cn(buttonVariants({ variant, size, className, loading }))}
+        disabled={disabled || loading}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleClick}
+        {...props}
+      >
+        {loading && (
+          <Loader2Icon
+            className={cn("text-muted absolute animate-spin", "loading")}
+          />
+        )}
+        {clonedIcon && (
+          <span className="relative flex items-center justify-center">
+            {clonedIcon}
+          </span>
+        )}
+        {children && <Slottable>{children}</Slottable>}
+      </Comp>
+    );
+  },
+);
+
 export { Button, buttonVariants };

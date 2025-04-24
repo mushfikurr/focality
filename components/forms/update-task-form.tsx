@@ -23,6 +23,7 @@ interface UpdateTaskFormProps {
   task: Doc<"tasks">;
   children?: React.ReactNode;
   onCancel?: any;
+  handleEditingChange: (isEditing: boolean) => void;
 }
 
 const formSchema = z.object({
@@ -53,7 +54,11 @@ const calculateDates = (ms: number) => {
   };
 };
 
-const UpdateTaskForm: FC<UpdateTaskFormProps> = ({ task, children }) => {
+const UpdateTaskForm: FC<UpdateTaskFormProps> = ({
+  task,
+  children,
+  handleEditingChange,
+}) => {
   const ms = task.duration;
   const { description } = task;
   const { hours, minutes, seconds } = calculateDates(ms);
@@ -73,18 +78,20 @@ const UpdateTaskForm: FC<UpdateTaskFormProps> = ({ task, children }) => {
 
   const updateMtn = useMutation(api.tasks.mutations.updateTask);
 
-  const handleSubmit = (data: z.infer<typeof formSchema>) => {
+  const handleSubmit = async (data: z.infer<typeof formSchema>) => {
     const hours = data.hours.getHours();
     const minutes = data.minutes.getMinutes();
     const seconds = data.seconds.getSeconds();
 
     const totalDurationMs = ((hours * 60 + minutes) * 60 + seconds) * 1000;
 
-    updateMtn({
+    await updateMtn({
       taskId: task._id,
       description: data.description,
       duration: totalDurationMs,
     });
+
+    handleEditingChange(false);
   };
 
   return (

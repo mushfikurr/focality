@@ -6,47 +6,34 @@ import type { HTMLAttributes } from "react";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { cn } from "@/lib/utils";
 
-export interface PauseIconHandle {
+export interface FilePenLineIconHandle {
   startAnimation: () => void;
   stopAnimation: () => void;
 }
 
-interface PauseIconProps extends HTMLAttributes<SVGElement> {
+interface FilePenLineIconProps extends HTMLAttributes<SVGElement> {
   size?: number;
 }
 
-const baseRectVariants: Variants = {
+const penVariants: Variants = {
   normal: {
+    rotate: 0,
+    x: 0,
     y: 0,
   },
-};
-
-const baseRectTransition = {
-  transition: {
-    times: [0, 0.2, 0.5, 1],
-    duration: 0.5,
-    stiffness: 260,
-    damping: 20,
-  },
-};
-
-const leftRectVariants: Variants = {
-  ...baseRectVariants,
   animate: {
-    y: [0, 2, 0, 0],
-    ...baseRectTransition,
+    rotate: [-0.3, 0.2, -0.4],
+    x: [0, -0.5, 1, 0],
+    y: [0, 1, -0.5, 0],
+    transition: {
+      duration: 0.5,
+      repeat: 1,
+      ease: "easeInOut",
+    },
   },
 };
 
-const rightRectVariants: Variants = {
-  ...baseRectVariants,
-  animate: {
-    y: [0, 0, 2, 0],
-    ...baseRectTransition,
-  },
-};
-
-const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
+const FilePenLineIcon = forwardRef<FilePenLineIconHandle, FilePenLineIconProps>(
   ({ onMouseEnter, onMouseLeave, className, size = 28, ...props }, ref) => {
     const controls = useAnimation();
     const isControlledRef = useRef(false);
@@ -98,29 +85,27 @@ const PauseIcon = forwardRef<PauseIconHandle, PauseIconProps>(
         onMouseLeave={handleMouseLeave}
         {...props}
       >
-        <motion.rect
-          x="6"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={leftRectVariants}
+        <path d="m18 5-2.414-2.414A2 2 0 0 0 14.172 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" />
+        <motion.path
+          d="M21.378 12.626a1 1 0 0 0-3.004-3.004l-4.01 4.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"
+          initial="normal"
           animate={controls}
+          variants={penVariants}
         />
-        <motion.rect
-          x="14"
-          y="4"
-          width="4"
-          height="16"
-          rx="1"
-          variants={rightRectVariants}
+        <motion.path
+          d="M8 18h1"
+          variants={{
+            normal: { d: "M8 18h1" },
+            animate: { d: "M8 18h5" },
+          }}
           animate={controls}
+          transition={{ duration: 0.5 }}
         />
       </svg>
     );
   },
 );
 
-PauseIcon.displayName = "PauseIcon";
+FilePenLineIcon.displayName = "FilePenLineIcon";
 
-export { PauseIcon };
+export { FilePenLineIcon };

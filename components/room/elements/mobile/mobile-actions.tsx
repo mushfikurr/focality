@@ -99,7 +99,7 @@ const MobileActions: FC<MobileActionProps> = ({
             </span>
           </>
         }
-        content={<ParticipantsList participants={[...participants]} />}
+        content={<ParticipantsList participants={participants} />}
       />
     </div>
   );
