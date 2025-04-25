@@ -115,8 +115,8 @@ export function Action({ title, content, trigger }: ActionProps) {
     <Drawer>
       <DrawerTrigger asChild>{trigger}</DrawerTrigger>
 
-      <DrawerContent className="flex h-full flex-col">
-        <div className="mx-auto flex h-full max-w-sm flex-col space-y-1 overflow-hidden pb-20">
+      <DrawerContent className="flex h-full w-full flex-col">
+        <div className="mx-auto flex h-full w-full max-w-sm flex-col space-y-1 overflow-hidden p-6 pt-0">
           <DrawerHeader>
             <DrawerTitle className="inline-flex items-center justify-between gap-3">
               {title}

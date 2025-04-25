@@ -1,5 +1,6 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 export function Timer() {
@@ -17,7 +18,10 @@ export function Timer() {
         <h2 className="text-base font-semibold">
           {weekdayToday}, {formattedHours} {amPm}
         </h2>
-        <span className="text-primary text-xs font-medium">● Working</span>
+        <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
+          <span className={cn(`bg-primary h-2 w-2`)}></span>
+          <p className={cn("mb-[2px]")}>Working</p>
+        </span>
       </div>
       <div className="bg-muted mb-2 h-3 w-full overflow-clip border">
         <div className="bg-primary h-full w-[32%]"></div>

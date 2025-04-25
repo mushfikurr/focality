@@ -30,7 +30,7 @@ export default function ParticipantsList({
   participants: Doc<"users">[];
 }) {
   return (
-    <Scroller className="h-full overflow-auto">
+    <Scroller className="h-full w-full overflow-auto">
       {participants.map((p, idx) => (
         <HoverCard key={p._id}>
           <HoverCardTrigger className="w-full">

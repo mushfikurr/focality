@@ -13,21 +13,27 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { LogOut } from "lucide-react";
+import { LogOut, Moon, Sun } from "lucide-react";
 import { forwardRef, useRef } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 import { redirect } from "next/navigation";
+import { useTheme } from "next-themes";
 
 export default function UserNavbar() {
   const auth = useAuthActions();
   const userNavRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
 
   const handleLogout = async () => {
     await auth.signOut();
     toast.success("Successfully logged out!");
     redirect("/");
+  };
+
+  const handleThemeChange = () => {
+    theme.setTheme(theme.theme === "dark" ? "light" : "dark");
   };
 
   return (
@@ -44,6 +50,9 @@ export default function UserNavbar() {
           <DropdownMenuItem onClick={handleLogout}>
             <LogOut /> Log out
           </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleThemeChange}>
+            {theme.theme === "light" ? <Sun /> : <Moon />} Switch Theme
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </div>
@@ -55,7 +64,7 @@ const UserTrigger = forwardRef(() => {
 
   return (
     <div className="flex h-full flex-row-reverse items-center gap-4">
-      <Avatar className="outline-border flex aspect-square h-full items-center justify-center rounded-none outline-1">
+      <Avatar className="flex aspect-square h-full items-center justify-center rounded-none border border-t-0 border-r-0 border-b-0">
         <AvatarImage
           className="aspect-square h-full"
           src={currentUser?.image}

@@ -12,7 +12,7 @@ export function MobileAddButton({ actions }: { actions: any }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex md:hidden" asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" className="size-8" size="icon">
           <Plus className="h-5 w-5" />
         </Button>
       </DropdownMenuTrigger>
