@@ -1,12 +1,13 @@
+import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { mutation, MutationCtx } from "../_generated/server";
-import { taskType } from "./queries";
 import { api } from "../_generated/api";
+import { Doc, Id } from "../_generated/dataModel";
+import { mutation, MutationCtx } from "../_generated/server";
+import { durationByUserAggregate } from "../statistics/tasks/queries";
 import { validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
-import { WithoutSystemFields } from "convex/server";
-import { Doc, Id } from "../_generated/dataModel";
-import { durationByUserAggregate } from "../statistics/queries";
+import { taskType } from "./queries";
+import { incrementStreak } from "../streaks/mutations";
 
 const _insertTask = async (
   ctx: MutationCtx,
@@ -17,7 +18,7 @@ const _insertTask = async (
   await durationByUserAggregate.insert(ctx, doc);
 };
 
-const _updateTask = async (
+export const _updateTask = async (
   ctx: MutationCtx,
   id: Id<"tasks">,
   args: Partial<WithoutSystemFields<Doc<"tasks">>>,
@@ -26,10 +27,7 @@ const _updateTask = async (
   console.log(oldDoc);
   await ctx.db.patch(id, args);
   const newDoc = await getDocumentOrThrow(ctx, "tasks", id);
-  console.log(newDoc);
-  console.log("replacing");
   await durationByUserAggregate.replace(ctx, oldDoc, newDoc);
-  console.log("replaced");
 };
 
 const _removeTask = async (ctx: MutationCtx, id: Id<"tasks">) => {
@@ -92,17 +90,30 @@ export const completeTaskIfElapsed = mutation({
     if (elapsed >= task.duration) {
       console.log(`✅ Task ${task._id} completed.`);
 
+      // Update completed status to true for task
       await _updateTask(ctx, task._id, {
         completed: true,
         elapsed: task.duration,
       });
 
+      // Add streaks for all participants
+      if (session.roomId) {
+        const room = await getDocumentOrThrow(ctx, "rooms", session.roomId);
+        await Promise.all(
+          room.participants.map(async (userId) => {
+            await incrementStreak(ctx, userId);
+          }),
+        );
+      }
+
+      // Set session to not running, reset current task, and reset start time
       await ctx.db.patch(session._id, {
         running: false,
         startTime: undefined,
         currentTaskId: undefined,
       });
 
+      // Find and set the next incomplete task
       await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
         sessionId: session._id,
       });

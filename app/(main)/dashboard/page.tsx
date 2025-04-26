@@ -38,17 +38,37 @@ export default async function DashboardPage() {
   const authToken = await convexAuthNextjsToken();
   if (!user) return null;
   const preloadedTotalFocusTime = await preloadQuery(
-    api.statistics.queries.totalFocusTimeByCurrentUser,
+    api.statistics.tasks.queries.totalFocusTimeByCurrentUser,
     {},
     { token: authToken },
   );
   const preloadedTotalFocusTimeByWeek = await preloadQuery(
-    api.statistics.queries.totalFocusTimeByCurrentUserForWeek,
+    api.statistics.tasks.queries.totalFocusTimeByCurrentUserForWeek,
     {},
     { token: authToken },
   );
   const preloadedDailyAveragesByMonth = await preloadQuery(
-    api.statistics.queries.dailyAveragesByCurrentUserForMonth,
+    api.statistics.tasks.queries.dailyAveragesByCurrentUserForMonth,
+    {},
+    { token: authToken },
+  );
+  const preloadedCompletedSessions = await preloadQuery(
+    api.statistics.sessions.queries.totalCompletionByCurrentUser,
+    {},
+    { token: authToken },
+  );
+  const preloadedCompletedSessionsByWeek = await preloadQuery(
+    api.statistics.sessions.queries.totalCompletionByCurrentUserForWeek,
+    {},
+    { token: authToken },
+  );
+  const preloadedStreak = await preloadQuery(
+    api.streaks.queries.getByCurrentUser,
+    {},
+    { token: authToken },
+  );
+  const preloadedStreakHighest = await preloadQuery(
+    api.streaks.queries.getHighestStreakByCurrentUser,
     {},
     { token: authToken },
   );
@@ -76,6 +96,10 @@ export default async function DashboardPage() {
           <Statistics
             preloadedTotalFocusTime={preloadedTotalFocusTime}
             preloadedTotalFocusTimeByWeek={preloadedTotalFocusTimeByWeek}
+            preloadedCompletedSessions={preloadedCompletedSessions}
+            preloadedCompletedSessionsByWeek={preloadedCompletedSessionsByWeek}
+            preloadedStreak={preloadedStreak}
+            preloadedStreakHighest={preloadedStreakHighest}
           />
         </div>
 

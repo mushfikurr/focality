@@ -1,9 +1,9 @@
 import { TableAggregate } from "@convex-dev/aggregate";
 import { subWeeks } from "date-fns";
-import { components } from "../_generated/api";
-import { DataModel, Id } from "../_generated/dataModel";
-import { query, QueryCtx } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
+import { components } from "../../_generated/api";
+import { DataModel, Id } from "../../_generated/dataModel";
+import { query, QueryCtx } from "../../_generated/server";
+import { authenticatedUser } from "../../utils/auth";
 
 export const durationByUserAggregate = new TableAggregate<{
   Namespace: [Id<"users">, boolean];
@@ -19,11 +19,13 @@ export const durationByUserAggregate = new TableAggregate<{
 const totalFocusTimeByUser = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
-) =>
-  await durationByUserAggregate.sum(ctx, {
+) => {
+  const result: number = await durationByUserAggregate.sum(ctx, {
     namespace: [args.userId, true],
-    bounds: {},
+    bounds: {} as any,
   });
+  return result;
+};
 
 const totalFocusTimeByUserForWeek = async (
   ctx: QueryCtx,
@@ -38,7 +40,7 @@ const totalFocusTimeByUserForWeek = async (
     bounds: {
       lower: { key: oneWeekAgoTime, inclusive: true },
       upper: { key: nowTime, inclusive: true },
-    },
+    } as any,
   });
   return totalFocusTimeForWeek;
 };
@@ -74,7 +76,7 @@ export const dailyAveragesByUserForMonth = async (
       bounds: {
         lower: { key: dayStart, inclusive: true },
         upper: { key: dayEnd, inclusive: false },
-      },
+      } as any,
     });
 
     const dailyCount = await durationByUserAggregate.count(ctx, {
@@ -82,7 +84,7 @@ export const dailyAveragesByUserForMonth = async (
       bounds: {
         lower: { key: dayStart, inclusive: true },
         upper: { key: dayEnd, inclusive: false },
-      },
+      } as any,
     });
 
     aggregatedData.totalSum += dailySum;

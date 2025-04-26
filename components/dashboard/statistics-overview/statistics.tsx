@@ -8,10 +8,20 @@ import { StatisticCard } from "./statistics-card";
 
 interface StatisticsProps {
   preloadedTotalFocusTime: Preloaded<
-    typeof api.statistics.queries.totalFocusTimeByCurrentUser
+    typeof api.statistics.tasks.queries.totalFocusTimeByCurrentUser
   >;
   preloadedTotalFocusTimeByWeek: Preloaded<
-    typeof api.statistics.queries.totalFocusTimeByCurrentUserForWeek
+    typeof api.statistics.tasks.queries.totalFocusTimeByCurrentUserForWeek
+  >;
+  preloadedCompletedSessions: Preloaded<
+    typeof api.statistics.sessions.queries.totalCompletionByCurrentUser
+  >;
+  preloadedCompletedSessionsByWeek: Preloaded<
+    typeof api.statistics.sessions.queries.totalCompletionByCurrentUserForWeek
+  >;
+  preloadedStreak: Preloaded<typeof api.streaks.queries.getByCurrentUser>;
+  preloadedStreakHighest: Preloaded<
+    typeof api.streaks.queries.getHighestStreakByCurrentUser
   >;
 }
 
@@ -29,6 +39,15 @@ export default function Statistics(props: StatisticsProps) {
   });
   const formattedFocusTimeByWeek = `${focusDurationByWeek.hours ?? 0}h ${focusDurationByWeek.minutes ?? 0}m`;
 
+  const totalSessionCompleted = usePreloadedQuery(
+    props.preloadedCompletedSessions,
+  );
+  const weeklySessionCompleted = usePreloadedQuery(
+    props.preloadedCompletedSessionsByWeek,
+  );
+
+  const streak = usePreloadedQuery(props.preloadedStreak);
+  const highestStreak = usePreloadedQuery(props.preloadedStreakHighest);
   return (
     <>
       <StatisticCard
@@ -40,15 +59,15 @@ export default function Statistics(props: StatisticsProps) {
 
       <StatisticCard
         cardTitle="Sessions Completed"
-        statHeading="87"
-        statSubheading="+12 this week"
+        statHeading={`${totalSessionCompleted}`}
+        statSubheading={`${weeklySessionCompleted} this week`}
         Icon={CheckCheck}
       />
 
       <StatisticCard
         cardTitle="Current Streak"
-        statHeading="5 days"
-        statSubheading="Best: 14 days"
+        statHeading={`${streak?.streak ?? 0}`}
+        statSubheading={`Best: ${highestStreak ?? 0}`}
         Icon={Flame}
       />
 

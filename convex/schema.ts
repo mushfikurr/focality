@@ -13,12 +13,18 @@ export default defineSchema({
     phoneVerificationTime: v.optional(v.number()),
     isAnonymous: v.optional(v.boolean()),
     roomId: v.optional(v.id("rooms")),
-    streak: v.optional(v.number()),
+    lastActive: v.optional(v.number()),
     level: v.optional(v.number()),
     xp: v.optional(v.number()),
+    highestStreak: v.optional(v.number()),
   })
     .index("email", ["email"])
     .index("by_room", ["roomId"]),
+
+  streaks: defineTable({
+    userId: v.id("users"),
+    streak: v.number(),
+  }).index("by_user", ["userId"]),
 
   sessions: defineTable({
     hostId: v.id("users"),
@@ -29,6 +35,7 @@ export default defineSchema({
     running: v.boolean(),
     currentTaskId: v.optional(v.id("tasks")),
     roomId: v.optional(v.id("rooms")),
+    completed: v.boolean(),
   })
     .index("by_user", ["hostId"])
     .index("by_room", ["roomId"]),

@@ -1,8 +1,7 @@
 import { v } from "convex/values";
 import { query } from "../_generated/server";
-import { getAuthUserId } from "@convex-dev/auth/server";
-import { getDocumentOrThrow } from "../utils/db";
 import { authenticatedUser } from "../utils/auth";
+import { getDocumentOrThrow } from "../utils/db";
 
 export const getRoomBySession = query({
   args: {

@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
-import { mutation, MutationCtx, query } from "../_generated/server";
 import { Id } from "../_generated/dataModel";
+import { MutationCtx, query } from "../_generated/server";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 

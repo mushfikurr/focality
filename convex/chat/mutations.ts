@@ -1,7 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { api } from "../_generated/api";
-import { validateRoomParticipant, authenticatedUser } from "../utils/auth";
+import { authenticatedUser } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const createChat = mutation({

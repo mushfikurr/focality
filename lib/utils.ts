@@ -20,6 +20,13 @@ export function formatTimeInMs(milliseconds: number): string {
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(3, "0")}`;
 }
 
+export function getTodayDayNumber(offsetDays = 0) {
+  const now = new Date();
+  now.setUTCHours(0, 0, 0, 0);
+  now.setDate(now.getDate() + offsetDays);
+  return Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
+}
+
 export function formatTimestampToHS(timestamp: number): string {
   const focusDuration = intervalToDuration({ start: 0, end: timestamp });
   return `${focusDuration.hours ?? 0}h ${focusDuration.minutes ?? 0}m`;
