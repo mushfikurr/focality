@@ -23,7 +23,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <ConvexAuthNextjsServerProvider>
-      <html lang="en">
+      <html lang="en" suppressHydrationWarning>
         <body className={`${spaceGrotesk.className} relative antialiased`}>
           <ConvexClientProvider>
             <ThemeProvider defaultTheme="system" attribute="class">

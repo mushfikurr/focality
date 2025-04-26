@@ -1,9 +1,42 @@
 import { v } from "convex/values";
-import { mutation } from "../_generated/server";
+import { mutation, MutationCtx } from "../_generated/server";
 import { taskType } from "./queries";
 import { api } from "../_generated/api";
 import { validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
+import { WithoutSystemFields } from "convex/server";
+import { Doc, Id } from "../_generated/dataModel";
+import { durationByUserAggregate } from "../statistics/queries";
+
+const _insertTask = async (
+  ctx: MutationCtx,
+  args: WithoutSystemFields<Doc<"tasks">>,
+) => {
+  const id = await ctx.db.insert("tasks", args);
+  const doc = await getDocumentOrThrow(ctx, "tasks", id);
+  await durationByUserAggregate.insert(ctx, doc);
+};
+
+const _updateTask = async (
+  ctx: MutationCtx,
+  id: Id<"tasks">,
+  args: Partial<WithoutSystemFields<Doc<"tasks">>>,
+) => {
+  const oldDoc = await getDocumentOrThrow(ctx, "tasks", id);
+  console.log(oldDoc);
+  await ctx.db.patch(id, args);
+  const newDoc = await getDocumentOrThrow(ctx, "tasks", id);
+  console.log(newDoc);
+  console.log("replacing");
+  await durationByUserAggregate.replace(ctx, oldDoc, newDoc);
+  console.log("replaced");
+};
+
+const _removeTask = async (ctx: MutationCtx, id: Id<"tasks">) => {
+  const doc = await getDocumentOrThrow(ctx, "tasks", id);
+  await ctx.db.delete(id);
+  await durationByUserAggregate.deleteIfExists(ctx, doc);
+};
 
 export const addTask = mutation({
   args: {
@@ -13,10 +46,10 @@ export const addTask = mutation({
     description: v.string(),
   },
   handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
+    const userId = await validateSessionHost(ctx, args.sessionId);
 
     const task = {
-      userId: await validateSessionHost(ctx, args.sessionId),
+      userId,
       sessionId: args.sessionId,
       type: args.type,
       duration: args.duration,
@@ -25,7 +58,7 @@ export const addTask = mutation({
       completed: false,
     };
 
-    const id = await ctx.db.insert("tasks", task);
+    const id = _insertTask(ctx, task);
 
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
     if (!session.currentTaskId) {
@@ -59,7 +92,7 @@ export const completeTaskIfElapsed = mutation({
     if (elapsed >= task.duration) {
       console.log(`✅ Task ${task._id} completed.`);
 
-      await ctx.db.patch(task._id, {
+      await _updateTask(ctx, task._id, {
         completed: true,
         elapsed: task.duration,
       });
@@ -88,7 +121,7 @@ export const deleteTask = mutation({
     const session = await getDocumentOrThrow(ctx, "sessions", task.sessionId);
     const isCurrent = session.currentTaskId === task._id;
 
-    await ctx.db.delete(args.taskId);
+    await _removeTask(ctx, args.taskId);
     console.log("🗑️ Deleted task:", task._id);
 
     if (isCurrent) {
@@ -115,6 +148,6 @@ export const updateTask = mutation({
     await validateSessionHost(ctx, task.sessionId);
 
     const { taskId, ...toUpdate } = args;
-    await ctx.db.patch(args.taskId, toUpdate);
+    await _updateTask(ctx, args.taskId, toUpdate);
   },
 });

@@ -54,7 +54,7 @@ export default function LoginForm() {
     try {
       await auth.signIn("password", values);
       toast.success("Successfully signed in!");
-      redirect("/");
+      redirect("/dashboard");
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -64,6 +64,7 @@ export default function LoginForm() {
   const handleGoogleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     auth.signIn("google");
+    redirect("/dashboard");
   };
 
   return (

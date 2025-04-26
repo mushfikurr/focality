@@ -1,4 +1,5 @@
 import { clsx, type ClassValue } from "clsx";
+import { intervalToDuration } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -17,4 +18,9 @@ export function formatTimeInMs(milliseconds: number): string {
   const ms = milliseconds % 1000; // Get the milliseconds part
 
   return `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(ms).padStart(3, "0")}`;
+}
+
+export function formatTimestampToHS(timestamp: number): string {
+  const focusDuration = intervalToDuration({ start: 0, end: timestamp });
+  return `${focusDuration.hours ?? 0}h ${focusDuration.minutes ?? 0}m`;
 }

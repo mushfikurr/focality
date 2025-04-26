@@ -1,8 +1,8 @@
 import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
 import { api } from "../_generated/api";
-import { Doc } from "../_generated/dataModel";
-import { mutation } from "../_generated/server";
+import { Doc, Id } from "../_generated/dataModel";
+import { internalMutation, mutation, MutationCtx } from "../_generated/server";
 import { authenticatedUser, validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 
@@ -31,7 +31,7 @@ export const clearCurrentTask = mutation({
   },
   handler: async (ctx, args) => {
     await validateSessionHost(ctx, args.sessionId);
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+    await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
     return await ctx.db.patch(args.sessionId, {
       currentTaskId: undefined,

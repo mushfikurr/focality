@@ -39,7 +39,7 @@ export default async function Page() {
             <div className="flex gap-3">
               <Button variant="outline">How it works</Button>
               <Link
-                href="/session"
+                href="/dashboard"
                 className={cn(buttonVariants({ variant: "default" }))}
               >
                 Start session <ArrowRight />
