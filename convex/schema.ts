@@ -16,7 +16,9 @@ export default defineSchema({
     streak: v.optional(v.number()),
     level: v.optional(v.number()),
     xp: v.optional(v.number()),
-  }).index("by_room", ["roomId"]),
+  })
+    .index("email", ["email"])
+    .index("by_room", ["roomId"]),
 
   sessions: defineTable({
     hostId: v.id("users"),

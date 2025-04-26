@@ -36,6 +36,7 @@ import Link from "next/link";
 export default async function DashboardPage() {
   const user = await isAuthenticatedNextjs();
   const authToken = await convexAuthNextjsToken();
+  if (!user) return null;
   const preloadedTotalFocusTime = await preloadQuery(
     api.statistics.queries.totalFocusTimeByCurrentUser,
     {},
@@ -96,7 +97,9 @@ export default async function DashboardPage() {
           <CardContent>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {/* Weekly Focus Hours */}
-              <DailyFocusTimeByMonth preloadedDailyAveragesByMonth={preloadedDailyAveragesByMonth} />
+              <DailyFocusTimeByMonth
+                preloadedDailyAveragesByMonth={preloadedDailyAveragesByMonth}
+              />
 
               {/* Productivity Patterns */}
               <div>
