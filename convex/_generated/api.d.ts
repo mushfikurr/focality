@@ -8,10 +8,15 @@
  * @module
  */
 
+import type * as achievements_mutations from "../achievements/mutations.js";
+import type * as achievements_queries from "../achievements/queries.js";
 import type * as auth from "../auth.js";
 import type * as chat_mutations from "../chat/mutations.js";
 import type * as chat_queries from "../chat/queries.js";
 import type * as http from "../http.js";
+import type * as levels_mutations from "../levels/mutations.js";
+import type * as levels_queries from "../levels/queries.js";
+import type * as levels_utils from "../levels/utils.js";
 import type * as rooms_mutations from "../rooms/mutations.js";
 import type * as rooms_queries from "../rooms/queries.js";
 import type * as session_mutations from "../session/mutations.js";
@@ -43,10 +48,15 @@ import type {
  * ```
  */
 declare const fullApi: ApiFromModules<{
+  "achievements/mutations": typeof achievements_mutations;
+  "achievements/queries": typeof achievements_queries;
   auth: typeof auth;
   "chat/mutations": typeof chat_mutations;
   "chat/queries": typeof chat_queries;
   http: typeof http;
+  "levels/mutations": typeof levels_mutations;
+  "levels/queries": typeof levels_queries;
+  "levels/utils": typeof levels_utils;
   "rooms/mutations": typeof rooms_mutations;
   "rooms/queries": typeof rooms_queries;
   "session/mutations": typeof session_mutations;

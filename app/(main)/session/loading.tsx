@@ -1,10 +1,20 @@
-import { Loader2 } from "lucide-react";
+import { TasksSkeleton } from "@/components/tasks/skeleton";
+import { SessionSkeleton } from "@/components/timer/elements/skeleton";
 
-export default function SessionLoading() {
+export default function SessionPageLoading() {
   return (
-    <div className="container mx-auto flex h-full w-full justify-center gap-6 py-16">
-      <Loader2 className="text-primary h-8 w-8 animate-spin" />
-      <h1 className="animate-pulse text-xl">Getting your session ready...</h1>
+    <div className="container mx-auto grid min-h-0 flex-1 grid-cols-1 gap-6 py-8 lg:grid-cols-3">
+      <section className="col-span-1 flex min-h-0 flex-col gap-y-8 lg:col-span-2">
+        <div className="shrink-0">
+          <SessionSkeleton />
+        </div>
+        <div className="min-h-0 flex-1">
+          <TasksSkeleton />
+        </div>
+      </section>
+      <section className="flex flex-col gap-y-8 lg:col-span-1">
+        <div className="shrink-0">{/* <Room /> */}</div>
+      </section>
     </div>
   );
 }

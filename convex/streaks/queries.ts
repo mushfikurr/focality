@@ -3,33 +3,29 @@ import { query } from "../_generated/server";
 import { authenticatedUser } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 
-export const getByCurrentUser = query({
+export const getStreakInfoByCurrentUser = query({
   handler: async (ctx) => {
     const user = await authenticatedUser(ctx);
-    return await ctx.db
+    const streak = await ctx.db
       .query("streaks")
       .withIndex("by_user", (q) => q.eq("userId", user))
       .first();
+    const highestStreak = (await ctx.db.get(user))?.highestStreak;
+    return { streak, highestStreak };
   },
 });
 
-export const getByUser = query({
+export const getStreakInfoByUser = query({
   args: {
     userId: v.id("users"),
   },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const user = await getDocumentOrThrow(ctx, "users", args.userId);
+    const streak = await ctx.db
       .query("streaks")
       .withIndex("by_user", (q) => q.eq("userId", args.userId))
       .first();
-  },
-});
-
-export const getHighestStreakByCurrentUser = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
-    const user = await getDocumentOrThrow(ctx, "users", userId);
-    return user.highestStreak;
+    const highestStreak = user.highestStreak;
+    return { streak, highestStreak };
   },
 });

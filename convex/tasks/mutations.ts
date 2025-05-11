@@ -8,6 +8,9 @@ import { validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 import { taskType } from "./queries";
 import { incrementStreak } from "../streaks/mutations";
+import { findAndSetCurrentTask } from "../session/mutations";
+import { grantExperience } from "../levels/mutations";
+import { insertLevelAchievements } from "../achievements/mutations";
 
 const _insertTask = async (
   ctx: MutationCtx,
@@ -61,9 +64,7 @@ export const addTask = mutation({
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
     if (!session.currentTaskId) {
       console.log("🆕 No current task. Will try to set the new one.");
-      await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
-        sessionId: args.sessionId,
-      });
+      await findAndSetCurrentTask(ctx, args.sessionId);
     }
 
     return id;
@@ -96,12 +97,14 @@ export const completeTaskIfElapsed = mutation({
         elapsed: task.duration,
       });
 
-      // Add streaks for all participants
+      // Add streaks and XP for all participants
       if (session.roomId) {
         const room = await getDocumentOrThrow(ctx, "rooms", session.roomId);
         await Promise.all(
           room.participants.map(async (userId) => {
             await incrementStreak(ctx, userId);
+            await grantExperience(ctx, userId, task.duration);
+            await insertLevelAchievements(ctx, userId);
           }),
         );
       }
@@ -114,9 +117,7 @@ export const completeTaskIfElapsed = mutation({
       });
 
       // Find and set the next incomplete task
-      await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
-        sessionId: session._id,
-      });
+      await findAndSetCurrentTask(ctx, session._id);
     }
   },
 });
@@ -137,9 +138,7 @@ export const deleteTask = mutation({
 
     if (isCurrent) {
       console.log("⚠️ Deleted task was current. Finding new task...");
-      await ctx.runMutation(api.session.mutations.findAndSetCurrentTask, {
-        sessionId: session._id,
-      });
+      await findAndSetCurrentTask(ctx, session._id);
     } else {
       console.log("✅ Deleted task was not current. No reassignment needed.");
     }

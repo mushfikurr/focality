@@ -1,19 +1,20 @@
 "use client";
 
 import { Progress } from "@/components/ui/progress";
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { formatTimestampToHS } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 
 interface DailyFocusTimeByMonthProps {
-  preloadedDailyAveragesByMonth: Preloaded<
-    typeof api.statistics.queries.dailyAveragesByCurrentUserForMonth
+  preloadedTaskStatistics: Preloaded<
+    typeof api.statistics.tasks.queries.getTaskStatisticsForCurrentUser
   >;
 }
 
 export function DailyFocusTimeByMonth(props: DailyFocusTimeByMonthProps) {
-  const dailyAveragesByMonth = usePreloadedQuery(
-    props.preloadedDailyAveragesByMonth,
+  const { dailyAveragesByMonth } = usePreloadedQuery(
+    props.preloadedTaskStatistics,
   );
 
   return (
@@ -22,6 +23,25 @@ export function DailyFocusTimeByMonth(props: DailyFocusTimeByMonthProps) {
       <div className="space-y-2">
         {dailyAveragesByMonth.dailyAverages.map((dailyAverage) => (
           <Day key={dailyAverage.dayOfWeek} {...dailyAverage} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function DailyFocusTimeByMonthSkeleton() {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return (
+    <div>
+      <Skeleton className="mb-3 h-4 w-32" />
+      <div className="space-y-2">
+        {days.map((day) => (
+          <div key={day} className="flex items-center gap-4">
+            <Skeleton className="h-4 w-12" />
+            <Skeleton className="h-4 w-12 flex-grow" />
+            <Skeleton className="h-4 w-12" />
+          </div>
         ))}
       </div>
     </div>

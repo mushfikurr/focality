@@ -112,28 +112,18 @@ export const dailyAveragesByUserForMonth = async (
   };
 };
 
-export const totalFocusTimeByCurrentUser = query({
-  args: {},
+export const getTaskStatisticsForCurrentUser = query({
   handler: async (ctx) => {
     const userId = await authenticatedUser(ctx);
-    return totalFocusTimeByUser(ctx, { userId });
-  },
-});
-
-export const totalFocusTimeByCurrentUserForWeek = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
-    return await totalFocusTimeByUserForWeek(ctx, {
+    const totalFocusTime = await totalFocusTimeByUser(ctx, {
       userId,
     });
-  },
-});
-
-export const dailyAveragesByCurrentUserForMonth = query({
-  args: {},
-  handler: async (ctx) => {
-    const userId = await authenticatedUser(ctx);
-    return await dailyAveragesByUserForMonth(ctx, { userId });
+    const totalFocusTimeByWeek = await totalFocusTimeByUserForWeek(ctx, {
+      userId,
+    });
+    const dailyAveragesByMonth = await dailyAveragesByUserForMonth(ctx, {
+      userId,
+    });
+    return { totalFocusTime, totalFocusTimeByWeek, dailyAveragesByMonth };
   },
 });

@@ -45,20 +45,15 @@ const totalCompletionByUserForWeek = async (
   return totalCompletionForWeek;
 };
 
-export const totalCompletionByCurrentUserForWeek = query({
-  args: {},
-  handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
-    return await totalCompletionByUserForWeek(ctx, {
-      userId,
-    });
-  },
-});
-
-export const totalCompletionByCurrentUser = query({
-  args: {},
+export const getSessionStatisticsForCurrentUser = query({
   handler: async (ctx) => {
     const userId = await authenticatedUser(ctx);
-    return totalCompletionByUser(ctx, { userId });
+    const totalCompletion = await totalCompletionByUser(ctx, {
+      userId,
+    });
+    const totalCompletionByWeek = await totalCompletionByUserForWeek(ctx, {
+      userId,
+    });
+    return { totalCompletion, totalCompletionByWeek };
   },
 });

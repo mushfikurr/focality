@@ -2,20 +2,16 @@ import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
+import { authenticatedUser } from "../utils/auth";
+import { getDocumentOrThrow } from "../utils/db";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
-
-export const isUserAuthenticated = async (ctx: MutationCtx) => {
-  const userId = await getAuthUserId(ctx);
-  if (!userId) throw new Error("Not authenticated");
-  return userId;
-};
 
 export const isUserHost = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
 ) => {
-  const userId = await isUserAuthenticated(ctx);
+  const userId = await authenticatedUser(ctx);
   const session = await ctx.db.get(sessionId);
   if (!session) throw new Error("Session not found");
   if (!userId) throw new Error("User not found");
@@ -23,11 +19,10 @@ export const isUserHost = async (
   return userId === session.hostId;
 };
 
-export const listSessions = query({
-  handler: async (ctx, args) => {
-    const userId = await getAuthUserId(ctx);
-    if (!userId) throw new Error("Not authenticated");
-
+export const listAllSessions = query({
+  args: { userId: v.id("users") },
+  handler: async (ctx) => {
+    await authenticatedUser(ctx);
     const sessions = await ctx.db
       .query("sessions")
       .filter((q) => isSessionPublic(q))
@@ -38,11 +33,9 @@ export const listSessions = query({
   },
 });
 
-export const listSessionsByUser = query({
+export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userId = (await getAuthUserId(ctx)) as Id<"users">;
-    if (!userId) throw new Error("Not authenticated");
-
+    const userId = await authenticatedUser(ctx);
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_user", (q) => q.eq("hostId", userId))

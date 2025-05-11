@@ -37,36 +37,17 @@ const _removeSession = async (ctx: MutationCtx, id: Id<"sessions">) => {
   await completionByUserAggregate.deleteIfExists(ctx, doc);
 };
 
-export const setCurrentTask = mutation({
-  args: {
-    sessionId: v.id("sessions"),
-    taskId: v.id("tasks"),
-  },
-  handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
+const setCurrentTask = (
+  ctx: MutationCtx,
+  sessionId: Id<"sessions">,
+  taskId: Id<"tasks">,
+) => {
+  return _updateSession(ctx, sessionId, { currentTaskId: taskId });
+};
 
-    if (task.sessionId !== args.sessionId) {
-      throw new Error("Task not associated with session");
-    }
-
-    await _updateSession(ctx, args.sessionId, { currentTaskId: args.taskId });
-  },
-});
-
-export const clearCurrentTask = mutation({
-  args: {
-    sessionId: v.id("sessions"),
-  },
-  handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    await getDocumentOrThrow(ctx, "sessions", args.sessionId);
-
-    return await _updateSession(ctx, args.sessionId, {
-      currentTaskId: undefined,
-    });
-  },
-});
+const clearCurrentTask = (ctx: MutationCtx, sessionId: Id<"sessions">) => {
+  return _updateSession(ctx, sessionId, { currentTaskId: undefined });
+};
 
 export const incrementStreakForAllUsers = async (
   ctx: MutationCtx,
@@ -79,59 +60,42 @@ export const incrementStreakForAllUsers = async (
   }
 };
 
-export const findAndSetCurrentTask = mutation({
-  args: {
-    sessionId: v.id("sessions"),
-  },
-  handler: async (ctx, args) => {
-    console.log(
-      "📌 Running findAndSetCurrentTask for session:",
-      args.sessionId,
-    );
-
-    await validateSessionHost(ctx, args.sessionId);
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
-
-    // Check if current task is still valid and not completed
-    if (session.currentTaskId) {
-      const currentTask = await ctx.db.get(session.currentTaskId);
-      if (currentTask && !currentTask.completed) {
-        console.log("✅ currentTaskId is still valid:", currentTask._id);
-        return currentTask;
-      } else {
-        console.log(
-          "⚠️ currentTaskId is stale or completed. Finding new task.",
-        );
-      }
+export const findAndSetCurrentTask = async (
+  ctx: MutationCtx,
+  sessionId: Id<"sessions">,
+) => {
+  const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
+  if (session.currentTaskId) {
+    const currentTask = await ctx.db.get(session.currentTaskId);
+    if (currentTask && !currentTask.completed) {
+      console.log("✅ currentTaskId is still valid:", currentTask._id);
+      return currentTask;
+    } else {
+      console.log("⚠️ currentTaskId is stale or completed. Finding new task.");
     }
+  }
 
-    // Find the next incomplete task
-    const nextTask = await ctx.db
-      .query("tasks")
-      .withIndex("by_session", (q) => q.eq("sessionId", session._id))
-      .filter((q) => q.eq(q.field("completed"), false))
-      .order("asc")
-      .first();
+  // Find the next incomplete task
+  const nextTask = await ctx.db
+    .query("tasks")
+    .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+    .filter((q) => q.eq(q.field("completed"), false))
+    .order("asc")
+    .first();
 
-    if (!nextTask) {
-      console.log("❌ No incomplete tasks available.");
-      await ctx.runMutation(api.session.mutations.clearCurrentTask, {
-        sessionId: session._id,
-      });
-      await _updateSession(ctx, session._id, { completed: true });
-      return null;
-    }
+  if (!nextTask) {
+    console.log("❌ No incomplete tasks available.");
+    await clearCurrentTask(ctx, session._id);
+    await _updateSession(ctx, session._id, { completed: true });
+    return null;
+  }
 
-    console.log("✅ Found next task:", nextTask._id);
+  console.log("✅ Found next task:", nextTask._id);
 
-    await ctx.runMutation(api.session.mutations.setCurrentTask, {
-      sessionId: session._id,
-      taskId: nextTask._id,
-    });
+  await setCurrentTask(ctx, session._id, nextTask._id);
 
-    return nextTask;
-  },
-});
+  return nextTask;
+};
 
 export const createSession = mutation({
   args: {

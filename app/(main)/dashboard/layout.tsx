@@ -1,5 +1,8 @@
-import GuestAlert from "@/components/common/guest-alert";
+import GuestAlert, {
+  GuestAlertSkeleton,
+} from "@/components/common/guest-alert";
 import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
+import { Suspense } from "react";
 
 export default async function DashboardLayout({
   children,
@@ -7,7 +10,9 @@ export default async function DashboardLayout({
   const isAuth = await isAuthenticatedNextjs();
   return (
     <>
-      <GuestAlert isAuthenticated={isAuth} />
+      <Suspense fallback={<GuestAlertSkeleton />}>
+        <GuestAlert isAuthenticated={isAuth} />
+      </Suspense>
       {children}
     </>
   );

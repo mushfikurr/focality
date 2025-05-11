@@ -2,7 +2,10 @@ import { authTables } from "@convex-dev/auth/server";
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
-export default defineSchema({
+export type AchievementType = "level";
+export type Condition = "gte" | "lte" | "eq";
+
+const schema = defineSchema({
   ...authTables,
   users: defineTable({
     name: v.optional(v.string()),
@@ -14,12 +17,24 @@ export default defineSchema({
     isAnonymous: v.optional(v.boolean()),
     roomId: v.optional(v.id("rooms")),
     lastActive: v.optional(v.number()),
-    level: v.optional(v.number()),
     xp: v.optional(v.number()),
     highestStreak: v.optional(v.number()),
   })
     .index("email", ["email"])
     .index("by_room", ["roomId"]),
+
+  achievementDefinitions: defineTable({
+    title: v.string(),
+    description: v.string(),
+    type: v.union(v.literal("level")),
+    condition: v.union(v.literal("gte"), v.literal("lte"), v.literal("eq")),
+    conditionValue: v.string(),
+  }),
+
+  achievements: defineTable({
+    userId: v.id("users"),
+    achievementDefinitionId: v.id("achievementDefinitions"),
+  }).index("by_user", ["userId"]),
 
   streaks: defineTable({
     userId: v.id("users"),
@@ -71,3 +86,5 @@ export default defineSchema({
     .index("by_session", ["sessionId"])
     .index("by_user", ["userId"]),
 });
+
+export default schema;

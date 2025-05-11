@@ -1,28 +1,17 @@
 "use client";
 
+import { useGuest } from "@/lib/hooks/use-guest";
 import Link from "next/link";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
-import { useAuthActions } from "@convex-dev/auth/react";
-import { useEffect } from "react";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 
 export default function GuestAlert({
   isAuthenticated,
 }: {
   isAuthenticated: boolean;
 }) {
-  const actions = useAuthActions();
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      actions.signIn("anonymous");
-    }
-  }, [actions, isAuthenticated]);
-
-  const user = useQuery(api.user.currentUser);
-
-  if (!user?.isAnonymous) return;
+  const { user, isLoading } = useGuest({ isAuthenticated });
+  if (!user) return <GuestAlertSkeleton />;
+  if (!user?.isAnonymous) return null;
 
   return (
     <div className="container mx-auto pt-8">
@@ -49,6 +38,18 @@ export default function GuestAlert({
           </p>
         </AlertDescription>
       </Alert>
+    </div>
+  );
+}
+
+export function GuestAlertSkeleton() {
+  return (
+    <div className="container mx-auto pt-8">
+      <div className="bg-card w-full rounded-lg border px-4 py-3">
+        <div className="bg-muted mb-2 h-4 w-40 animate-pulse rounded" />
+        <div className="bg-muted mb-3 h-3 w-64 animate-pulse rounded" />
+        <div className="bg-muted h-3 w-64 animate-pulse rounded" />
+      </div>
     </div>
   );
 }
