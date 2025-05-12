@@ -1,16 +1,14 @@
 import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { api } from "../_generated/api";
 import { Doc, Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
 import { durationByUserAggregate } from "../statistics/tasks/queries";
 import { validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 import { taskType } from "./queries";
-import { incrementStreak } from "../streaks/mutations";
 import { findAndSetCurrentTask } from "../session/mutations";
-import { grantExperience } from "../levels/mutations";
-import { insertLevelAchievements } from "../achievements/mutations";
+import { triggerTaskMutation } from "./triggers";
+
 
 const _insertTask = async (
   ctx: MutationCtx,
@@ -71,7 +69,7 @@ export const addTask = mutation({
   },
 });
 
-export const completeTaskIfElapsed = mutation({
+export const completeTaskIfElapsed = triggerTaskMutation({
   args: {
     sessionId: v.id("sessions"),
   },
@@ -96,18 +94,6 @@ export const completeTaskIfElapsed = mutation({
         completed: true,
         elapsed: task.duration,
       });
-
-      // Add streaks and XP for all participants
-      if (session.roomId) {
-        const room = await getDocumentOrThrow(ctx, "rooms", session.roomId);
-        await Promise.all(
-          room.participants.map(async (userId) => {
-            await incrementStreak(ctx, userId);
-            await grantExperience(ctx, userId, task.duration);
-            await insertLevelAchievements(ctx, userId);
-          }),
-        );
-      }
 
       // Set session to not running, reset current task, and reset start time
       await ctx.db.patch(session._id, {

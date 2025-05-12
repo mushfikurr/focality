@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Preloaded, usePreloadedQuery } from "convex/react";
-import { Award, Clock, Flame, Target } from "lucide-react";
+import { Award, Clock, Target } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";

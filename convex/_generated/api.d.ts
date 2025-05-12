@@ -27,6 +27,7 @@ import type * as streaks_mutations from "../streaks/mutations.js";
 import type * as streaks_queries from "../streaks/queries.js";
 import type * as tasks_mutations from "../tasks/mutations.js";
 import type * as tasks_queries from "../tasks/queries.js";
+import type * as tasks_triggers from "../tasks/triggers.js";
 import type * as time_queries from "../time/queries.js";
 import type * as user from "../user.js";
 import type * as utils_auth from "../utils/auth.js";
@@ -67,6 +68,7 @@ declare const fullApi: ApiFromModules<{
   "streaks/queries": typeof streaks_queries;
   "tasks/mutations": typeof tasks_mutations;
   "tasks/queries": typeof tasks_queries;
+  "tasks/triggers": typeof tasks_triggers;
   "time/queries": typeof time_queries;
   user: typeof user;
   "utils/auth": typeof utils_auth;

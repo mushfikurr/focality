@@ -1,23 +1,8 @@
-import { WithoutSystemFields } from "convex/server";
-import { Doc, Id } from "../_generated/dataModel";
+import { Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
 import { getDocumentOrThrow } from "../utils/db";
 import { getLevelFromXP } from "../levels/utils";
-
-const achievementDefinitions: WithoutSystemFields<Doc<"achievementDefinitions">>[] = [{
-  title: "On The Rise",
-  description: "Reached Level 5",
-  type: "level",
-  condition: "gte",
-  conditionValue: "5",
-}, {
-  title: "On The Rise",
-  description: "Reached Level 5",
-  type: "level",
-  condition: "gte",
-  conditionValue: "5",
-}]
-
+import { achievementDefinitions } from "../../lib/achievement-defs";
 
 const comparators: Record<string, (a: number, b: number) => boolean> = {
   eq: (a, b) => a === b,
