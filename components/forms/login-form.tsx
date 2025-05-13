@@ -24,7 +24,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { ArrowLeft } from "lucide-react";
@@ -52,7 +51,7 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await auth.signIn("password", values);
+      await auth.signIn("password", { values, redirectTo: "/dashboard" });
       toast.success("Successfully signed in!");
       redirect("/dashboard");
     } catch (error) {
@@ -61,10 +60,13 @@ export default function LoginForm() {
     }
   }
 
-  const handleGoogleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleGoogleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    auth.signIn("google");
-    redirect("/dashboard");
+    try {
+      await auth.signIn("google", { redirectTo: "/dashboard" });
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
@@ -140,7 +142,7 @@ export default function LoginForm() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={(e) => handleGoogleClick(e)}
+                  onClick={handleGoogleClick}
                 >
                   Login with Google
                 </Button>
