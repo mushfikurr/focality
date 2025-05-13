@@ -40,19 +40,29 @@ export const insertLevelAchievements = async (ctx: MutationCtx, userId: Id<"user
 
   const user = await getDocumentOrThrow(ctx, "users", userId);
   if (!user.xp) return;
-  const userLevel = getLevelFromXP(user.xp)
+  const userLevel = getLevelFromXP(user.xp);
   console.log(`User ${userId} has level: ${userLevel}`);
 
   await Promise.all(defs.map(async ({ _id, condition, conditionValue, title }) => {
     if (userLevel && checkCondition(userLevel, { condition, conditionValue })) {
-      console.log(`Inserting achievement "${title}" (_id: ${_id}) for user ${userId}`);
-      await ctx.db.insert("achievements", { achievementDefinitionId: _id, userId });
+      const alreadyHas = await ctx.db
+        .query("achievements")
+        .withIndex("by_definition_user", q =>
+          q.eq("achievementDefinitionId", _id).eq("userId", userId)
+        )
+        .unique();
+
+      if (!alreadyHas) {
+        console.log(`Inserting achievement "${title}" (_id: ${_id}) for user ${userId}`);
+        await ctx.db.insert("achievements", { achievementDefinitionId: _id, userId });
+      } else {
+        console.log(`User ${userId} already has achievement "${title}" (_id: ${_id})`);
+      }
     } else {
       console.log(`User ${userId} does NOT meet condition for "${title}" (_id: ${_id})`);
     }
   }));
-}
-
+};
 
 export const generateAchievements = mutation({
   handler: async (ctx) => {

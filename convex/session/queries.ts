@@ -3,7 +3,8 @@ import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
 import { authenticatedUser } from "../utils/auth";
-import { getDocumentOrThrow } from "../utils/db";
+import { paginationOptsValidator } from "convex/server";
+import { getXPGainFromDuration } from "../levels/utils";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -18,6 +19,51 @@ export const isUserHost = async (
 
   return userId === session.hostId;
 };
+
+export const paginatedSessionsByCurrentUser = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+    userId: v.id("users")
+  },
+  handler: async (ctx, { paginationOpts, userId }) => {
+    const results = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("hostId", userId))
+      .order("desc")
+      .paginate(paginationOpts);
+
+
+    const formattedPage = await Promise.all(
+      results.page.map(async (session) => {
+        const tasks = await ctx.db.query("tasks").withIndex("by_session", (q) => q.eq("sessionId", session._id)).collect();
+        const completedTasks = tasks.filter((t) => t.completed === true);
+
+        const sumDurationInMs = completedTasks.reduce((acc, task) => acc + (task.duration || 0), 0);
+        const xpGained = getXPGainFromDuration(sumDurationInMs);
+
+        const completionPercentage = tasks.length
+          ? (completedTasks.length / tasks.length) * 100
+          : 0;
+
+        const totalTime = tasks.reduce((acc, task) => acc + (task.duration || 0), 0);
+        const focusedTime = completedTasks.reduce((acc, task) => acc + (task.duration || 0), 0);
+        return {
+          id: session._id,
+          date: session._creationTime,
+          title: session.title,
+          time: {
+            focusedTime,
+            totalTime,
+          },
+          completionPercentage,
+          xpGained,
+        };
+      })
+    );
+
+    return { ...results, page: formattedPage };
+  }
+});
 
 export const listAllSessions = query({
   args: { userId: v.id("users") },

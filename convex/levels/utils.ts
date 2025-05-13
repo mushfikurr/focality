@@ -1,3 +1,4 @@
+import { Doc } from "../_generated/dataModel";
 
 export const MAX_LEVEL = 55;
 export const BASE_XP_PER_LEVEL = 3;

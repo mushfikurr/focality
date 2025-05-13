@@ -1,4 +1,4 @@
-import { mutation as rawMutation, internalMutation as rawInternalMutation, QueryCtx, MutationCtx } from "../_generated/server";
+import { mutation as rawMutation, internalMutation as rawInternalMutation, MutationCtx } from "../_generated/server";
 import { DataModel, Doc } from "../_generated/dataModel";
 import { Triggers } from "convex-helpers/server/triggers";
 import { customCtx, customMutation } from "convex-helpers/server/customFunctions";

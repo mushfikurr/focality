@@ -34,7 +34,7 @@ const schema = defineSchema({
   achievements: defineTable({
     userId: v.id("users"),
     achievementDefinitionId: v.id("achievementDefinitions"),
-  }).index("by_user", ["userId"]),
+  }).index("by_user", ["userId"]).index("by_definition_user", ["achievementDefinitionId", "userId"]),
 
   streaks: defineTable({
     userId: v.id("users"),

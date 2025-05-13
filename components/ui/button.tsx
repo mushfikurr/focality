@@ -61,14 +61,12 @@ function Button({
       disabled={disabled || loading}
       {...props}
     >
-      <>
-        {loading && (
-          <Loader2Icon
-            className={cn("text-muted absolute animate-spin", "loading")}
-          />
-        )}
-        <Slottable>{children}</Slottable>
-      </>
+      {loading && (
+        <Loader2Icon
+          className={cn("text-muted absolute animate-spin", "loading")}
+        />
+      )}
+      <Slottable>{children}</Slottable>
     </Comp>
   );
 }
