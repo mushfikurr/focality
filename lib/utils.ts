@@ -27,6 +27,14 @@ export function getTodayDayNumber(offsetDays = 0) {
   return Math.floor(now.getTime() / (24 * 60 * 60 * 1000));
 }
 
+export function getWeekdayNameFromUTCDay(day: number): string {
+  const weekdayNamesMonFirst = [
+    "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+  ];
+  const adjustedIndex = (day + 6) % 7;
+  return weekdayNamesMonFirst[adjustedIndex];
+}
+
 export function formatTimestampToHS(timestamp: number): string {
   const focusDuration = intervalToDuration({ start: 0, end: timestamp });
   return `${focusDuration.hours ?? 0}h ${focusDuration.minutes ?? 0}m`;

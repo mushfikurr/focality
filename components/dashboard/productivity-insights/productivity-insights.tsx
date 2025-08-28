@@ -7,6 +7,7 @@ import {
 import { Preloaded } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Skeleton } from "@/components/ui/skeleton";
+import ProductivityPatterns, { ProductivityPatternsSkeleton } from "../productivity-patterns";
 
 type DailyFocusTimeByMonthProps = {
   preloadedTaskStatistics: Preloaded<
@@ -37,77 +38,7 @@ export function ProductivityInsights({
           />
 
           {/* Productivity Patterns */}
-          <div>
-            <h3 className="mb-3 text-sm font-medium">Productivity Patterns</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="text-xs">Most Productive Time</span>
-                  <span className="text-xs font-medium">
-                    9:00 AM - 11:00 AM
-                  </span>
-                </div>
-                <div className="bg-muted h-2 w-full">
-                  <div
-                    className="bg-primary h-2"
-                    style={{ width: "85%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="text-xs">Most Productive Day</span>
-                  <span className="text-xs font-medium">Tuesday</span>
-                </div>
-                <div className="bg-muted h-2 w-full">
-                  <div
-                    className="bg-primary h-2"
-                    style={{ width: "80%" }}
-                  ></div>
-                </div>
-              </div>
-
-              <div>
-                <div className="mb-1 flex items-center justify-between">
-                  <span className="text-xs">Average Session Completion</span>
-                  <span className="text-xs font-medium">92%</span>
-                </div>
-                <div className="bg-muted h-2 w-full">
-                  <div
-                    className="bg-primary h-2"
-                    style={{ width: "92%" }}
-                  ></div>
-                </div>
-              </div>
-
-              {/* <div className="pt-2">
-            <h4 className="mb-2 text-xs font-medium">
-              Top Focus Categories
-            </h4>
-            <div className="flex flex-wrap gap-2">
-              <Badge
-                variant="default"
-                className="flex items-center gap-1 text-xs"
-              >
-                Work (45%)
-              </Badge>
-              <Badge
-                variant="secondary"
-                className="text-secondary-foreground flex items-center gap-1 text-xs"
-              >
-                Study (30%)
-              </Badge>
-              <Badge
-                variant="default"
-                className="bg-accent text-accent-foreground flex items-center gap-1 text-xs"
-              >
-                Personal (25%)
-              </Badge>
-            </div>
-          </div> */}
-            </div>
-          </div>
+          <ProductivityPatterns preloadedTaskStatistics={preloadedTaskStatistics} />
         </div>
       </CardContent>
     </Card>
@@ -129,6 +60,7 @@ export function ProductivityInsightsSkeleton() {
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
           {/* Weekly Focus Hours */}
           <DailyFocusTimeByMonthSkeleton />
+          <ProductivityPatternsSkeleton />
         </div>
       </CardContent>
     </Card>

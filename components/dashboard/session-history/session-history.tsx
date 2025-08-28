@@ -179,7 +179,7 @@ export default function SessionHistory() {
               <Input
                 type="text"
                 placeholder="Search sessions..."
-                className="h-8 w-40 py-1 pr-2 pl-8 text-xs"
+                className="h-8 w-full max-w-xs py-1 pr-2 pl-8 text-xs"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

@@ -59,7 +59,7 @@ export function Timer(props: TimerProps) {
       <CardContent>
         <div className="flex w-full flex-col items-center justify-center gap-8">
           <div className="text-center">
-            <h2 className="mb-2 font-mono text-6xl font-semibold tracking-tight">
+            <h2 className="mb-2 text-6xl font-semibold tracking-tight">
               {formatTime(timer)}
             </h2>
             <p className="text-muted-foreground text-sm">

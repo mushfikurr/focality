@@ -45,6 +45,58 @@ const totalFocusTimeByUserForWeek = async (
   return totalFocusTimeForWeek;
 };
 
+export const productivityPatternsByUser = async (
+  ctx: QueryCtx,
+  args: { userId: Id<"users"> }
+) => {
+  const userId = args.userId;
+  const now = Date.now();
+  const numDays = 30;
+  const dayInMs = 24 * 60 * 60 * 1000;
+  const hourInMs = 60 * 60 * 1000;
+
+  const hourlyDurations = Array(24).fill(0);
+  const dailyDurations = Array(7).fill(0); // Sunday = 0
+
+  for (let dayOffset = 0; dayOffset < numDays; dayOffset++) {
+    const dayStart = new Date(now - dayOffset * dayInMs);
+    dayStart.setUTCHours(0, 0, 0, 0);
+    const baseTime = dayStart.getTime();
+    const dayOfWeek = dayStart.getUTCDay();
+
+    let totalForDay = 0;
+
+    for (let hour = 0; hour < 24; hour++) {
+      const start = baseTime + hour * hourInMs;
+      const end = start + hourInMs;
+
+      const sum = await durationByUserAggregate.sum(ctx, {
+        namespace: [userId, true],
+        bounds: {
+          lower: { key: start, inclusive: true },
+          upper: { key: end, inclusive: false },
+        } as any,
+      });
+
+      hourlyDurations[hour] += sum;
+      totalForDay += sum;
+    }
+
+    dailyDurations[dayOfWeek] += totalForDay;
+  }
+
+  const maxHourDuration = Math.max(...hourlyDurations);
+  const mostProductiveHour = hourlyDurations.indexOf(maxHourDuration);
+
+  const maxDayDuration = Math.max(...dailyDurations);
+  const mostProductiveDay = dailyDurations.indexOf(maxDayDuration);
+
+  return {
+    mostProductiveHour, // 0–23
+    mostProductiveDay,  // 0–6
+  };
+};
+
 export const dailyAveragesByUserForMonth = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
@@ -124,6 +176,7 @@ export const getTaskStatisticsForCurrentUser = query({
     const dailyAveragesByMonth = await dailyAveragesByUserForMonth(ctx, {
       userId,
     });
-    return { totalFocusTime, totalFocusTimeByWeek, dailyAveragesByMonth };
+    const productivityPatterns = await productivityPatternsByUser(ctx, { userId })
+    return { totalFocusTime, totalFocusTimeByWeek, dailyAveragesByMonth, productivityPatterns };
   },
 });
