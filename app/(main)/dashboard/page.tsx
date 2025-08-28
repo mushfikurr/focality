@@ -5,11 +5,8 @@ import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
 import { Button } from "@/components/ui/button";
-import { api } from "@/convex/_generated/api";
-import { preloadWithAuth } from "@/lib/preload-with-auth";
-import {
-  isAuthenticatedNextjs
-} from "@convex-dev/auth/nextjs/server";
+import { preloadDashboard } from "@/lib/data/preload-dashboard";
+import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -21,7 +18,7 @@ export default async function DashboardPage() {
   const data = await preloadDashboard();
 
   return (
-    <div className="min-h-screen font-mono">
+    <div className="min-h-screen">
       <main className="container mx-auto py-8">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
@@ -58,28 +55,4 @@ export default async function DashboardPage() {
       </main>
     </div>
   );
-}
-
-async function preloadDashboard() {
-  const preloadedTaskStatistics = await preloadWithAuth(
-    api.statistics.tasks.queries.getTaskStatisticsForCurrentUser,
-  );
-  const preloadedSessionStatistics = await preloadWithAuth(
-    api.statistics.sessions.queries.getSessionStatisticsForCurrentUser,
-  );
-  const preloadedStreakInfo = await preloadWithAuth(
-    api.streaks.queries.getStreakInfoByCurrentUser,
-  );
-  const preloadedLevelInfo = await preloadWithAuth(
-    api.levels.queries.getLevelInfo,
-  );
-  const preloadedAchievements = await preloadWithAuth(api.achievements.queries.getAchievementsForCurrentUser);
-
-  return {
-    preloadedTaskStatistics,
-    preloadedSessionStatistics,
-    preloadedStreakInfo,
-    preloadedLevelInfo,
-    preloadedAchievements,
-  };
 }
