@@ -1,12 +1,12 @@
 import ConvexClientProvider from "@/components/providers/ConvexClientProvider";
+import { Toaster } from "@/components/ui/sonner";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import type { Metadata } from "next";
-import { Geist_Mono, IBM_Plex_Mono, Space_Grotesk } from "next/font/google";
-import "./globals.css";
-import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "next-themes";
+import { Inter, Montserrat } from "next/font/google";
+import "./globals.css";
 
-const spaceGrotesk = Geist_Mono({
+const font = Montserrat({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   style: ["normal"],
   subsets: ["latin"],
@@ -24,7 +24,7 @@ export default function RootLayout({
   return (
     <ConvexAuthNextjsServerProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className={`${spaceGrotesk.className} relative antialiased`}>
+        <body className={`${font.className} relative antialiased`}>
           <ConvexClientProvider>
             <ThemeProvider defaultTheme="system" attribute="class">
               {children}
