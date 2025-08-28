@@ -1,19 +1,22 @@
-"use client"
+"use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Preloaded, usePreloadedQuery } from "convex/react";
-import { Award, Clock, Target } from "lucide-react";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";
+import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Award, Target } from "lucide-react";
 
 interface AchievementsProps {
-  preloadedAchievements: Preloaded<typeof api.achievements.queries.getAchievementsForCurrentUser>
+  preloadedAchievements: Preloaded<
+    typeof api.achievements.queries.getAchievementsForCurrentUser
+  >;
 }
 
-export default function Achievements({ preloadedAchievements }: AchievementsProps) {
+export default function Achievements({
+  preloadedAchievements,
+}: AchievementsProps) {
   const achievements = usePreloadedQuery(preloadedAchievements);
-  if (!achievements) return <EmptyAchievements />
 
   return (
     <Card className="mb-8 h-fit">
@@ -26,39 +29,31 @@ export default function Achievements({ preloadedAchievements }: AchievementsProp
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 h-fit">
+        <div className="grid h-fit grid-cols-1 gap-4 md:grid-cols-3">
+          {!achievements.length && (
+            <p className="text-muted-foreground">
+              No achievements earned yet. Get focusing!
+            </p>
+          )}
           {achievements
             .filter((a): a is Doc<"achievementDefinitions"> => a !== null)
-            .map((a) => <AchievementCard key={a._id} {...a} />)}
+            .map((a) => (
+              <AchievementCard key={a._id} {...a} />
+            ))}
         </div>
       </CardContent>
     </Card>
   );
 }
 
-function EmptyAchievements() {
-  return (
-    <Card>
-      <CardContent className="flex items-center gap-3 p-3">
-        <div>
-          <h3 className="text-sm font-medium"></h3>
-          <p className="text-muted-foreground text-xs">
-            Earned 4,000+ experience points
-          </p>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
 function renderAchievementType(type: AchievementType) {
-  const badgeClasses = "text-primary h-5 w-5"
+  const badgeClasses = "text-primary h-5 w-5";
 
   switch (type) {
     case "level":
-      return <Award className={badgeClasses} />
+      return <Award className={badgeClasses} />;
     default:
-      return <Award className={badgeClasses} />
+      return <Award className={badgeClasses} />;
   }
 }
 
