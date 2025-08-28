@@ -4,8 +4,9 @@ import SessionHistory from "@/components/dashboard/session-history/session-histo
 import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { preloadDashboard } from "@/lib/data/preload-dashboard";
+import { cn } from "@/lib/utils";
 import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
 import { Plus } from "lucide-react";
 import Link from "next/link";
@@ -27,12 +28,13 @@ export default async function DashboardPage() {
               Track, analyze, and create your focus sessions
             </p>
           </div>
-          <Button asChild>
-            <Link href="/session/new" className="flex items-center gap-2">
-              <Plus className="h-4 w-4" />
-              <span>New Session</span>
-            </Link>
-          </Button>
+          <Link
+            href="/session/new"
+            className={cn("flex items-center gap-2", buttonVariants({}))}
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Session</span>
+          </Link>
         </div>
 
         {/* Stats Overview */}
