@@ -18,14 +18,21 @@ export default function ProductivityPatterns({
 }: ProductivityPatternsProps) {
   const { productivityPatterns } = usePreloadedQuery(preloadedTaskStatistics);
   const { mostProductiveDay, mostProductiveHour } = productivityPatterns;
+
+  const fmtDay = mostProductiveDay
+    ? getWeekdayNameFromUTCDay(mostProductiveDay)
+    : "N/A";
+
   const hourDate = new Date();
   hourDate.setHours(mostProductiveHour);
   hourDate.setMinutes(0);
   hourDate.setSeconds(0);
-  const fmtHour = hourDate.toLocaleTimeString("en-GB", {
-    timeStyle: "short",
-    hour12: true,
-  });
+  const fmtHour = mostProductiveHour
+    ? hourDate.toLocaleTimeString("en-GB", {
+        timeStyle: "short",
+        hour12: true,
+      })
+    : "N/A";
 
   return (
     <div>
@@ -39,12 +46,7 @@ export default function ProductivityPatterns({
         <PatternCard
           title={"Most Productive Day"}
           icon={Calendar}
-          description={getWeekdayNameFromUTCDay(mostProductiveDay)}
-        />
-        <PatternCard
-          title={"Average Session Completion"}
-          icon={CheckCheck}
-          description={"92%"}
+          description={fmtDay}
         />
       </div>
     </div>
