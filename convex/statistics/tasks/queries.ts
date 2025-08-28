@@ -47,7 +47,7 @@ const totalFocusTimeByUserForWeek = async (
 
 export const productivityPatternsByUser = async (
   ctx: QueryCtx,
-  args: { userId: Id<"users"> }
+  args: { userId: Id<"users"> },
 ) => {
   const userId = args.userId;
   const now = Date.now();
@@ -56,7 +56,9 @@ export const productivityPatternsByUser = async (
   const hourInMs = 60 * 60 * 1000;
 
   const hourlyDurations = Array(24).fill(0);
-  const dailyDurations = Array(7).fill(0); // Sunday = 0
+  const dailyDurations = Array(7).fill(0);
+
+  let hasData = false;
 
   for (let dayOffset = 0; dayOffset < numDays; dayOffset++) {
     const dayStart = new Date(now - dayOffset * dayInMs);
@@ -78,11 +80,20 @@ export const productivityPatternsByUser = async (
         } as any,
       });
 
+      if (sum > 0) hasData = true;
+
       hourlyDurations[hour] += sum;
       totalForDay += sum;
     }
 
     dailyDurations[dayOfWeek] += totalForDay;
+  }
+
+  if (!hasData) {
+    return {
+      mostProductiveHour: null,
+      mostProductiveDay: null,
+    };
   }
 
   const maxHourDuration = Math.max(...hourlyDurations);
@@ -93,7 +104,7 @@ export const productivityPatternsByUser = async (
 
   return {
     mostProductiveHour, // 0–23
-    mostProductiveDay,  // 0–6
+    mostProductiveDay, // 0–6
   };
 };
 
@@ -176,7 +187,14 @@ export const getTaskStatisticsForCurrentUser = query({
     const dailyAveragesByMonth = await dailyAveragesByUserForMonth(ctx, {
       userId,
     });
-    const productivityPatterns = await productivityPatternsByUser(ctx, { userId })
-    return { totalFocusTime, totalFocusTimeByWeek, dailyAveragesByMonth, productivityPatterns };
+    const productivityPatterns = await productivityPatternsByUser(ctx, {
+      userId,
+    });
+    return {
+      totalFocusTime,
+      totalFocusTimeByWeek,
+      dailyAveragesByMonth,
+      productivityPatterns,
+    };
   },
 });
