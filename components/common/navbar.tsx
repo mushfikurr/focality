@@ -8,7 +8,7 @@ import UserNavbar, { UserTriggerSkeleton } from "./user-navbar";
 
 export default function Navbar({ className }: { className?: string }) {
   return (
-    <header className="bg-background/80 sticky top-0 z-50 border-b py-3 shadow-xs backdrop-blur-md">
+    <header className="bg-background/80 sticky top-0 z-50 border-b py-3 backdrop-blur-md">
       <div className="container mx-auto flex items-center justify-between">
         <h1 className="text-lg font-semibold tracking-tight italic">
           <Link href="/">focality</Link>
