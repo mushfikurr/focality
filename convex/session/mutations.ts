@@ -1,10 +1,9 @@
 import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { api } from "../_generated/api";
+import { api, internal } from "../_generated/api";
 import { Doc, Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
 import { completionByUserAggregate } from "../statistics/sessions/queries";
-import { _updateTask } from "../tasks/mutations";
 import { authenticatedUser, validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 import { incrementStreak } from "../streaks/mutations";
@@ -178,8 +177,11 @@ export const pauseSession = mutation({
 
       const currentTask = await ctx.db.get(session.currentTaskId);
 
-      await _updateTask(ctx, session.currentTaskId, {
-        elapsed: (currentTask?.elapsed ?? 0) + elapsedTime,
+      await ctx.runMutation(internal.tasks.mutations._updateTask, {
+        id: session.currentTaskId,
+        args: {
+          elapsed: (currentTask?.elapsed ?? 0) + elapsedTime,
+        },
       });
     }
 
@@ -201,7 +203,10 @@ export const resetSessionTimer = mutation({
     if (session.currentTaskId) {
       const currentTask = await ctx.db.get(session.currentTaskId);
       if (currentTask) {
-        await _updateTask(ctx, currentTask._id, { elapsed: 0 });
+        await ctx.runMutation(internal.tasks.mutations._updateTask, {
+          id: currentTask._id,
+          args: { elapsed: 0 },
+        });
         await _updateSession(ctx, args.sessionId, { startTime: undefined });
       }
     }

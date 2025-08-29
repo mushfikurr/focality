@@ -5,6 +5,7 @@ import { MutationCtx, query } from "../_generated/server";
 import { authenticatedUser } from "../utils/auth";
 import { paginationOptsValidator } from "convex/server";
 import { getXPGainFromDuration } from "../levels/utils";
+import { getSessionExperience } from "../levels/queries";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -38,8 +39,7 @@ export const paginatedSessionsByCurrentUser = query({
         const tasks = await ctx.db.query("tasks").withIndex("by_session", (q) => q.eq("sessionId", session._id)).collect();
         const completedTasks = tasks.filter((t) => t.completed === true);
 
-        const sumDurationInMs = completedTasks.reduce((acc, task) => acc + (task.duration || 0), 0);
-        const xpGained = getXPGainFromDuration(sumDurationInMs);
+        const xpGained = await getSessionExperience(ctx, session);
 
         const completionPercentage = tasks.length
           ? (completedTasks.length / tasks.length) * 100

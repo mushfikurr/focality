@@ -23,10 +23,16 @@ export const getLevelInfo = query({
 });
 
 export const getSessionExperience = async (ctx: QueryCtx, session: Doc<"sessions">) => {
-  const tasks = await ctx.db.query("tasks").withIndex("by_session", (q) => q.eq("sessionId", session._id)).collect();
-  const sumDurationInMs = tasks.reduce((acc, task) => acc + (task.duration || 0), 0);
-  return getXPGainFromDuration(sumDurationInMs);
-}
+  const completedTasks = await ctx.db
+    .query("tasks")
+    .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+    .filter((q) => q.eq(q.field("completed"), true))
+    .collect();
+  const totalXp = completedTasks.reduce((acc, task) => {
+    return acc + getXPGainFromDuration(task.duration || 0);
+  }, 0);
+  return totalXp;
+};
 
 export const getTaskExperience = query({
   args: { taskId: v.id("tasks") },

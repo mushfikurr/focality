@@ -1,4 +1,8 @@
-import { mutation as rawMutation, internalMutation as rawInternalMutation, MutationCtx } from "../_generated/server";
+import {
+  internalMutation as rawInternalMutation,
+  mutation as rawMutation,
+  MutationCtx,
+} from "../_generated/server";
 import { DataModel, Doc } from "../_generated/dataModel";
 import { Triggers } from "convex-helpers/server/triggers";
 import { customCtx, customMutation } from "convex-helpers/server/customFunctions";
@@ -6,13 +10,26 @@ import { getDocumentOrThrow } from "../utils/db";
 import { incrementStreak } from "../streaks/mutations";
 import { insertLevelAchievements } from "../achievements/mutations";
 import { grantExperience } from "../levels/mutations";
+import { durationByUserAggregate } from "../statistics/tasks/queries";
 
 const triggers = new Triggers<DataModel>();
 
-triggers.register("tasks", async (ctx, change) => {
-  if (!change.newDoc || !change.oldDoc) return;
-  if (change.newDoc.completed) {
-    onTaskComplete(ctx, change.newDoc);
+triggers.register("tasks", async (ctx, { oldDoc, newDoc }) => {
+  // Handle aggregation logic
+  if (!oldDoc && newDoc) {
+    // Create
+    await durationByUserAggregate.insert(ctx, newDoc);
+  } else if (oldDoc && newDoc) {
+    // Update
+    await durationByUserAggregate.replace(ctx, oldDoc, newDoc);
+  } else if (oldDoc && !newDoc) {
+    // Delete
+    await durationByUserAggregate.deleteIfExists(ctx, oldDoc);
+  }
+
+  // Handle task completion side-effects
+  if (newDoc && (!oldDoc || !oldDoc.completed) && newDoc.completed) {
+    await onTaskComplete(ctx, newDoc);
   }
 });
 
@@ -34,11 +51,15 @@ export const onTaskComplete = async (ctx: MutationCtx, newDoc: Doc<"tasks">) => 
       }),
     );
   }
-
-}
-
+};
 
 // create wrappers that replace the built-in `mutation` and `internalMutation`
 // the wrappers override `ctx` so that `ctx.db.insert`, `ctx.db.patch`, etc. run registered trigger functions
-export const triggerTaskMutation = customMutation(rawMutation, customCtx(triggers.wrapDB));
-export const triggerTaskInternalMutation = customMutation(rawInternalMutation, customCtx(triggers.wrapDB));
+export const triggerTaskMutation = customMutation(
+  rawMutation,
+  customCtx(triggers.wrapDB),
+);
+export const triggerTaskInternalMutation = customMutation(
+  rawInternalMutation,
+  customCtx(triggers.wrapDB),
+);

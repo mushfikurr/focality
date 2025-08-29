@@ -232,9 +232,9 @@ export default function SessionHistory() {
 
             <TableBody>
               {!!!table.getRowModel().rows.length && (
-                <p className="text-muted-foreground p-3 px-2">
+                <span className="text-muted-foreground p-3 px-2">
                   No sessions to view.
-                </p>
+                </span>
               )}
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-muted/50">

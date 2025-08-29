@@ -1,43 +1,22 @@
-import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { Doc, Id } from "../_generated/dataModel";
-import { mutation, MutationCtx } from "../_generated/server";
-import { durationByUserAggregate } from "../statistics/tasks/queries";
+import { findAndSetCurrentTask } from "../session/mutations";
 import { validateSessionHost } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
 import { taskType } from "./queries";
-import { findAndSetCurrentTask } from "../session/mutations";
-import { triggerTaskMutation } from "./triggers";
+import { triggerTaskInternalMutation, triggerTaskMutation } from "./triggers";
+import { internal } from "../_generated/api";
 
+export const _updateTask = triggerTaskInternalMutation({
+  args: {
+    id: v.id("tasks"),
+    args: v.any(),
+  },
+  handler: async (ctx, { id, args }) => {
+    await ctx.db.patch(id, args);
+  },
+});
 
-const _insertTask = async (
-  ctx: MutationCtx,
-  args: WithoutSystemFields<Doc<"tasks">>,
-) => {
-  const id = await ctx.db.insert("tasks", args);
-  const doc = await getDocumentOrThrow(ctx, "tasks", id);
-  await durationByUserAggregate.insert(ctx, doc);
-};
-
-export const _updateTask = async (
-  ctx: MutationCtx,
-  id: Id<"tasks">,
-  args: Partial<WithoutSystemFields<Doc<"tasks">>>,
-) => {
-  const oldDoc = await getDocumentOrThrow(ctx, "tasks", id);
-  console.log(oldDoc);
-  await ctx.db.patch(id, args);
-  const newDoc = await getDocumentOrThrow(ctx, "tasks", id);
-  await durationByUserAggregate.replace(ctx, oldDoc, newDoc);
-};
-
-const _removeTask = async (ctx: MutationCtx, id: Id<"tasks">) => {
-  const doc = await getDocumentOrThrow(ctx, "tasks", id);
-  await ctx.db.delete(id);
-  await durationByUserAggregate.deleteIfExists(ctx, doc);
-};
-
-export const addTask = mutation({
+export const addTask = triggerTaskMutation({
   args: {
     sessionId: v.id("sessions"),
     type: taskType,
@@ -57,7 +36,7 @@ export const addTask = mutation({
       completed: false,
     };
 
-    const id = _insertTask(ctx, task);
+    const id = await ctx.db.insert("tasks", task);
 
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
     if (!session.currentTaskId) {
@@ -89,26 +68,26 @@ export const completeTaskIfElapsed = triggerTaskMutation({
     if (elapsed >= task.duration) {
       console.log(`✅ Task ${task._id} completed.`);
 
-      // Update completed status to true for task
-      await _updateTask(ctx, task._id, {
-        completed: true,
-        elapsed: task.duration,
+      await ctx.runMutation(internal.tasks.mutations._updateTask, {
+        id: task._id,
+        args: {
+          completed: true,
+          elapsed: task.duration,
+        },
       });
 
-      // Set session to not running, reset current task, and reset start time
       await ctx.db.patch(session._id, {
         running: false,
         startTime: undefined,
         currentTaskId: undefined,
       });
 
-      // Find and set the next incomplete task
       await findAndSetCurrentTask(ctx, session._id);
     }
   },
 });
 
-export const deleteTask = mutation({
+export const deleteTask = triggerTaskMutation({
   args: {
     taskId: v.id("tasks"),
   },
@@ -119,7 +98,7 @@ export const deleteTask = mutation({
     const session = await getDocumentOrThrow(ctx, "sessions", task.sessionId);
     const isCurrent = session.currentTaskId === task._id;
 
-    await _removeTask(ctx, args.taskId);
+    await ctx.db.delete(args.taskId);
     console.log("🗑️ Deleted task:", task._id);
 
     if (isCurrent) {
@@ -131,7 +110,7 @@ export const deleteTask = mutation({
   },
 });
 
-export const updateTask = mutation({
+export const updateTask = triggerTaskMutation({
   args: {
     taskId: v.id("tasks"),
     type: v.optional(taskType),
@@ -144,6 +123,9 @@ export const updateTask = mutation({
     await validateSessionHost(ctx, task.sessionId);
 
     const { taskId, ...toUpdate } = args;
-    await _updateTask(ctx, args.taskId, toUpdate);
+    await ctx.runMutation(internal.tasks.mutations._updateTask, {
+      id: args.taskId,
+      args: toUpdate,
+    });
   },
 });

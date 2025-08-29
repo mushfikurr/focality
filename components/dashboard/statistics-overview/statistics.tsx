@@ -80,11 +80,13 @@ function XPStatCardTitle({ totalXP }: XPStatCardTitleProps) {
   return (
     <span className="flex items-center justify-between gap-2">
       <p>Level</p>
-      <Badge variant="outline" className="text-xs">{totalXP > 0 &&
-        <TrendingUp
-          className="text-accent-foreground mr-1 h-3 w-3"
-          strokeWidth={3}
-        />}{" "}
+      <Badge variant="outline" className="text-xs">
+        {totalXP > 0 && (
+          <TrendingUp
+            className="text-accent-foreground mr-1 h-3 w-3"
+            strokeWidth={3}
+          />
+        )}
         {totalXP} XP
       </Badge>
     </span>
@@ -96,11 +98,7 @@ type XPStatSubheadingProps = {
   totalXP: number;
   xpToNextLevel: number;
 };
-function XPStatSubheading({
-  level,
-  totalXP,
-  xpToNextLevel,
-}: XPStatSubheadingProps) {
+function XPStatSubheading({ level, xpToNextLevel }: XPStatSubheadingProps) {
   return (
     <span className="text-muted-foreground flex items-center gap-2">
       <span>{xpToNextLevel} XP</span>
