@@ -10,12 +10,7 @@ import {
   flexRender,
   SortingState,
 } from "@tanstack/react-table";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import {
   Table,
   TableHeader,
@@ -32,12 +27,19 @@ import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { formatTimeInMs } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
+import { ScrollArea } from "@/components/ui/scroll-area/scroll-area";
 
 // Type
 
-type Session = Awaited<PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>>;
+type Session = Awaited<
+  PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
+>;
 
 export default function SessionHistory() {
   const user = useQuery(api.user.currentUser);
@@ -58,7 +60,7 @@ export default function SessionHistory() {
   } = useSimplePaginatedQuery(
     api.session.queries.paginatedSessionsByCurrentUser,
     { userId: user._id },
-    { initialNumItems: 5 }
+    { initialNumItems: 5 },
   );
 
   const navigate = useRouter();
@@ -66,12 +68,11 @@ export default function SessionHistory() {
     navigate.push(`/session/id/${sessionId}`);
   };
 
-  let sessions =
-    status === "loaded" ? currentResults.page : [];
+  let sessions = status === "loaded" ? currentResults.page : [];
 
   if (searchQuery) {
     sessions = sessions.filter((s) =>
-      s.title.toLowerCase().includes(searchQuery.toLowerCase())
+      s.title.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   }
 
@@ -118,12 +119,14 @@ export default function SessionHistory() {
         accessorKey: "time.focusedTime",
         header: () => "Focused Time",
         cell: ({ row }) => (
-          <span className="text-primary text-xs w-full text-right">
+          <span className="text-primary w-full text-right text-xs">
             {formatTimeInMs(row.original.time.focusedTime)}
           </span>
         ),
         sortingFn: (rowA, rowB, columnId) => {
-          return rowA.original.time.focusedTime - rowB.original.time.focusedTime;
+          return (
+            rowA.original.time.focusedTime - rowB.original.time.focusedTime
+          );
         },
       },
       {
@@ -141,13 +144,18 @@ export default function SessionHistory() {
         accessorKey: "id",
         header: "",
         cell: ({ row }) => (
-          <Button variant="ghost" onClick={() => handleSessionClick(row.original.id)} size="icon" className="h-6 w-6">
+          <Button
+            variant="ghost"
+            onClick={() => handleSessionClick(row.original.id)}
+            size="icon"
+            className="h-6 w-6"
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         ),
       },
     ],
-    []
+    [],
   );
 
   const table = useReactTable({
@@ -173,49 +181,19 @@ export default function SessionHistory() {
               Session History
             </CardTitle>
           </div>
-
-          <div className="flex items-center gap-3">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Search sessions..."
-                className="h-8 w-full max-w-xs py-1 pr-2 pl-8 text-xs"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-              <Search className="text-muted-foreground absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 transform" />
-            </div>
-
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="flex h-8 items-center gap-1 text-xs"
-                >
-                  <Filter className="h-3 w-3" />
-                  <span>Filter</span>
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-40">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="completedOnly"
-                    checked={showCompletedOnly}
-                    onCheckedChange={() => setShowCompletedOnly(prev => !prev)}
-                  />
-                  <label htmlFor="completedOnly" className="text-xs">
-                    Completed only
-                  </label>
-                </div>
-              </PopoverContent>
-            </Popover>
-          </div>
+          {!!sessions.length && (
+            <SearchAndFilter
+              showCompletedOnly={showCompletedOnly}
+              searchQuery={searchQuery}
+              setSearchQuery={setSearchQuery}
+              setShowCompletedOnly={setShowCompletedOnly}
+            />
+          )}
         </div>
       </CardHeader>
 
       <CardContent>
-        <div className="overflow-x-auto">
+        <ScrollArea className="overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -223,7 +201,7 @@ export default function SessionHistory() {
                   {headerGroup.headers.map((header) => (
                     <TableHead
                       key={header.id}
-                      className="text-xs font-medium cursor-pointer select-none hover:bg-muted/60 focus:bg-muted/80 transition-colors rounded-sm"
+                      className="hover:bg-muted/60 focus:bg-muted/80 cursor-pointer rounded-sm text-xs font-medium transition-colors select-none"
                       onClick={header.column.getToggleSortingHandler()}
                       tabIndex={0}
                       onKeyDown={(e) => {
@@ -238,8 +216,12 @@ export default function SessionHistory() {
                           : header.column.getIsSorted() === "desc"
                             ? "descending"
                             : "none"
-                      }                    >
-                      {flexRender(header.column.columnDef.header, header.getContext())}
+                      }
+                    >
+                      {flexRender(
+                        header.column.columnDef.header,
+                        header.getContext(),
+                      )}
                       {header.column.getIsSorted() === "asc" && " ↑"}
                       {header.column.getIsSorted() === "desc" && " ↓"}
                     </TableHead>
@@ -249,18 +231,26 @@ export default function SessionHistory() {
             </TableHeader>
 
             <TableBody>
+              {!!!table.getRowModel().rows.length && (
+                <p className="text-muted-foreground p-3 px-2">
+                  No sessions to view.
+                </p>
+              )}
               {table.getRowModel().rows.map((row) => (
                 <TableRow key={row.id} className="hover:bg-muted/50">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="py-3 text-xs">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-        </div>
+        </ScrollArea>
 
         <div className="mt-4 flex items-center justify-between">
           <span className="text-muted-foreground text-xs">
@@ -294,3 +284,56 @@ export default function SessionHistory() {
   );
 }
 
+type SearchAndFilterProps = {
+  searchQuery: string;
+  setSearchQuery: React.Dispatch<React.SetStateAction<string>>;
+  showCompletedOnly: boolean;
+  setShowCompletedOnly: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+function SearchAndFilter({
+  searchQuery,
+  setSearchQuery,
+  showCompletedOnly,
+  setShowCompletedOnly,
+}: SearchAndFilterProps) {
+  return (
+    <div className="flex items-center gap-3">
+      <div className="relative">
+        <Input
+          type="text"
+          placeholder="Search sessions..."
+          className="h-8 w-full max-w-xs py-1 pr-2 pl-8 text-xs"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+        <Search className="text-muted-foreground absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 transform" />
+      </div>
+
+      <Popover>
+        <PopoverTrigger asChild>
+          <Button
+            variant="outline"
+            size="sm"
+            className="flex h-8 items-center gap-1 text-xs"
+          >
+            <Filter className="h-3 w-3" />
+            <span>Filter</span>
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent className="w-40">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="completedOnly"
+              checked={showCompletedOnly}
+              onCheckedChange={() => setShowCompletedOnly((prev) => !prev)}
+            />
+            <label htmlFor="completedOnly" className="text-xs">
+              Completed only
+            </label>
+          </div>
+        </PopoverContent>
+      </Popover>
+    </div>
+  );
+}
