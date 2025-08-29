@@ -40,7 +40,7 @@ export default function UserNavbar() {
     <div className="flex space-x-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="h-full py-0 pr-0">
+          <Button variant="ghost" size="sm" className="h-full py-0 pr-0">
             <UserTrigger ref={userNavRef} />
           </Button>
         </DropdownMenuTrigger>
@@ -64,7 +64,7 @@ const UserTrigger = forwardRef(() => {
 
   return (
     <div className="flex h-full flex-row-reverse items-center gap-4">
-      <Avatar className="flex aspect-square h-full items-center justify-center rounded-none border border-t-0 border-r-0 border-b-0">
+      <Avatar className="flex aspect-square h-full items-center justify-center rounded">
         <AvatarImage
           className="aspect-square h-full"
           src={currentUser?.image}
@@ -79,7 +79,5 @@ const UserTrigger = forwardRef(() => {
 });
 
 export const UserTriggerSkeleton = () => {
-  return (
-    <Skeleton className="outline-border aspect-square w-[32px] outline-1" />
-  );
+  return <Skeleton className="aspect-square w-[32px] outline-1" />;
 };
