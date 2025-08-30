@@ -7,7 +7,9 @@ import {
 import { Preloaded } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Skeleton } from "@/components/ui/skeleton";
-import ProductivityPatterns, { ProductivityPatternsSkeleton } from "../productivity-patterns";
+import ProductivityPatterns, {
+  ProductivityPatternsSkeleton,
+} from "../productivity-patterns";
 
 type DailyFocusTimeByMonthProps = {
   preloadedTaskStatistics: Preloaded<
@@ -31,14 +33,16 @@ export function ProductivityInsights({
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           {/* Weekly Focus Hours */}
           <DailyFocusTimeByMonth
             preloadedTaskStatistics={preloadedTaskStatistics}
           />
 
           {/* Productivity Patterns */}
-          <ProductivityPatterns preloadedTaskStatistics={preloadedTaskStatistics} />
+          <ProductivityPatterns
+            preloadedTaskStatistics={preloadedTaskStatistics}
+          />
         </div>
       </CardContent>
     </Card>
