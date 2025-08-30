@@ -6,7 +6,7 @@ import React from "react";
 
 type StatisticCardProps = {
   className?: string;
-  Icon: LucideIcon;
+  Icon?: LucideIcon;
   cardTitle: React.ReactNode;
   statHeading: string;
   statSubheading?: React.ReactNode;
@@ -19,9 +19,9 @@ export function StatisticCard({ ...props }: StatisticCardProps) {
     <Card className={cn(className)}>
       <CardHeader className="w-full">
         <div className="flex items-center gap-2">
-          <Icon className="text-primary h-4 w-4" />
-          <CardTitle className="w-full text-sm font-medium">
+          <CardTitle className="flex w-full items-center justify-between text-sm font-medium">
             {cardTitle}
+            {Icon && <Icon className="text-primary h-5 w-5" />}
           </CardTitle>
         </div>
       </CardHeader>

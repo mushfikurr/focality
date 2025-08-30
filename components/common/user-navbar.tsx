@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { LogOut, Moon, Sun } from "lucide-react";
+import { LogOut, Moon, Sun, User2 } from "lucide-react";
 import { forwardRef, useRef } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
@@ -25,6 +25,7 @@ export default function UserNavbar() {
   const auth = useAuthActions();
   const userNavRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
+  const user = useQuery(api.user.currentUser);
 
   const handleLogout = async () => {
     await auth.signOut();
@@ -34,6 +35,11 @@ export default function UserNavbar() {
 
   const handleThemeChange = () => {
     theme.setTheme(theme.theme === "dark" ? "light" : "dark");
+  };
+
+  const handleProfile = () => {
+    if (!user) toast.error("Unable to find user profile.");
+    redirect(`/profile/${user?._id}`);
   };
 
   return (
@@ -47,11 +53,14 @@ export default function UserNavbar() {
         <DropdownMenuContent align="end" className="mt-1 -mr-1">
           <DropdownMenuLabel className="text-xs">My Account</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={handleLogout}>
-            <LogOut /> Log out
+          <DropdownMenuItem onClick={handleProfile}>
+            <User2 /> Profile
           </DropdownMenuItem>
           <DropdownMenuItem onClick={handleThemeChange}>
             {theme.theme === "light" ? <Sun /> : <Moon />} Switch Theme
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={handleLogout}>
+            <LogOut /> Log out
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

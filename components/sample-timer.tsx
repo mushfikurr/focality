@@ -32,18 +32,18 @@ export function Timer() {
       </div>
 
       <div className="mt-4 flex w-full flex-wrap justify-end gap-2">
-        <Avatar className="outline-primary h-6 w-6 rounded-none outline-1">
+        <Avatar className="outline-primary h-6 w-6 outline-1">
           <AvatarImage
             fetchPriority="high"
             src="https://picsum.photos/seed/avatar1/200"
           />
           <AvatarFallback>A</AvatarFallback>
         </Avatar>
-        <Avatar className="outline-primary h-6 w-6 rounded-none outline-1">
+        <Avatar className="outline-primary h-6 w-6 outline-1">
           <AvatarImage src="https://picsum.photos/seed/avatar2/200"></AvatarImage>
           <AvatarFallback>E</AvatarFallback>
         </Avatar>
-        <Avatar className="outline-primary h-6 w-6 rounded-none outline-1">
+        <Avatar className="outline-primary h-6 w-6 outline-1">
           <AvatarImage src="https://picsum.photos/seed/avatar3/200"></AvatarImage>
           <AvatarFallback>I</AvatarFallback>
         </Avatar>

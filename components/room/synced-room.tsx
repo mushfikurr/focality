@@ -73,13 +73,8 @@ export function SyncedRoom(props: SyncedRoomProps) {
         </AnimatedTabsTrigger>
       </TabsList>
       <TabsContent value="chat" className="flex-1 overflow-hidden shadow-sm">
-        <Card className="flex h-full flex-col">
-          <CardHeader>
-            <CardTitle>
-              <h1>Session Chat</h1>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="flex-1 overflow-hidden">
+        <div className="flex h-full flex-col rounded-xl border">
+          <div className="flex-1 overflow-hidden">
             <div className="flex h-full flex-col">
               <div className="flex-1 overflow-y-auto">
                 <Chat
@@ -90,22 +85,14 @@ export function SyncedRoom(props: SyncedRoomProps) {
                 />
               </div>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </TabsContent>
       <TabsContent
         value="participants"
         className="flex-1 overflow-hidden shadow-sm"
       >
         <Card className="flex h-full flex-col">
-          <CardHeader>
-            <CardTitle className="flex justify-between gap-2">
-              Participants
-              <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                <Users className="h-4 w-4" /> {participants.length}
-              </p>
-            </CardTitle>
-          </CardHeader>
           <CardContent className="flex-1 overflow-hidden">
             <div className="flex h-full flex-col">
               <div className="flex-1 overflow-y-auto">

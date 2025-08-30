@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Scroller } from "@/components/ui/scroller";
+import { ScrollArea } from "@/components/ui/scroll-area/scroll-area";
 import { Doc } from "@/convex/_generated/dataModel";
 import { Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
@@ -40,7 +40,6 @@ function ChatInput({
         e.preventDefault();
         handleSendClick();
       }}
-      className="p-1"
     >
       <div className="flex w-full items-center gap-2">
         <Input
@@ -71,14 +70,14 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
   }, [messages, lastMessageRef]);
 
   return (
-    <div className="flex h-full flex-col gap-5">
-      <Scroller className="h-full space-y-2 overflow-auto border px-3 py-2 text-sm">
+    <div className="flex h-full flex-col gap-2 p-6">
+      <ScrollArea className="bg-secondary border-secondary h-full space-y-2 overflow-auto rounded-md border px-3 py-2 text-sm">
         {messages.length > 0 ? (
           messages.map((m) => <Message key={m.id} message={m} />)
         ) : (
           <EmptyChat />
         )}
-      </Scroller>
+      </ScrollArea>
       <ChatInput onSendMessage={onSendMessage} disabled={disabled} />
     </div>
   );

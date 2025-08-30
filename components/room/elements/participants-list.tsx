@@ -1,6 +1,6 @@
 import { UserCard } from "@/components/common/user-avatar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,16 +13,10 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { Scroller } from "@/components/ui/scroller";
+import { ScrollArea } from "@/components/ui/scroll-area/scroll-area";
 import { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import {
-  Crown,
-  MessageCircle,
-  MoreHorizontal,
-  Volume2,
-  VolumeX,
-} from "lucide-react";
+import { MessageCircle, MoreHorizontal, Volume2, VolumeX } from "lucide-react";
 
 export default function ParticipantsList({
   participants,
@@ -30,7 +24,7 @@ export default function ParticipantsList({
   participants: Doc<"users">[];
 }) {
   return (
-    <Scroller className="h-full w-full overflow-auto">
+    <ScrollArea className="h-full w-full overflow-auto">
       {participants.map((p, idx) => (
         <HoverCard key={p._id}>
           <HoverCardTrigger className="w-full">
@@ -44,7 +38,7 @@ export default function ParticipantsList({
           </HoverCardContent>
         </HoverCard>
       ))}
-    </Scroller>
+    </ScrollArea>
   );
 }
 
@@ -65,13 +59,9 @@ const Participant = ({
     >
       <div className="flex items-center gap-3">
         <div className="relative">
-          <Avatar className="border-border h-8 w-8 rounded-none border">
-            <AvatarImage
-              src={user.image}
-              alt={user.name}
-              className="rounded-none"
-            />
-            <AvatarFallback className="rounded-none">
+          <Avatar className="border-border h-8 w-8 border">
+            <AvatarImage src={user.image} alt={user.name} />
+            <AvatarFallback>
               {user.name?.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>

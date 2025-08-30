@@ -22,10 +22,10 @@ export default async function SessionIdPage({
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
       {/* Left Column */}
       <div className="flex max-h-full flex-col gap-5 py-5 md:w-4/6">
-        <div className="flex flex-col flex-1">
+        <div className="flex flex-1 flex-col">
           <div>
             <Link
-              className="py-3.5 text-xs px-0 text-muted-foreground hover:text-foreground inline-flex items-center gap-1"
+              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 px-0 py-3.5 text-xs"
               href="/dashboard"
             >
               <ChevronLeft className="h-3 w-3" /> Back to dashboard
@@ -36,7 +36,6 @@ export default async function SessionIdPage({
             preloadedTasks={data.preloadedTasks}
             preloadedSession={data.preloadedSession}
           />
-
         </div>
 
         <div className="min-h-0 flex-1">
@@ -62,33 +61,32 @@ export default async function SessionIdPage({
           <Stats />
         </div> */}
       </div>
-    </div >
+    </div>
   );
 }
-
 
 export async function preloadStatistics(slug: Id<"sessions">) {
   const sessionIdArgs = { sessionId: slug };
   const preloadedUser = await preloadWithAuth(api.user.currentUser);
   const preloadedSession = await preloadWithAuth(
     api.session.queries.getSession,
-    sessionIdArgs
+    sessionIdArgs,
   );
   const preloadedTasks = await preloadWithAuth(
     api.tasks.queries.listTasks,
-    sessionIdArgs
+    sessionIdArgs,
   );
   const preloadedChat = await preloadWithAuth(
     api.chat.queries.listChatMessages,
-    sessionIdArgs
+    sessionIdArgs,
   );
   const preloadedParticipants = await preloadWithAuth(
     api.rooms.queries.listParticipants,
-    sessionIdArgs
+    sessionIdArgs,
   );
   const preloadedRoom = await preloadWithAuth(
     api.rooms.queries.getRoomBySession,
-    sessionIdArgs
+    sessionIdArgs,
   );
 
   return {
@@ -98,6 +96,5 @@ export async function preloadStatistics(slug: Id<"sessions">) {
     preloadedChat,
     preloadedParticipants,
     preloadedRoom,
-  }
+  };
 }
-

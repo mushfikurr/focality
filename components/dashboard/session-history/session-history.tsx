@@ -26,7 +26,7 @@ import { useMemo, useState } from "react";
 import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { formatTimeInMs } from "@/lib/utils";
+import { formatTimeFromMsToHHMMSS } from "@/lib/utils";
 import {
   Popover,
   PopoverContent,
@@ -120,7 +120,7 @@ export default function SessionHistory() {
         header: () => "Focused Time",
         cell: ({ row }) => (
           <span className="text-primary w-full text-right text-xs">
-            {formatTimeInMs(row.original.time.focusedTime)}
+            {formatTimeFromMsToHHMMSS(row.original.time.focusedTime)}
           </span>
         ),
         sortingFn: (rowA, rowB, columnId) => {

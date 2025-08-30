@@ -45,7 +45,6 @@ export default function Statistics(props: StatisticsProps) {
         cardTitle={<XPStatCardTitle totalXP={levelInfo.totalXP} />}
         statHeading={`${levelInfo.level}`}
         statSubheading={<XPStatSubheading {...levelInfo} />}
-        Icon={Award}
       />
 
       <StatisticCard
@@ -56,7 +55,7 @@ export default function Statistics(props: StatisticsProps) {
       />
 
       <StatisticCard
-        cardTitle="Total Focus Time"
+        cardTitle="Focus Time"
         statHeading={formattedFocusTime}
         statSubheading={`${formattedFocusTimeByWeek} this week`}
         Icon={Clock}
@@ -78,9 +77,9 @@ type XPStatCardTitleProps = {
 
 function XPStatCardTitle({ totalXP }: XPStatCardTitleProps) {
   return (
-    <span className="flex items-center justify-between gap-2">
+    <span className="flex w-full items-center justify-between gap-2">
       <p>Level</p>
-      <Badge variant="outline" className="text-xs">
+      <Badge variant="secondary" className="text-xs">
         {totalXP > 0 && (
           <TrendingUp
             className="text-accent-foreground mr-1 h-3 w-3"

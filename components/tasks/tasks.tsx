@@ -4,6 +4,7 @@ import { Doc, Id } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import NewTaskForm from "../forms/new-task-form";
 import { CoffeeIcon } from "../ui/animated-icons/coffee-icon";
+import { SquarePenIcon } from "../ui/animated-icons/square-pen";
 import { AnimatedButton } from "../ui/button";
 import {
   Card,
@@ -21,10 +22,9 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "../ui/dialog";
-import { Scroller } from "../ui/scroller";
 import { MobileAddButton } from "./mobile-add-button";
 import { TaskItem } from "./task-item";
-import { SquarePenIcon } from "../ui/animated-icons/square-pen";
+import { ScrollArea } from "../ui/scroll-area/scroll-area";
 
 type ActionFunction = () => void | Promise<void>;
 type ActionFunctionWithId = (taskId: string) => void | Promise<void>;
@@ -72,12 +72,7 @@ export default function Tasks(props: TasksProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="flex h-full flex-col overflow-auto py-1">
-        <Scroller
-          className={cn(
-            "max-h-full overflow-auto",
-            !!tasks.length && "border-b",
-          )}
-        >
+        <ScrollArea className={cn("max-h-full overflow-auto")}>
           {!!tasks?.length ? (
             tasks.map((t) => (
               <TaskItem
@@ -91,7 +86,7 @@ export default function Tasks(props: TasksProps) {
           ) : (
             <EmptyTasks />
           )}
-        </Scroller>
+        </ScrollArea>
       </CardContent>
       <CardFooter className="hidden text-xs md:block">
         <div className="text-muted-foreground flex h-full gap-3">

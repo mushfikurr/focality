@@ -108,11 +108,7 @@ export default function NewSessionForm({
               <FormItem className="grid gap-3">
                 <div className="flex items-center gap-3">
                   <FormControl>
-                    <Checkbox
-                      className="rounded-none"
-                      id="visibility"
-                      {...field}
-                    />
+                    <Checkbox id="visibility" {...field} />
                   </FormControl>
                   <FormLabel htmlFor="description">
                     Make session joinable

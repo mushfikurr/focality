@@ -12,9 +12,9 @@ export default function UserAvatar({ user }: { user: User }) {
   return (
     <Popover>
       <PopoverTrigger>
-        <Avatar className="h-7 w-7 rounded-none border shadow-sm">
+        <Avatar className="h-7 w-7 border shadow-sm">
           <AvatarImage src={user.image} />
-          <AvatarFallback className="h-full w-full rounded-none">
+          <AvatarFallback className="h-full w-full">
             {user.name?.[0] ?? "A"}
           </AvatarFallback>
         </Avatar>
@@ -32,9 +32,9 @@ export function UserCard({ user }: { user: User }) {
       {/* Header with background */}
       <div className="rounded-t-lg p-0">
         <div className="flex gap-2.5">
-          <Avatar className="h-14 w-14 rounded-none border shadow-xs">
+          <Avatar className="h-14 w-14 border shadow-xs">
             <AvatarImage src={user.image} alt={user.name} />
-            <AvatarFallback className="rounded-none">
+            <AvatarFallback>
               {user.name?.substring(0, 2).toUpperCase()}
             </AvatarFallback>
           </Avatar>
@@ -46,7 +46,7 @@ export function UserCard({ user }: { user: User }) {
 
               {/* )} */}
             </div>
-            <div className="mt-1 flex items-center gap-2">
+            <div className="mt-1 flex items-center gap-3">
               <span className={`bg-primary h-2 w-2`}></span>
               <span className="text-muted-foreground text-sm">Working</span>
             </div>

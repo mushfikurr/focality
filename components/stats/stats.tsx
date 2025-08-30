@@ -2,7 +2,7 @@
 
 import { Authenticated } from "convex/react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Scroller } from "../ui/scroller";
+import { ScrollArea } from "../ui/scroll-area/scroll-area";
 
 export default function Stats() {
   return (
@@ -19,7 +19,7 @@ function AuthenticatedStats() {
         <CardTitle>Your Stats</CardTitle>
       </CardHeader>
       <CardContent className="min-h-0 flex-1">
-        <Scroller className="h-full max-h-full overflow-auto text-sm">
+        <ScrollArea className="h-full max-h-full overflow-auto text-sm">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <span>Today's Focus Time</span>
@@ -36,7 +36,7 @@ function AuthenticatedStats() {
               <span className="font-medium text-[#D6A45D]">+150 XP</span>
             </div>
           </div>
-        </Scroller>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

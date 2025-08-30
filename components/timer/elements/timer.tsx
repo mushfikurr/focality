@@ -2,7 +2,7 @@ import { PauseIcon } from "@/components/ui/animated-icons/pause";
 import { PlayIcon } from "@/components/ui/animated-icons/play";
 import { Progress } from "@/components/ui/progress";
 import { Doc } from "@/convex/_generated/dataModel";
-import { cn, formatTime } from "@/lib/utils";
+import { cn, formatTimeFromSecondsToMMSS } from "@/lib/utils";
 import { AnimatedButton, Button } from "../../ui/button";
 import {
   Card,
@@ -40,7 +40,10 @@ export function Timer(props: TimerProps) {
     <Card className="flex h-full flex-col justify-between">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <h1>{title ? title : "Current Session"}</h1>
+          <div className="space-y-1">
+            <h1>{title ? title : "Current Session"}</h1>
+          </div>
+
           <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
             <span
               className={cn(
@@ -57,16 +60,11 @@ export function Timer(props: TimerProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="flex w-full flex-col items-center justify-center gap-8">
+        <div className="flex h-full w-full flex-col items-center justify-center gap-4">
           <div className="text-center">
             <h2 className="mb-2 text-6xl font-semibold tracking-tight">
-              {formatTime(timer)}
+              {formatTimeFromSecondsToMMSS(timer)}
             </h2>
-            <p className="text-muted-foreground text-sm">
-              {currentTask
-                ? `${formatType(currentTask.type)}: ${currentTask.description}`
-                : "No current task"}
-            </p>
           </div>
           <div className="flex gap-3">
             <TimerToggleButton
@@ -94,12 +92,12 @@ export function Timer(props: TimerProps) {
             <p>Task progress</p>
             <p>{Math.floor(progressPercentage)}%</p>
           </div>
-          <Progress className="h-3 rounded-none" value={progressPercentage} />
+          <Progress className="h-3" value={progressPercentage} />
           <div className="text-muted-foreground flex justify-between gap-2">
             {currentTask ? (
               <p>
                 {formatType(currentTask.type)}:{" "}
-                {formatTime(currentTask.duration / 1000)}
+                {formatTimeFromSecondsToMMSS(currentTask.duration / 1000)}
               </p>
             ) : (
               !currentTask &&
@@ -110,7 +108,7 @@ export function Timer(props: TimerProps) {
             {nextTask && (
               <p>
                 Next: {formatType(nextTask.type)} -{" "}
-                {formatTime(nextTask.duration / 1000)}
+                {formatTimeFromSecondsToMMSS(nextTask.duration / 1000)}
               </p>
             )}
           </div>
