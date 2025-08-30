@@ -110,7 +110,7 @@ export default function SessionHistory() {
                 style={{ width: `${row.original.completionPercentage}%` }}
               />
             </div>
-            <span>{row.original.completionPercentage}%</span>
+            <span>{Math.floor(row.original.completionPercentage)}%</span>
           </div>
         ),
         sortingFn: "basic",

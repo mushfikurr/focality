@@ -99,13 +99,8 @@ type XPStatSubheadingProps = {
   xpToNextLevel: number;
 };
 function XPStatSubheading({ level, xpToNextLevel }: XPStatSubheadingProps) {
-  return (
-    <span className="text-muted-foreground flex items-center gap-2">
-      <span>{xpToNextLevel} XP</span>
-      <span>to</span>
-      <span>Level {level + 1}</span>
-    </span>
-  );
+  const xpToNextLevelFmt = `${xpToNextLevel} XP to Level ${level + 1}`;
+  return <span className="text-muted-foreground">{xpToNextLevelFmt}</span>;
 }
 
 export function StatisticsSkeleton() {
