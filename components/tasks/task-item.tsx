@@ -25,6 +25,8 @@ import {
   DialogTrigger,
 } from "../ui/dialog";
 import { Skeleton } from "../ui/skeleton";
+import { formatDistanceToNow } from "date-fns";
+import { CheckCheck } from "lucide-react";
 
 interface TaskItemProps {
   removeTask: any;
@@ -37,6 +39,10 @@ interface TaskItemProps {
 export function TaskItem(props: TaskItemProps) {
   const { removeTask, task, pending, currentTaskId } = props;
   const [isEditing, setIsEditing] = useState(false);
+  const completedAtDate = task.completedAt ? new Date(task.completedAt) : null;
+  const completedAt = completedAtDate
+    ? formatDistanceToNow(completedAtDate, { addSuffix: true })
+    : null;
 
   const handleEditingChange = (isEditing: boolean) => {
     setIsEditing(isEditing);
@@ -45,53 +51,64 @@ export function TaskItem(props: TaskItemProps) {
   return (
     <div
       className={cn(
-        "text-muted-foreground flex h-full w-full cursor-default items-center gap-3 text-sm",
+        "text-muted-foreground flex h-full w-full cursor-default items-center justify-between gap-1 text-sm",
         currentTaskId === task._id && "text-foreground",
       )}
     >
-      <Checkbox
-        id={task._id}
-        className={cn(currentTaskId === task._id && "bg-secondary")}
-        checked={task.completed}
-      />
-      <div className="flex w-full items-center justify-between">
+      <div className="flex items-center gap-3">
+        <Checkbox
+          id={task._id}
+          className={cn(currentTaskId === task._id && "bg-secondary")}
+          checked={task.completed}
+        />
         <label
           htmlFor={task._id}
           className={cn("w-full", currentTaskId === task._id && "font-medium")}
         >
           {`${task.description} - ${formatTimeFromSecondsToMMSS(task.duration / 1000)}`}
         </label>
+      </div>
 
-        <Badge variant="outline" className="mr-3 hidden capitalize md:block">
-          {task.type}
-        </Badge>
-        <div className="flex items-center gap-1">
-          <Dialog open={isEditing} onOpenChange={(o) => setIsEditing(o)}>
-            <DialogContent>
-              <UpdateTaskItemDialog
-                task={task}
-                handleEditingChange={handleEditingChange}
-              />
-            </DialogContent>
-            <DialogTrigger asChild>
-              <AnimatedButton
-                variant="outline"
-                disabled={pending}
-                type="button"
-                onClick={() => setIsEditing(!isEditing)}
-                icon={<FilePenLineIcon className="h-full" />}
-                className="h-full px-3"
-              />
-            </DialogTrigger>
-          </Dialog>
-          <AnimatedButton
-            variant="outline"
-            disabled={pending}
-            type="button"
-            icon={<DeleteIcon className="h-full" />}
-            onClick={removeTask}
-            className="h-full px-3"
-          />
+      <div className="flex items-center">
+        <div className="flex w-full items-center gap-1.5">
+          {completedAt && (
+            <span className="flex items-center gap-1.5">
+              <CheckCheck />
+              <p className="mr-3 w-full text-xs">{completedAt}</p>
+            </span>
+          )}
+          <Badge variant="outline" className="mr-3 hidden capitalize md:block">
+            {task.type}
+          </Badge>
+
+          <div className="flex items-center gap-1">
+            <Dialog open={isEditing} onOpenChange={(o) => setIsEditing(o)}>
+              <DialogContent>
+                <UpdateTaskItemDialog
+                  task={task}
+                  handleEditingChange={handleEditingChange}
+                />
+              </DialogContent>
+              <DialogTrigger asChild>
+                <AnimatedButton
+                  variant="outline"
+                  disabled={pending}
+                  type="button"
+                  onClick={() => setIsEditing(!isEditing)}
+                  icon={<FilePenLineIcon className="h-full" />}
+                  className="h-full px-3"
+                />
+              </DialogTrigger>
+            </Dialog>
+            <AnimatedButton
+              variant="outline"
+              disabled={pending}
+              type="button"
+              icon={<DeleteIcon className="h-full" />}
+              onClick={removeTask}
+              className="h-full px-3"
+            />
+          </div>
         </div>
       </div>
     </div>
