@@ -82,6 +82,7 @@ const schema = defineSchema({
     elapsed: v.number(),
     description: v.string(),
     completed: v.boolean(),
+    completedAt: v.optional(v.number()),
   })
     .index("by_session", ["sessionId"])
     .index("by_user", ["userId"]),

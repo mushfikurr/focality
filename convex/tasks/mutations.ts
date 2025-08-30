@@ -72,6 +72,7 @@ export const completeTaskIfElapsed = triggerTaskMutation({
         id: task._id,
         args: {
           completed: true,
+          completedAt: Date.now(),
           elapsed: task.duration,
         },
       });
