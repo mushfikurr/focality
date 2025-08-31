@@ -1,21 +1,15 @@
-import Achievements from "@/components/dashboard/achievements/achievements";
-import { ProductivityInsights } from "@/components/dashboard/productivity-insights/productivity-insights";
-import SessionHistory from "@/components/dashboard/session-history/session-history";
-import Statistics, {
-  StatisticsSkeleton,
-} from "@/components/dashboard/statistics-overview/statistics";
-import { buttonVariants } from "@/components/ui/button";
-import { preloadDashboard } from "@/lib/data/preload-dashboard";
-import { cn } from "@/lib/utils";
-import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
-import { Plus } from "lucide-react";
-import Link from "next/link";
 import { Suspense } from "react";
+import Link from "next/link";
+import { Plus } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { buttonVariants } from "@/components/ui/button";
+import Achievements from "@/components/dashboard/achievements/achievements";
+import { AchievementsSkeleton } from "@/components/dashboard/achievements/skeleton";
+import { ProductivityInsights, ProductivityInsightsSkeleton } from "@/components/dashboard/productivity-insights/productivity-insights";
+import SessionHistory, { SessionHistorySkeleton } from "@/components/dashboard/session-history/session-history";
+import Statistics, { StatisticsSkeleton } from "@/components/dashboard/statistics-overview/statistics";
 
-export default async function DashboardPage() {
-  const user = await isAuthenticatedNextjs();
-  const data = user ? await preloadDashboard() : null;
-
+export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <main className="container mx-auto py-8">
@@ -35,27 +29,29 @@ export default async function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats Overview */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
           <Suspense fallback={<StatisticsSkeleton />}>
-            {user && data && <Statistics {...data} />}
+            <Statistics />
           </Suspense>
         </div>
 
-        {/* Productivity Insights */}
-        {user && data && (
-          <ProductivityInsights
-            preloadedTaskStatistics={data.preloadedTaskStatistics}
-          />
-        )}
+        <div className="mb-8">
+          <Suspense fallback={<ProductivityInsightsSkeleton />}>
+            <ProductivityInsights />
+          </Suspense>
+        </div>
 
-        {/* Recent Achievements */}
-        {user && data && (
-          <Achievements preloadedAchievements={data.preloadedAchievements} />
-        )}
+        <div className="mb-8">
+          <Suspense fallback={<AchievementsSkeleton />}>
+            <Achievements />
+          </Suspense>
+        </div>
 
-        {/* Session History */}
-        <SessionHistory />
+        <div className="mb-8">
+          <Suspense fallback={<SessionHistorySkeleton />}>
+            <SessionHistory />
+          </Suspense>
+        </div>
       </main>
     </div>
   );

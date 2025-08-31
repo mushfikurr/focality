@@ -4,19 +4,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { useQuery } from "convex/react";
 import { Award, Target } from "lucide-react";
 
-interface AchievementsProps {
-  preloadedAchievements: Preloaded<
-    typeof api.achievements.queries.getAchievementsForCurrentUser
-  >;
-}
-
-export default function Achievements({
-  preloadedAchievements,
-}: AchievementsProps) {
-  const achievements = usePreloadedQuery(preloadedAchievements);
+export default function Achievements() {
+  const achievements = useQuery(
+    api.achievements.queries.getAchievementsForCurrentUser,
+  );
 
   return (
     <Card className="mb-8 h-fit">
@@ -30,13 +24,13 @@ export default function Achievements({
       </CardHeader>
       <CardContent>
         <div className="grid h-fit grid-cols-1 gap-4 md:grid-cols-3">
-          {!achievements.length && (
+          {!achievements?.length && (
             <p className="text-muted-foreground">
               No achievements earned yet. Get focusing!
             </p>
           )}
           {achievements
-            .filter((a): a is Doc<"achievementDefinitions"> => a !== null)
+            ?.filter((a): a is Doc<"achievementDefinitions"> => a !== null)
             .map((a) => (
               <AchievementCard key={a._id} {...a} />
             ))}
