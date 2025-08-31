@@ -1,10 +1,8 @@
-import { Doc } from "../_generated/dataModel";
-
 export const MAX_LEVEL = 55;
 export const BASE_XP_PER_LEVEL = 3;
 export const EXPONENT = 1.2;
 
-export const BASE_TASK_XP = 10;
+export const BASE_TASK_XP = 15;
 export const MIN_XP_DURATION = 30; // Minimum duration in seconds to earn XP
 export const XP_CURVE_EXPONENT = 0.5; // Lower means faster early XP, slower later
 
@@ -24,6 +22,7 @@ const xpTable = generateXPTable();
 export function getLevelFromXP(totalXP: number): number {
   for (let level = 1; level <= MAX_LEVEL; level++) {
     if (totalXP < xpTable[level]) {
+      I;
       return level;
     }
   }
@@ -45,7 +44,7 @@ export function getXPGainFromDuration(actualMilliseconds: number): number {
   if (actualSeconds < MIN_XP_DURATION) return 0;
 
   // Calculate the scaling factor based on the nonlinear curve
-  const ratio = actualSeconds / 300;  // Using 5 minutes as a reference point (adjust as needed)
+  const ratio = actualSeconds / 300; // Using 5 minutes as a reference point (adjust as needed)
 
   // Apply the nonlinear reward curve (the lower the value, the more XP for early tasks)
   const scaled = Math.pow(ratio, XP_CURVE_EXPONENT);
@@ -56,4 +55,3 @@ export function getXPGainFromDuration(actualMilliseconds: number): number {
   // Return the floor of the XP value to ensure it's an integer
   return Math.floor(xp);
 }
-

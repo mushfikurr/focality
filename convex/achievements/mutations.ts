@@ -11,11 +11,11 @@ const comparators: Record<string, (a: number, b: number) => boolean> = {
   gte: (a, b) => a >= b,
   lt: (a, b) => a < b,
   lte: (a, b) => a <= b,
-}
+};
 
 function checkCondition(
   userValue: number,
-  definition: { condition: string; conditionValue: string }
+  definition: { condition: string; conditionValue: string },
 ): boolean {
   const compare = comparators[definition.condition];
 
@@ -27,41 +27,47 @@ function checkCondition(
   const result = compare(userValue, Number(definition.conditionValue));
   console.log(
     `Checking condition: userValue=${userValue}, condition=${definition.condition}, ` +
-    `conditionValue=${definition.conditionValue} => result=${result}`
+      `conditionValue=${definition.conditionValue} => result=${result}`,
   );
   return result;
 }
 
-export const insertLevelAchievements = async (ctx: MutationCtx, userId: Id<"users">) => {
-  const defs = await ctx.db.query("achievementDefinitions")
-    .filter(q => q.eq(q.field("type"), "level"))
+export const insertLevelAchievements = async (
+  ctx: MutationCtx,
+  userId: Id<"users">,
+  oldLevel: number,
+  newLevel: number,
+) => {
+  console.log(
+    `Checking for level achievements for user ${userId} from level ${oldLevel} to ${newLevel}`,
+  );
+  const defs = await ctx.db
+    .query("achievementDefinitions")
+    .filter((q) => q.eq(q.field("type"), "level"))
     .collect();
-  console.log(`Fetched ${defs.length} level achievement definitions.`);
 
-  const user = await getDocumentOrThrow(ctx, "users", userId);
-  if (!user.xp) return;
-  const userLevel = getLevelFromXP(user.xp);
-  console.log(`User ${userId} has level: ${userLevel}`);
+  for (let level = oldLevel + 1; level <= newLevel; level++) {
+    console.log(`Checking achievements for level ${level}`);
+    await Promise.all(
+      defs.map(async ({ _id, condition, conditionValue, title }) => {
+        if (checkCondition(level, { condition, conditionValue })) {
+          const alreadyHas = await ctx.db
+            .query("achievements")
+            .withIndex("by_definition_user", (q) =>
+              q.eq("achievementDefinitionId", _id).eq("userId", userId),
+            )
+            .unique();
 
-  await Promise.all(defs.map(async ({ _id, condition, conditionValue, title }) => {
-    if (userLevel && checkCondition(userLevel, { condition, conditionValue })) {
-      const alreadyHas = await ctx.db
-        .query("achievements")
-        .withIndex("by_definition_user", q =>
-          q.eq("achievementDefinitionId", _id).eq("userId", userId)
-        )
-        .unique();
-
-      if (!alreadyHas) {
-        console.log(`Inserting achievement "${title}" (_id: ${_id}) for user ${userId}`);
-        await ctx.db.insert("achievements", { achievementDefinitionId: _id, userId });
-      } else {
-        console.log(`User ${userId} already has achievement "${title}" (_id: ${_id})`);
-      }
-    } else {
-      console.log(`User ${userId} does NOT meet condition for "${title}" (_id: ${_id})`);
-    }
-  }));
+          if (!alreadyHas) {
+            await ctx.db.insert("achievements", {
+              achievementDefinitionId: _id,
+              userId,
+            });
+          }
+        }
+      }),
+    );
+  }
 };
 
 export const generateAchievements = mutation({
@@ -70,14 +76,13 @@ export const generateAchievements = mutation({
       achievementDefinitions.map(async (def) => {
         const existing = await ctx.db
           .query("achievementDefinitions")
-          .filter(q => q.eq(q.field("title"), def.title))
+          .filter((q) => q.eq(q.field("title"), def.title))
           .first();
 
         if (!existing) {
-          await ctx.db.insert("achievementDefinitions",
-            def);
+          await ctx.db.insert("achievementDefinitions", def);
         }
-      })
+      }),
     );
-  }
+  },
 });

@@ -5,9 +5,14 @@ import {
 } from "../_generated/server";
 import { DataModel, Doc } from "../_generated/dataModel";
 import { Triggers } from "convex-helpers/server/triggers";
-import { customCtx, customMutation } from "convex-helpers/server/customFunctions";
+import {
+  customCtx,
+  customMutation,
+} from "convex-helpers/server/customFunctions";
 import { getDocumentOrThrow } from "../utils/db";
 import { incrementStreak } from "../streaks/mutations";
+import { getLevelFromXP } from "../levels/utils";
+import { Id } from "../_generated/dataModel";
 import { insertLevelAchievements } from "../achievements/mutations";
 import { grantExperience } from "../levels/mutations";
 import { durationByUserAggregate } from "../statistics/tasks/queries";
@@ -37,17 +42,30 @@ triggers.register("tasks", async (ctx, { oldDoc, newDoc }) => {
 // - Increment streaks
 // - Grant experience
 // - Check for any achievements gained
-export const onTaskComplete = async (ctx: MutationCtx, newDoc: Doc<"tasks">) => {
+export const onTaskComplete = async (
+  ctx: MutationCtx,
+  newDoc: Doc<"tasks">,
+) => {
   const session = await ctx.db.get(newDoc.sessionId);
   if (!session) return;
   // Add streaks and XP for all participants
   if (session._id && session.roomId) {
     const room = await getDocumentOrThrow(ctx, "rooms", session.roomId);
     await Promise.all(
-      room.participants.map(async (userId) => {
+      room.participants.map(async (userId: Id<"users">) => {
+        const user = await getDocumentOrThrow(ctx, "users", userId);
+        const oldLevel = getLevelFromXP(user.xp ?? 0);
+
         await incrementStreak(ctx, userId);
         await grantExperience(ctx, userId, newDoc.duration);
-        await insertLevelAchievements(ctx, userId);
+
+        const newUser = await getDocumentOrThrow(ctx, "users", userId);
+        const newLevel = getLevelFromXP(newUser.xp ?? 0);
+
+        if (newLevel > oldLevel) {
+          console.log(`User ${userId} leveled up from ${oldLevel} to ${newLevel}`);
+          await insertLevelAchievements(ctx, userId, oldLevel, newLevel);
+        }
       }),
     );
   }
@@ -63,3 +81,4 @@ export const triggerTaskInternalMutation = customMutation(
   rawInternalMutation,
   customCtx(triggers.wrapDB),
 );
+

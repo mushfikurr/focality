@@ -68,13 +68,10 @@ export const completeTaskIfElapsed = triggerTaskMutation({
     if (elapsed >= task.duration) {
       console.log(`✅ Task ${task._id} completed.`);
 
-      await ctx.runMutation(internal.tasks.mutations._updateTask, {
-        id: task._id,
-        args: {
-          completed: true,
-          completedAt: Date.now(),
-          elapsed: task.duration,
-        },
+      await ctx.db.patch(task._id, {
+        completed: true,
+        completedAt: Date.now(),
+        elapsed: task.duration,
       });
 
       await ctx.db.patch(session._id, {
