@@ -10,17 +10,11 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
 import { ArrowRight, Medal, TimerIcon, Users2 } from "lucide-react";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { Suspense } from "react";
 
 export default async function Page() {
-  const isAuthenticated = await isAuthenticatedNextjs();
-
-  if (isAuthenticated) redirect("/dashboard");
-
   return (
     <>
       <div className="flex min-h-screen flex-col">

@@ -4,7 +4,7 @@ import SessionHistory from "@/components/dashboard/session-history/session-histo
 import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { preloadDashboard } from "@/lib/data/preload-dashboard";
 import { cn } from "@/lib/utils";
 import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";

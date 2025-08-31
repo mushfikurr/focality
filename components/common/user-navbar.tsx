@@ -30,9 +30,9 @@ export default function UserNavbar() {
 
   const handleLogout = async () => {
     await auth.signOut();
-    toast.success("Successfully logged out!");
     router.push("/");
     router.refresh();
+    toast.success("Successfully logged out!");
   };
 
   const handleThemeChange = () => {
