@@ -1,8 +1,6 @@
+import { achievementDefinitions } from "../../lib/achievement-defs";
 import { Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
-import { getDocumentOrThrow } from "../utils/db";
-import { getLevelFromXP } from "../levels/utils";
-import { achievementDefinitions } from "../../lib/achievement-defs";
 
 const comparators: Record<string, (a: number, b: number) => boolean> = {
   eq: (a, b) => a === b,
