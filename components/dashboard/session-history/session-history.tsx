@@ -1,5 +1,5 @@
 "use client";
-
+import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { PaginatedQueryItem, useQuery } from "convex/react";
 import {
@@ -50,7 +50,7 @@ export default function SessionHistory() {
   return <SessionHistoryTable userId={user._id} />;
 }
 
-function SessionHistorySkeleton() {
+export function SessionHistorySkeleton() {
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -204,12 +204,13 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
               Session History
             </CardTitle>
           </div>
-          {!!sessions.length && (
+          {status === "loaded" && !!sessions.length && (
             <SearchAndFilter
               showCompletedOnly={showCompletedOnly}
               searchQuery={searchQuery}
               setSearchQuery={setSearchQuery}
               setShowCompletedOnly={setShowCompletedOnly}
+              disabled={status !== "loaded"}
             />
           )}
         </div>
@@ -254,23 +255,29 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
             </TableHeader>
 
             <TableBody>
-              {!!!table.getRowModel().rows.length && (
+              {status === "loading" && (
+                <SessionHistoryTableSkeleton numRows={1} />
+              )}
+              {status === "loaded" && !!!table.getRowModel().rows.length && (
                 <TableRow className="text-muted-foreground p-3 px-2">
-                  <TableCell>No sessions to view.</TableCell>
+                  <TableCell colSpan={columns.length} className="text-center">
+                    No sessions to view.
+                  </TableCell>
                 </TableRow>
               )}
-              {table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} className="hover:bg-muted/50">
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id} className="py-3 text-xs">
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))}
+              {status === "loaded" &&
+                table.getRowModel().rows.map((row) => (
+                  <TableRow key={row.id} className="hover:bg-muted/50">
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="py-3 text-xs">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </ScrollArea>
@@ -286,7 +293,7 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
               size="sm"
               className="h-7 text-xs"
               onClick={() => loadPrev?.()}
-              disabled={!loadPrev}
+              disabled={!loadPrev || status === "loading"}
             >
               Prev
             </Button>
@@ -296,7 +303,7 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
               size="sm"
               className="h-7 text-xs"
               onClick={() => loadNext?.()}
-              disabled={!loadNext}
+              disabled={!loadNext || status === "loading"}
             >
               Next
             </Button>
@@ -304,6 +311,35 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function SessionHistoryTableSkeleton({ numRows }: { numRows: number }) {
+  return (
+    <>
+      {Array.from({ length: numRows }).map((_, i) => (
+        <TableRow key={i}>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+          <TableCell>
+            <Skeleton className="h-4 w-full" />
+          </TableCell>
+        </TableRow>
+      ))}
+    </>
   );
 }
 
@@ -319,7 +355,8 @@ function SearchAndFilter({
   setSearchQuery,
   showCompletedOnly,
   setShowCompletedOnly,
-}: SearchAndFilterProps) {
+  disabled,
+}: SearchAndFilterProps & { disabled: boolean }) {
   return (
     <div className="flex items-center gap-3">
       <div className="relative">
@@ -329,6 +366,7 @@ function SearchAndFilter({
           className="h-8 w-full max-w-xs py-1 pr-2 pl-8 text-xs"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          disabled={disabled}
         />
         <Search className="text-muted-foreground absolute top-1/2 left-2 h-3 w-3 -translate-y-1/2 transform" />
       </div>
@@ -339,6 +377,7 @@ function SearchAndFilter({
             variant="outline"
             size="sm"
             className="flex h-8 items-center gap-1 text-xs"
+            disabled={disabled}
           >
             <Filter className="h-3 w-3" />
             <span>Filter</span>
@@ -350,6 +389,7 @@ function SearchAndFilter({
               id="completedOnly"
               checked={showCompletedOnly}
               onCheckedChange={() => setShowCompletedOnly((prev) => !prev)}
+              disabled={disabled}
             />
             <label htmlFor="completedOnly" className="text-xs">
               Completed only
