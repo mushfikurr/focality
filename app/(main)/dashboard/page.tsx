@@ -14,9 +14,7 @@ import { Suspense } from "react";
 
 export default async function DashboardPage() {
   const user = await isAuthenticatedNextjs();
-  if (!user) return null;
-
-  const data = await preloadDashboard();
+  const data = user ? await preloadDashboard() : null;
 
   return (
     <div className="min-h-screen">
@@ -40,17 +38,21 @@ export default async function DashboardPage() {
         {/* Stats Overview */}
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
           <Suspense fallback={<StatisticsSkeleton />}>
-            <Statistics {...data} />
+            {user && data && <Statistics {...data} />}
           </Suspense>
         </div>
 
         {/* Productivity Insights */}
-        <ProductivityInsights
-          preloadedTaskStatistics={data.preloadedTaskStatistics}
-        />
+        {user && data && (
+          <ProductivityInsights
+            preloadedTaskStatistics={data.preloadedTaskStatistics}
+          />
+        )}
 
         {/* Recent Achievements */}
-        <Achievements preloadedAchievements={data.preloadedAchievements} />
+        {user && data && (
+          <Achievements preloadedAchievements={data.preloadedAchievements} />
+        )}
 
         {/* Session History */}
         <SessionHistory />
