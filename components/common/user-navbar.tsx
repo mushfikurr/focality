@@ -32,6 +32,7 @@ export default function UserNavbar() {
     await auth.signOut();
     toast.success("Successfully logged out!");
     router.push("/");
+    router.refresh();
   };
 
   const handleThemeChange = () => {
