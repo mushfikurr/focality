@@ -1,8 +1,7 @@
 export const MAX_LEVEL = 55;
 export const BASE_XP_PER_LEVEL = 3;
 export const EXPONENT = 1.2;
-
-export const BASE_TASK_XP = 15;
+export const BASE_TASK_XP = 20;
 export const MIN_XP_DURATION = 30; // Minimum duration in seconds to earn XP
 export const XP_CURVE_EXPONENT = 0.5; // Lower means faster early XP, slower later
 
@@ -22,7 +21,6 @@ const xpTable = generateXPTable();
 export function getLevelFromXP(totalXP: number): number {
   for (let level = 1; level <= MAX_LEVEL; level++) {
     if (totalXP < xpTable[level]) {
-      I;
       return level;
     }
   }
