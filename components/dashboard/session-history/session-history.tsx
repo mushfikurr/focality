@@ -34,6 +34,7 @@ import {
 } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area/scroll-area";
+import { Id } from "@/convex/_generated/dataModel";
 
 // Type
 
@@ -43,25 +44,47 @@ type Session = Awaited<
 
 export default function SessionHistory() {
   const user = useQuery(api.user.currentUser);
-  if (!user) return null;
 
+  if (!user) return <SessionHistorySkeleton />;
+
+  return <SessionHistoryTable userId={user._id} />;
+}
+
+function SessionHistorySkeleton() {
+  return (
+    <Card>
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Calendar className="text-primary h-4 w-4" />
+            <CardTitle className="text-base font-semibold">
+              Session History
+            </CardTitle>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <div className="bg-muted h-64 w-full animate-pulse rounded-lg" />
+      </CardContent>
+    </Card>
+  );
+}
+
+type SessionHistoryTableProps = {
+  userId: Id<"users">;
+};
+
+function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [showCompletedOnly, setShowCompletedOnly] = useState(false);
 
-  const {
-    status,
-    loadNext,
-    loadPrev,
-    currentPageNum,
-    pageSize,
-    setPageSize,
-    currentResults,
-  } = useSimplePaginatedQuery(
-    api.session.queries.paginatedSessionsByCurrentUser,
-    { userId: user._id },
-    { initialNumItems: 5 },
-  );
+  const { status, loadNext, loadPrev, currentPageNum, currentResults } =
+    useSimplePaginatedQuery(
+      api.session.queries.paginatedSessionsByCurrentUser,
+      { userId },
+      { initialNumItems: 5 },
+    );
 
   const navigate = useRouter();
   const handleSessionClick = (sessionId: string) => {
@@ -155,7 +178,7 @@ export default function SessionHistory() {
         ),
       },
     ],
-    [],
+    [navigate],
   );
 
   const table = useReactTable({
