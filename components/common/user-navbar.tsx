@@ -18,10 +18,11 @@ import { forwardRef, useRef } from "react";
 import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 
 export default function UserNavbar() {
+  const router = useRouter();
   const auth = useAuthActions();
   const userNavRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
@@ -30,7 +31,7 @@ export default function UserNavbar() {
   const handleLogout = async () => {
     await auth.signOut();
     toast.success("Successfully logged out!");
-    redirect("/");
+    router.push("/");
   };
 
   const handleThemeChange = () => {
