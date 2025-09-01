@@ -27,7 +27,7 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { ArrowLeft } from "lucide-react";
-import { redirect, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -51,9 +51,9 @@ export default function LoginForm() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      await auth.signIn("password", { values, redirectTo: "/dashboard" });
+      await auth.signIn("password", { values });
       toast.success("Successfully signed in!");
-      redirect("/dashboard");
+      router.push("/dashboard");
     } catch (error) {
       console.error("Form submission error", error);
       toast.error("Failed to submit the form. Please try again.");
@@ -63,17 +63,22 @@ export default function LoginForm() {
   const handleGoogleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await auth.signIn("google", { redirectTo: "/dashboard" });
+      await auth.signIn("google");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Failed to sign in with Google. Please try again.");
     }
   };
 
-  const handleGuest = async () => {
+  const handleGuest = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     try {
       await auth.signIn("anonymous");
+      router.push("/dashboard");
     } catch (err) {
       console.error(err);
+      toast.error("Failed to continue as guest. Please try again.");
     }
   };
 

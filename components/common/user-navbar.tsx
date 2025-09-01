@@ -48,7 +48,7 @@ export default function UserNavbar() {
     <div className="flex space-x-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-full py-0 pr-0">
+          <Button variant="outline" size="sm" className="h-full py-0 pr-0">
             <UserTrigger ref={userNavRef} />
           </Button>
         </DropdownMenuTrigger>
