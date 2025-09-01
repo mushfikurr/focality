@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -64,6 +64,14 @@ export default function LoginForm() {
     e.preventDefault();
     try {
       await auth.signIn("google", { redirectTo: "/dashboard" });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleGuest = async () => {
+    try {
+      await auth.signIn("anonymous");
     } catch (err) {
       console.error(err);
     }
@@ -145,6 +153,13 @@ export default function LoginForm() {
                   onClick={handleGoogleClick}
                 >
                   Login with Google
+                </Button>
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleGuest}
+                >
+                  Continue as a guest
                 </Button>
               </div>
             </form>

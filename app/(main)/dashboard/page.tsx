@@ -1,13 +1,20 @@
-import { Suspense } from "react";
-import Link from "next/link";
-import { Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { buttonVariants } from "@/components/ui/button";
 import Achievements from "@/components/dashboard/achievements/achievements";
 import { AchievementsSkeleton } from "@/components/dashboard/achievements/skeleton";
-import { ProductivityInsights, ProductivityInsightsSkeleton } from "@/components/dashboard/productivity-insights/productivity-insights";
-import SessionHistory, { SessionHistorySkeleton } from "@/components/dashboard/session-history/session-history";
-import Statistics, { StatisticsSkeleton } from "@/components/dashboard/statistics-overview/statistics";
+import {
+  ProductivityInsights,
+  ProductivityInsightsSkeleton,
+} from "@/components/dashboard/productivity-insights/productivity-insights";
+import SessionHistory, {
+  SessionHistorySkeleton,
+} from "@/components/dashboard/session-history/session-history";
+import Statistics, {
+  StatisticsSkeleton,
+} from "@/components/dashboard/statistics-overview/statistics";
+import { buttonVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { Plus } from "lucide-react";
+import Link from "next/link";
+import { Suspense } from "react";
 
 export default function DashboardPage() {
   return (

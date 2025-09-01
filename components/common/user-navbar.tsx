@@ -29,10 +29,10 @@ export default function UserNavbar() {
   const user = useQuery(api.user.currentUser);
 
   const handleLogout = async () => {
+    toast.success("Successfully logged out!");
     await auth.signOut();
     router.push("/");
     router.refresh();
-    toast.success("Successfully logged out!");
   };
 
   const handleThemeChange = () => {
