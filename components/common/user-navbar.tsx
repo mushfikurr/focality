@@ -12,7 +12,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { LogOut, Moon, Sun, User2 } from "lucide-react";
 import { forwardRef, useRef } from "react";
 import { Button } from "../ui/button";
@@ -20,19 +19,18 @@ import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 import { redirect, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
+import { authClient } from "@/lib/auth-client";
 
 export default function UserNavbar() {
   const router = useRouter();
-  const auth = useAuthActions();
   const userNavRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
   const user = useQuery(api.user.currentUser);
 
   const handleLogout = async () => {
     toast.success("Successfully logged out!");
-    await auth.signOut();
+    await authClient.signOut();
     router.push("/login");
-    
   };
 
   const handleThemeChange = () => {

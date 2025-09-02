@@ -1,10 +1,10 @@
-import { getAuthUserId } from "@convex-dev/auth/server";
 import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
 import { getSessionExperience } from "../levels/queries";
 import { authenticatedUser } from "../utils/auth";
+import { getCurrentUserId } from "../user";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -122,7 +122,7 @@ export const getSession = query({
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
 
-    const userId = await getAuthUserId(ctx);
+    const userId = await getCurrentUserId(ctx);
     const isRoomPrivate = session.roomId === null;
     if (isRoomPrivate && session.hostId !== userId)
       throw new Error("Not authorized");

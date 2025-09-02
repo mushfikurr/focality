@@ -1,12 +1,6 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import Link from "next/link";
-import { useForm } from "react-hook-form";
-import { toast } from "sonner";
-import { z } from "zod";
-
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,13 +15,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormRootError,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { authClient, errorMap, handleFormError } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import { z } from "zod";
 
 const formSchema = z
   .object({
@@ -57,20 +58,35 @@ export default function RegisterForm() {
     },
   });
   const router = useRouter();
-  const auth = useAuthActions();
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    const formData = new FormData();
-    formData.set("name", values.name);
-    formData.set("email", values.email);
-    formData.set("password", values.password);
-    formData.set("flow", "signUp");
-    await auth
-      .signIn("password", formData)
-      .then((resp) => console.log(resp))
-      .catch((err) => console.log(err));
-  }
+    setLoading(true);
 
+    const signUpPromise = (async () => {
+      const { data, error } = await authClient.signUp.email({
+        name: values.name,
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        console.log(error.code);
+        const message = handleFormError(form, error.code, errorMap);
+        throw new Error(message);
+      }
+
+      router.push("/dashboard");
+      return data;
+    })();
+
+    toast.promise(signUpPromise, {
+      loading: "Registering...",
+      success: "Successfully registered",
+      error: (error) => error.message,
+    });
+    setLoading(false);
+  }
   return (
     <div className="mx-auto -mt-3 flex w-full max-w-md flex-col gap-3">
       <Button
@@ -93,6 +109,7 @@ export default function RegisterForm() {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
               <div className="grid gap-4">
+                <FormRootError />
                 {/* Name Field */}
                 <FormField
                   control={form.control}
@@ -171,7 +188,7 @@ export default function RegisterForm() {
                   )}
                 />
 
-                <Button type="submit" className="w-full">
+                <Button loading={loading} type="submit" className="w-full">
                   Register
                 </Button>
               </div>

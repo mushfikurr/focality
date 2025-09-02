@@ -25,9 +25,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
-import { useAuthActions } from "@convex-dev/auth/react";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { authClient, errorMap, handleFormError } from "@/lib/auth-client";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Invalid email address" }),
@@ -46,24 +47,39 @@ export default function LoginForm() {
     },
   });
 
-  const auth = useAuthActions();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      await auth.signIn("password", { values });
-      toast.success("Successfully signed in!");
-      router.push("/dashboard");
-    } catch (error) {
-      console.error("Form submission error", error);
-      toast.error("Failed to submit the form. Please try again.");
-    }
+    setLoading(true);
+
+    const signInPromise = (async () => {
+      const { data, error } = await authClient.signIn.email({
+        email: values.email,
+        password: values.password,
+        callbackURL: "/dashboard",
+      });
+
+      if (error) {
+        const message = handleFormError(form, error.code, errorMap);
+        throw new Error(message);
+      }
+      return data;
+    })();
+
+    toast.promise(signInPromise, {
+      loading: "Logging in...",
+      success: "Successfully signed in",
+      error: (err) => err.message,
+    });
+
+    setLoading(false);
   }
 
   const handleGoogleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await auth.signIn("google");
+      // await authClient.signIn.google(); // Adjust to your authClient method
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
@@ -74,7 +90,7 @@ export default function LoginForm() {
   const handleGuest = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      await auth.signIn("anonymous");
+      // await authClient.signIn.anonymous(); // Adjust to your authClient method
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
@@ -149,7 +165,7 @@ export default function LoginForm() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full">
+                <Button loading={loading} type="submit" className="w-full">
                   Login
                 </Button>
                 <Button

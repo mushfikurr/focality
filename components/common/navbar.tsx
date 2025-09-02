@@ -2,10 +2,10 @@
 
 import { cn } from "@/lib/utils";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
+import { Focus } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import UserNavbar, { UserTriggerSkeleton } from "./user-navbar";
-import { Focus, LogIn } from "lucide-react";
 
 export default function Navbar({ className }: { className?: string }) {
   return (
