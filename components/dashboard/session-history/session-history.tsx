@@ -1,7 +1,12 @@
 "use client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
-import { PaginatedQueryItem, useQuery } from "convex/react";
+import {
+  PaginatedQueryItem,
+  Preloaded,
+  usePreloadedQuery,
+  useQuery,
+} from "convex/react";
 import {
   ColumnDef,
   getCoreRowModel,
@@ -42,8 +47,12 @@ type Session = Awaited<
   PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
 >;
 
-export default function SessionHistory() {
-  const user = useQuery(api.user.currentUser);
+type SessionHistoryProps = {
+  preloadedUser: Preloaded<typeof api.auth.getCurrentUser>;
+};
+
+export default function SessionHistory({ preloadedUser }: SessionHistoryProps) {
+  const user = usePreloadedQuery(preloadedUser);
 
   if (!user) return <SessionHistorySkeleton />;
 

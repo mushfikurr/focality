@@ -1,38 +1,42 @@
-'use client';
+"use client";
 
-import { Badge } from '@/components/ui/badge';
-import { api } from '@/convex/_generated/api';
-import { useQuery } from 'convex/react';
-import { intervalToDuration } from 'date-fns';
-import { CheckCheck, Clock, Flame, TrendingUp } from 'lucide-react';
-import { StatisticCard, StatisticCardSkeleton } from './statistics-card';
+import { Badge } from "@/components/ui/badge";
+import { api } from "@/convex/_generated/api";
+import { Preloaded, usePreloadedQuery } from "convex/react";
+import { intervalToDuration } from "date-fns";
+import { CheckCheck, Clock, Flame, TrendingUp } from "lucide-react";
+import { StatisticCard, StatisticCardSkeleton } from "./statistics-card";
 
-export default function Statistics() {
-  const taskStatististics = useQuery(
-    api.statistics.tasks.queries.getTaskStatisticsForCurrentUser,
-  );
-  const sessionStatistics = useQuery(
-    api.statistics.sessions.queries.getSessionStatisticsForCurrentUser,
-  );
-  const streakInfo = useQuery(api.streaks.queries.getStreakInfoByCurrentUser);
-  const levelInfo = useQuery(api.levels.queries.getLevelInfo);
+type StatisticsProps = {
+  preloadedTaskStatistics: Preloaded<
+    typeof api.statistics.tasks.queries.getTaskStatisticsForCurrentUser
+  >;
+  preloadedSessionStatistics: Preloaded<
+    typeof api.statistics.sessions.queries.getSessionStatisticsForCurrentUser
+  >;
+  preloadedStreakInfo: Preloaded<
+    typeof api.streaks.queries.getStreakInfoByCurrentUser
+  >;
+  preloadedLevelInfo: Preloaded<typeof api.levels.queries.getLevelInfo>;
+};
 
-  if (
-    !taskStatististics ||
-    !sessionStatistics ||
-    !streakInfo ||
-    !levelInfo
-  ) {
+export default function Statistics(props: StatisticsProps) {
+  const taskStatistics = usePreloadedQuery(props.preloadedTaskStatistics);
+  const sessionStatistics = usePreloadedQuery(props.preloadedSessionStatistics);
+  const streakInfo = usePreloadedQuery(props.preloadedStreakInfo);
+  const levelInfo = usePreloadedQuery(props.preloadedLevelInfo);
+
+  if (!taskStatistics || !sessionStatistics || !streakInfo || !levelInfo) {
     return <StatisticsSkeleton />;
   }
 
   const focusDurationByWeek = intervalToDuration({
     start: 0,
-    end: taskStatististics.totalFocusTimeByWeek,
+    end: taskStatistics.totalFocusTimeByWeek,
   });
   const focusDuration = intervalToDuration({
     start: 0,
-    end: taskStatististics.totalFocusTime,
+    end: taskStatistics.totalFocusTime,
   });
   const formattedFocusTime = `${focusDuration.hours ?? 0}h ${
     focusDuration.minutes ?? 0

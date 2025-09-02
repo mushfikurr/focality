@@ -3,8 +3,7 @@ import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
 import { getSessionExperience } from "../levels/queries";
-import { authenticatedUser } from "../utils/auth";
-import { getCurrentUserId } from "../user";
+import { currentUser, currentUserId } from "../auth";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -12,12 +11,12 @@ export const isUserHost = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
 ) => {
-  const userId = await authenticatedUser(ctx);
+  const userId = await currentUser(ctx);
   const session = await ctx.db.get(sessionId);
   if (!session) throw new Error("Session not found");
   if (!userId) throw new Error("User not found");
 
-  return userId === session.hostId;
+  return userId._id === session.hostId;
 };
 
 export const paginatedSessionsByCurrentUser = query({
@@ -75,7 +74,7 @@ export const paginatedSessionsByCurrentUser = query({
 export const listAllSessions = query({
   args: { userId: v.id("users") },
   handler: async (ctx) => {
-    await authenticatedUser(ctx);
+    await currentUser(ctx);
     const sessions = await ctx.db
       .query("sessions")
       .filter((q) => isSessionPublic(q))
@@ -88,7 +87,7 @@ export const listAllSessions = query({
 
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_user", (q) => q.eq("hostId", userId))
@@ -122,7 +121,7 @@ export const getSession = query({
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
 
-    const userId = await getCurrentUserId(ctx);
+    const userId = await currentUser(ctx);
     const isRoomPrivate = session.roomId === null;
     if (isRoomPrivate && session.hostId !== userId)
       throw new Error("Not authorized");

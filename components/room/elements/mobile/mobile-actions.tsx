@@ -20,7 +20,7 @@ interface MobileActionProps {
   preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
   preloadedParticipants: Preloaded<typeof api.rooms.queries.listParticipants>;
   preloadedChat: Preloaded<typeof api.chat.queries.listChatMessages>;
-  preloadedUser: Preloaded<typeof api.user.currentUser>;
+  preloadedUser: Preloaded<typeof api.auth.getCurrentUser>;
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
 }
 

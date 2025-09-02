@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { api } from "../_generated/api";
 import { query } from "../_generated/server";
+import { currentUser } from "../auth";
 
 export const taskType = v.union(v.literal("task"), v.literal("break"));
 
@@ -9,7 +10,7 @@ export const listTasks = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.user.currentUser);
+    const user = await currentUser(ctx);
     console.log(user);
     if (!user) throw new Error("Not authenticated");
 
@@ -29,7 +30,7 @@ export const getCurrentTaskCandidate = query({
     type: v.union(v.literal("task"), v.literal("break")),
   },
   handler: async (ctx, args) => {
-    const user = await ctx.runQuery(api.user.currentUser);
+    const user = await currentUser(ctx);
     if (!user) throw new Error("Not authenticated");
 
     const task = await ctx.db

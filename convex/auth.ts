@@ -4,8 +4,8 @@ import {
   type PublicAuthFunctions,
 } from "@convex-dev/better-auth";
 import { api, components, internal } from "./_generated/api";
+import type { DataModel, Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
-import type { Id, DataModel } from "./_generated/dataModel";
 
 const authFunctions: AuthFunctions = internal.auth;
 const publicAuthFunctions: PublicAuthFunctions = api.auth;
@@ -34,20 +34,26 @@ export const {
   },
 });
 
+export const currentUser = async (ctx: any): Promise<Doc<"users"> | null> => {
+  if (!isAuthenticated) {
+    throw new Error("Not authenticated");
+  }
+  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  if (!userMetadata) {
+    throw new Error("User doesnt exist");
+  }
+  return ctx.db.get(userMetadata.userId as Id<"users">);
+};
+
+export const currentUserId = async (ctx: any): Promise<Id<"users">> => {
+  const userId = (await betterAuthComponent.getAuthUserId(ctx)) as Id<"users">;
+  if (!userId) {
+    throw new Error("User doesnt exist");
+  }
+  return userId;
+};
+
 export const getCurrentUser = query({
   args: {},
-  handler: async (ctx) => {
-    // Get user data from Better Auth - email, name, image, etc.
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
-    if (!userMetadata) {
-      return null;
-    }
-    // Get user data from your application's database
-    // (skip this if you have no fields in your users table schema)
-    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    return {
-      ...user,
-      ...userMetadata,
-    };
-  },
+  handler: async (ctx) => await currentUser(ctx),
 });
