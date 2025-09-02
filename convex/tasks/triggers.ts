@@ -20,19 +20,14 @@ import { durationByUserAggregate } from "../statistics/tasks/queries";
 const triggers = new Triggers<DataModel>();
 
 triggers.register("tasks", async (ctx, { oldDoc, newDoc }) => {
-  // Handle aggregation logic
   if (!oldDoc && newDoc) {
-    // Create
     await durationByUserAggregate.insert(ctx, newDoc);
   } else if (oldDoc && newDoc) {
-    // Update
     await durationByUserAggregate.replace(ctx, oldDoc, newDoc);
   } else if (oldDoc && !newDoc) {
-    // Delete
     await durationByUserAggregate.deleteIfExists(ctx, oldDoc);
   }
 
-  // Handle task completion side-effects
   if (newDoc && (!oldDoc || !oldDoc.completed) && newDoc.completed) {
     await onTaskComplete(ctx, newDoc);
   }
@@ -63,7 +58,9 @@ export const onTaskComplete = async (
         const newLevel = getLevelFromXP(newUser.xp ?? 0);
 
         if (newLevel > oldLevel) {
-          console.log(`User ${userId} leveled up from ${oldLevel} to ${newLevel}`);
+          console.log(
+            `User ${userId} leveled up from ${oldLevel} to ${newLevel}`,
+          );
           await insertLevelAchievements(ctx, userId, oldLevel, newLevel);
         }
       }),
@@ -81,4 +78,3 @@ export const triggerTaskInternalMutation = customMutation(
   rawInternalMutation,
   customCtx(triggers.wrapDB),
 );
-
