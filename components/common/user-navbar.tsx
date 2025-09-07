@@ -20,12 +20,12 @@ import { toast } from "sonner";
 import { redirect, useRouter } from "next/navigation";
 import { useTheme } from "next-themes";
 import { authClient } from "@/lib/auth-client";
+import { Doc } from "@/convex/_generated/dataModel";
 
-export default function UserNavbar() {
+export default function UserNavbar({ user }: { user: Doc<"users"> }) {
   const router = useRouter();
   const userNavRef = useRef<HTMLDivElement>(null);
   const theme = useTheme();
-  const user = useQuery(api.user.currentUser);
 
   const handleLogout = async () => {
     toast.success("Successfully logged out!");
@@ -47,7 +47,7 @@ export default function UserNavbar() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="h-full py-0 pr-0">
-            <UserTrigger ref={userNavRef} />
+            <UserTrigger user={user} ref={userNavRef} />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="mt-1 -mr-1">
@@ -68,25 +68,28 @@ export default function UserNavbar() {
   );
 }
 
-const UserTrigger = forwardRef(() => {
-  const currentUser = useQuery(api.user.currentUser);
+interface UserTriggerProps {
+  user: Doc<"users">;
+}
 
-  return (
-    <div className="flex h-full flex-row-reverse items-center gap-4">
-      <Avatar className="flex aspect-square h-full items-center justify-center rounded">
-        <AvatarImage
-          className="aspect-square h-full"
-          src={currentUser?.image}
-        />
-        <AvatarFallback>{currentUser?.name?.[0]}</AvatarFallback>
-      </Avatar>
-      <div className="flex flex-col items-start">
-        <p className="text-xs font-semibold">{currentUser?.name}</p>
+const UserTrigger = forwardRef<HTMLDivElement, UserTriggerProps>(
+  ({ user }, ref) => {
+    return (
+      <div
+        ref={ref}
+        className="flex h-full flex-row-reverse items-center gap-4"
+      >
+        <Avatar className="flex aspect-square h-full items-center justify-center rounded">
+          <AvatarImage className="aspect-square h-full" src={user.image} />
+          <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+        </Avatar>
+        <div className="flex flex-col items-start">
+          <p className="text-xs font-semibold">{user.name}</p>
+        </div>
       </div>
-    </div>
-  );
-});
-
+    );
+  },
+);
 export const UserTriggerSkeleton = () => {
   return <Skeleton className="aspect-square w-[32px] outline-1" />;
 };

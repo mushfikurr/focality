@@ -30,7 +30,6 @@ import type * as tasks_queries from "../tasks/queries.js";
 import type * as tasks_triggers from "../tasks/triggers.js";
 import type * as time_queries from "../time/queries.js";
 import type * as user from "../user.js";
-import type * as utils_auth from "../utils/auth.js";
 import type * as utils_date from "../utils/date.js";
 import type * as utils_db from "../utils/db.js";
 
@@ -71,7 +70,6 @@ declare const fullApi: ApiFromModules<{
   "tasks/triggers": typeof tasks_triggers;
   "time/queries": typeof time_queries;
   user: typeof user;
-  "utils/auth": typeof utils_auth;
   "utils/date": typeof utils_date;
   "utils/db": typeof utils_db;
 }>;

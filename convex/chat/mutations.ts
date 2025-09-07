@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
+import { currentUserId } from "../auth";
 
 export const createChat = mutation({
   args: {
@@ -9,7 +9,7 @@ export const createChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
     // Validate user is a participant in the room
@@ -41,7 +41,7 @@ export const deleteChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
 
     // Only message author can delete their messages
@@ -59,7 +59,7 @@ export const updateChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
 
     // Only message author can edit their messages

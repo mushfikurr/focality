@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { query } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
 import { getDocumentOrThrow } from "../utils/db";
+import { currentUserId } from "../auth";
 
 export const getRoomBySession = query({
   args: {
@@ -56,7 +56,7 @@ export const getRoomByShareId = query({
 
 export const listUserRooms = query({
   handler: async (ctx) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
 
     return await ctx.db
       .query("rooms")

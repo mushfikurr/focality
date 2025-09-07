@@ -2,11 +2,9 @@ import MobileActions from "@/components/room/elements/mobile/mobile-actions";
 import { SyncedRoom } from "@/components/room/synced-room";
 import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
-import { buttonVariants } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
-import { cn } from "@/lib/utils";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -67,7 +65,7 @@ export default async function SessionIdPage({
 
 export async function preloadStatistics(slug: Id<"sessions">) {
   const sessionIdArgs = { sessionId: slug };
-  const preloadedUser = await preloadWithAuth(api.user.currentUser);
+  const preloadedUser = await preloadWithAuth(api.auth.getCurrentUser);
   const preloadedSession = await preloadWithAuth(
     api.session.queries.getSession,
     sessionIdArgs,

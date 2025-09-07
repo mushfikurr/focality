@@ -11,22 +11,12 @@ import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
 import { buttonVariants } from "@/components/ui/button";
-import { preloadDashboard } from "@/lib/data/preload-dashboard";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
-export default async function DashboardPage() {
-  const {
-    preloadedTaskStatistics,
-    preloadedSessionStatistics,
-    preloadedStreakInfo,
-    preloadedLevelInfo,
-    preloadedAchievements,
-    preloadedCurrentUser,
-  } = await preloadDashboard();
-
+export default function DashboardPage() {
   return (
     <div className="min-h-screen">
       <main className="container mx-auto py-8">
@@ -48,32 +38,25 @@ export default async function DashboardPage() {
 
         <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
           <Suspense fallback={<StatisticsSkeleton />}>
-            <Statistics
-              preloadedTaskStatistics={preloadedTaskStatistics}
-              preloadedSessionStatistics={preloadedSessionStatistics}
-              preloadedStreakInfo={preloadedStreakInfo}
-              preloadedLevelInfo={preloadedLevelInfo}
-            />
+            <Statistics />
           </Suspense>
         </div>
 
         <div className="mb-8">
           <Suspense fallback={<ProductivityInsightsSkeleton />}>
-            <ProductivityInsights
-              preloadedTaskStatistics={preloadedTaskStatistics}
-            />
+            <ProductivityInsights />
           </Suspense>
         </div>
 
         <div className="mb-8">
           <Suspense fallback={<AchievementsSkeleton />}>
-            <Achievements preloadedAchievements={preloadedAchievements} />
+            <Achievements />
           </Suspense>
         </div>
 
         <div className="mb-8">
           <Suspense fallback={<SessionHistorySkeleton />}>
-            <SessionHistory preloadedUser={preloadedCurrentUser} />
+            <SessionHistory />
           </Suspense>
         </div>
       </main>

@@ -1,10 +1,10 @@
 import { v } from "convex/values";
-import { findAndSetCurrentTask } from "../session/mutations";
-import { validateSessionHost } from "../utils/auth";
+import { internal } from "../_generated/api";
+import { currentUserId } from "../auth";
+import { findAndSetCurrentTask, getSession } from "../session/mutations";
 import { getDocumentOrThrow } from "../utils/db";
 import { taskType } from "./queries";
 import { triggerTaskInternalMutation, triggerTaskMutation } from "./triggers";
-import { internal } from "../_generated/api";
 
 export const _updateTask = triggerTaskInternalMutation({
   args: {
@@ -24,7 +24,8 @@ export const addTask = triggerTaskMutation({
     description: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await validateSessionHost(ctx, args.sessionId);
+    const userId = await currentUserId(ctx);
+    await getSession(ctx, args.sessionId);
 
     const task = {
       userId,
@@ -91,9 +92,7 @@ export const deleteTask = triggerTaskMutation({
   },
   handler: async (ctx, args) => {
     const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
-    await validateSessionHost(ctx, task.sessionId);
-
-    const session = await getDocumentOrThrow(ctx, "sessions", task.sessionId);
+    const session = await getSession(ctx, task.sessionId);
     const isCurrent = session.currentTaskId === task._id;
 
     await ctx.db.delete(args.taskId);
@@ -118,7 +117,7 @@ export const updateTask = triggerTaskMutation({
   handler: async (ctx, args) => {
     console.log("📌 Running updateTask mutation");
     const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
-    await validateSessionHost(ctx, task.sessionId);
+    await getSession(ctx, task.sessionId);
 
     const { taskId, ...toUpdate } = args;
     await ctx.runMutation(internal.tasks.mutations._updateTask, {

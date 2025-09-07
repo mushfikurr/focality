@@ -3,8 +3,7 @@ import { subWeeks } from "date-fns";
 import { components } from "../../_generated/api";
 import { DataModel, Id } from "../../_generated/dataModel";
 import { query, QueryCtx } from "../../_generated/server";
-import { authenticatedUser } from "../../utils/auth";
-import { currentUser, currentUserId } from "../../auth";
+import { currentUserId } from "../../auth";
 
 export const durationByUserAggregate = new TableAggregate<{
   Namespace: [Id<"users">, boolean];

@@ -2,8 +2,8 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
-import { getSessionExperience } from "../levels/queries";
 import { currentUser, currentUserId } from "../auth";
+import { getSessionExperience } from "../levels/queries";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -118,10 +118,13 @@ export const getSession = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db.get(args.sessionId);
+    const session = await ctx.db
+      .query("sessions")
+      .withIndex("by_id", (q) => q.eq("_id", args.sessionId))
+      .first();
     if (!session) throw new Error("Session not found");
 
-    const userId = await currentUser(ctx);
+    const userId = await currentUserId(ctx);
     const isRoomPrivate = session.roomId === null;
     if (isRoomPrivate && session.hostId !== userId)
       throw new Error("Not authorized");

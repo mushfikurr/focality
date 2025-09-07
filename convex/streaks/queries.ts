@@ -1,16 +1,18 @@
 import { v } from "convex/values";
 import { query } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
+import { currentUser } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const getStreakInfoByCurrentUser = query({
   handler: async (ctx) => {
-    const user = await authenticatedUser(ctx);
+    const user = await currentUser(ctx);
+    const userId = user._id;
+
     const streak = await ctx.db
       .query("streaks")
-      .withIndex("by_user", (q) => q.eq("userId", user))
+      .withIndex("by_user", (q) => q.eq("userId", userId))
       .first();
-    const highestStreak = (await ctx.db.get(user))?.highestStreak;
+    const highestStreak = user.highestStreak;
     return { streak, highestStreak };
   },
 });

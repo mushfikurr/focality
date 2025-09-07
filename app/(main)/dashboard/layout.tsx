@@ -8,7 +8,7 @@ export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const token = await getToken(createAuth);
-  const isAuthed = await fetchQuery(api.auth.getCurrentUser, {}, { token });
+  const isAuthed = await fetchQuery(api.auth.isAuthenticated, {}, { token });
 
   if (!isAuthed) redirect("/login");
 

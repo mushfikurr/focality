@@ -34,7 +34,7 @@ export const {
   },
 });
 
-export const currentUser = async (ctx: any): Promise<Doc<"users"> | null> => {
+export const currentUser = async (ctx: any): Promise<Doc<"users">> => {
   if (!isAuthenticated) {
     throw new Error("Not authenticated");
   }
@@ -42,7 +42,11 @@ export const currentUser = async (ctx: any): Promise<Doc<"users"> | null> => {
   if (!userMetadata) {
     throw new Error("User doesnt exist");
   }
-  return ctx.db.get(userMetadata.userId as Id<"users">);
+  const user = ctx.db.get(userMetadata.userId as Id<"users">);
+  if (!user) {
+    throw new Error("User doesnt exist");
+  }
+  return user;
 };
 
 export const currentUserId = async (ctx: any): Promise<Id<"users">> => {
@@ -55,5 +59,12 @@ export const currentUserId = async (ctx: any): Promise<Id<"users">> => {
 
 export const getCurrentUser = query({
   args: {},
-  handler: async (ctx) => await currentUser(ctx),
+  handler: async (ctx) => {
+    if (!isAuthenticated) return null;
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) return null;
+
+    const user = ctx.db.get(userMetadata.userId as Id<"users">);
+    return user ?? null;
+  },
 });
