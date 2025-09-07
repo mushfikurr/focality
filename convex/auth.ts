@@ -1,20 +1,70 @@
-import Google from "@auth/core/providers/google";
-import { Anonymous } from "@convex-dev/auth/providers/Anonymous";
-import { Password } from "@convex-dev/auth/providers/Password";
-import { convexAuth } from "@convex-dev/auth/server";
-import { MutationCtx } from "./_generated/server";
-import { getDocumentOrThrow } from "./utils/db";
+import {
+  BetterAuth,
+  type AuthFunctions,
+  type PublicAuthFunctions,
+} from "@convex-dev/better-auth";
+import { api, components, internal } from "./_generated/api";
+import type { DataModel, Doc, Id } from "./_generated/dataModel";
+import { query } from "./_generated/server";
 
-export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [Password, Google, Anonymous],
-  callbacks: {
-    async afterUserCreatedOrUpdated(ctx: MutationCtx, { userId }) {
-      const user = await getDocumentOrThrow(ctx, "users", userId);
-      if (user.isAnonymous) {
-        await ctx.db.patch(userId, {
-          name: "Guest",
-        });
-      }
-    },
+const authFunctions: AuthFunctions = internal.auth;
+const publicAuthFunctions: PublicAuthFunctions = api.auth;
+
+export const betterAuthComponent = new BetterAuth(components.betterAuth, {
+  authFunctions,
+  publicAuthFunctions,
+});
+
+export const {
+  createUser,
+  updateUser,
+  deleteUser,
+  createSession,
+  isAuthenticated,
+} = betterAuthComponent.createAuthFunctions<DataModel>({
+  onCreateUser: async (ctx, user) => {
+    return ctx.db.insert("users", {
+      email: user.email,
+      name: user.name,
+    });
+  },
+
+  onDeleteUser: async (ctx, userId) => {
+    await ctx.db.delete(userId as Id<"users">);
+  },
+});
+
+export const currentUser = async (ctx: any): Promise<Doc<"users">> => {
+  if (!isAuthenticated) {
+    throw new Error("Not authenticated");
+  }
+  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  if (!userMetadata) {
+    throw new Error("User doesnt exist");
+  }
+  const user = ctx.db.get(userMetadata.userId as Id<"users">);
+  if (!user) {
+    throw new Error("User doesnt exist");
+  }
+  return user;
+};
+
+export const currentUserId = async (ctx: any): Promise<Id<"users">> => {
+  const userId = (await betterAuthComponent.getAuthUserId(ctx)) as Id<"users">;
+  if (!userId) {
+    throw new Error("User doesnt exist");
+  }
+  return userId;
+};
+
+export const getCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    if (!isAuthenticated) return null;
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) return null;
+
+    const user = ctx.db.get(userMetadata.userId as Id<"users">);
+    return user ?? null;
   },
 });

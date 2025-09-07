@@ -1,17 +1,17 @@
 import { v } from "convex/values";
-import { MutationCtx, query, QueryCtx } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
+import { Doc } from "../_generated/dataModel";
+import { query, QueryCtx } from "../_generated/server";
+import { currentUserId } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 import {
   getLevelFromXP,
   getXPGainFromDuration,
   getXPToNextLevel,
 } from "./utils";
-import { Doc } from "../_generated/dataModel";
 
 export const getLevelInfo = query({
   handler: async (ctx) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const user = await getDocumentOrThrow(ctx, "users", userId);
 
     const totalXP = user.xp ?? 0;
@@ -22,7 +22,10 @@ export const getLevelInfo = query({
   },
 });
 
-export const getSessionExperience = async (ctx: QueryCtx, session: Doc<"sessions">) => {
+export const getSessionExperience = async (
+  ctx: QueryCtx,
+  session: Doc<"sessions">,
+) => {
   const completedTasks = await ctx.db
     .query("tasks")
     .withIndex("by_session", (q) => q.eq("sessionId", session._id))

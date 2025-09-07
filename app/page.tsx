@@ -9,17 +9,20 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { api } from "@/convex/_generated/api";
+import { preloadWithAuth } from "@/lib/preload-with-auth";
 import { cn } from "@/lib/utils";
-import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
 import { ArrowRight, Medal, TimerIcon, Users2 } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 
 export default async function Page() {
+  const user = await preloadWithAuth(api.auth.getCurrentUser);
+
   return (
     <>
       <div className="flex min-h-screen flex-col">
-        <Navbar />
+        <Navbar user={user} />
         <main className="container mx-auto flex grow flex-col">
           <section className="flex flex-col items-center justify-center gap-4 py-24">
             <div className="mb-6 space-y-4">

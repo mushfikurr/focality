@@ -1,8 +1,9 @@
 import { httpRouter } from "convex/server";
-import { auth } from "./auth";
+import { createAuth } from "../lib/auth";
+import { betterAuthComponent } from "./auth";
 
 const http = httpRouter();
 
-auth.addHttpRoutes(http);
+betterAuthComponent.registerRoutes(http, createAuth);
 
 export default http;

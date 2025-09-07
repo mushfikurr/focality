@@ -1,40 +1,40 @@
 "use client";
-import { Skeleton } from "@/components/ui/skeleton";
-import { api } from "@/convex/_generated/api";
-import { PaginatedQueryItem, useQuery } from "convex/react";
-import {
-  ColumnDef,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
-  flexRender,
-  SortingState,
-} from "@tanstack/react-table";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableRow,
-  TableHead,
-  TableBody,
-  TableCell,
-} from "@/components/ui/table";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Calendar, Search, Filter, ChevronRight } from "lucide-react";
-import { useMemo, useState } from "react";
-import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
-import { useRouter } from "next/navigation";
-import { format } from "date-fns";
-import { formatTimeFromMsToHHMMSS } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area/scroll-area";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { api } from "@/convex/_generated/api";
 import { Id } from "@/convex/_generated/dataModel";
+import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
+import { formatTimeFromMsToHHMMSS } from "@/lib/utils";
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from "@tanstack/react-table";
+import { PaginatedQueryItem, useQuery } from "convex/react";
+import { format } from "date-fns";
+import { Calendar, ChevronRight, Filter, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 // Type
 
@@ -43,7 +43,7 @@ type Session = Awaited<
 >;
 
 export default function SessionHistory() {
-  const user = useQuery(api.user.currentUser);
+  const user = useQuery(api.auth.getCurrentUser);
 
   if (!user) return <SessionHistorySkeleton />;
 

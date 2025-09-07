@@ -3,7 +3,7 @@ import { subWeeks } from "date-fns";
 import { components } from "../../_generated/api";
 import { DataModel, Id } from "../../_generated/dataModel";
 import { query, QueryCtx } from "../../_generated/server";
-import { authenticatedUser } from "../../utils/auth";
+import { currentUserId } from "../../auth";
 
 export const durationByUserAggregate = new TableAggregate<{
   Namespace: [Id<"users">, boolean];
@@ -177,7 +177,7 @@ export const dailyAveragesByUserForMonth = async (
 
 export const getTaskStatisticsForCurrentUser = query({
   handler: async (ctx) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const totalFocusTime = await totalFocusTimeByUser(ctx, {
       userId,
     });

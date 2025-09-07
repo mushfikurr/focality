@@ -1,4 +1,3 @@
-import GuestAlert from "@/components/common/guest-alert";
 import NewSessionForm from "@/components/forms/new-session-form";
 import {
   Card,
@@ -7,10 +6,18 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { isAuthenticatedNextjs } from "@convex-dev/auth/nextjs/server";
+import { api } from "@/convex/_generated/api";
+import { createAuth } from "@/lib/auth";
+import { getToken } from "@convex-dev/better-auth/nextjs";
+import { fetchQuery } from "convex/nextjs";
 
 export default async function NewSessionPage() {
-  const authenticated = await isAuthenticatedNextjs();
+  const token = await getToken(createAuth);
+  const authenticated = !!(await fetchQuery(
+    api.auth.getCurrentUser,
+    {},
+    { token },
+  ));
 
   return (
     <div className="container mx-auto w-full max-w-xl space-y-3 py-8">

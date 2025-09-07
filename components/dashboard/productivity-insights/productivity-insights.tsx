@@ -5,9 +5,9 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { formatTimestampToHS, getWeekdayNameFromUTCDay } from "@/lib/utils";
-import { useQuery } from "convex/react";
 import { BarChart, Calendar, Clock } from "lucide-react";
 import PatternCard from "./pattern-card";
+import { useQuery } from "convex/react";
 
 export function ProductivityInsights() {
   const taskStatistics = useQuery(

@@ -1,12 +1,12 @@
 import { WithoutSystemFields } from "convex/server";
 import { v } from "convex/values";
-import { api, internal } from "../_generated/api";
+import { internal } from "../_generated/api";
 import { Doc, Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
+import { currentUserId } from "../auth";
 import { completionByUserAggregate } from "../statistics/sessions/queries";
-import { authenticatedUser, validateSessionHost } from "../utils/auth";
-import { getDocumentOrThrow } from "../utils/db";
 import { incrementStreak } from "../streaks/mutations";
+import { getDocumentOrThrow } from "../utils/db";
 
 const _insertSession = async (
   ctx: MutationCtx,
@@ -104,7 +104,7 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
 
     const session = {
       hostId: userId,
@@ -140,14 +140,20 @@ function generateUniqueShareId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
+export async function getSession(ctx: MutationCtx, sessionId: Id<"sessions">) {
+  const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
+  if (session.hostId !== (await currentUserId(ctx))) {
+    throw new Error("You are not the host of this session.");
+  }
+  return session;
+}
+
 export const startSession = mutation({
   args: {
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
-
+    const session = await getSession(ctx, args.sessionId);
     if (!session.startTime) {
       await _updateSession(ctx, args.sessionId, {
         startTime: new Date().toISOString(),
@@ -165,8 +171,7 @@ export const pauseSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+    const session = await getSession(ctx, args.sessionId);
 
     if (session.currentTaskId && session.startTime) {
       const startTime = new Date(session.startTime);
@@ -197,8 +202,7 @@ export const resetSessionTimer = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+    const session = await getSession(ctx, args.sessionId);
 
     if (session.currentTaskId) {
       const currentTask = await ctx.db.get(session.currentTaskId);
@@ -219,9 +223,7 @@ export const deleteSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    await validateSessionHost(ctx, args.sessionId);
-    await getDocumentOrThrow(ctx, "sessions", args.sessionId);
-
-    await _removeSession(ctx, args.sessionId);
+    const session = await getSession(ctx, args.sessionId);
+    await _removeSession(ctx, session._id);
   },
 });

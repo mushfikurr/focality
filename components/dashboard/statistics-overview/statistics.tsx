@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import { Badge } from '@/components/ui/badge';
-import { api } from '@/convex/_generated/api';
-import { useQuery } from 'convex/react';
-import { intervalToDuration } from 'date-fns';
-import { CheckCheck, Clock, Flame, TrendingUp } from 'lucide-react';
-import { StatisticCard, StatisticCardSkeleton } from './statistics-card';
+import { Badge } from "@/components/ui/badge";
+import { api } from "@/convex/_generated/api";
+import { useQuery } from "convex/react";
+import { intervalToDuration } from "date-fns";
+import { CheckCheck, Clock, Flame, TrendingUp } from "lucide-react";
+import { StatisticCard, StatisticCardSkeleton } from "./statistics-card";
 
 export default function Statistics() {
-  const taskStatististics = useQuery(
+  const taskStatistics = useQuery(
     api.statistics.tasks.queries.getTaskStatisticsForCurrentUser,
   );
   const sessionStatistics = useQuery(
@@ -17,22 +17,17 @@ export default function Statistics() {
   const streakInfo = useQuery(api.streaks.queries.getStreakInfoByCurrentUser);
   const levelInfo = useQuery(api.levels.queries.getLevelInfo);
 
-  if (
-    !taskStatististics ||
-    !sessionStatistics ||
-    !streakInfo ||
-    !levelInfo
-  ) {
+  if (!taskStatistics || !sessionStatistics || !streakInfo || !levelInfo) {
     return <StatisticsSkeleton />;
   }
 
   const focusDurationByWeek = intervalToDuration({
     start: 0,
-    end: taskStatististics.totalFocusTimeByWeek,
+    end: taskStatistics.totalFocusTimeByWeek,
   });
   const focusDuration = intervalToDuration({
     start: 0,
-    end: taskStatististics.totalFocusTime,
+    end: taskStatistics.totalFocusTime,
   });
   const formattedFocusTime = `${focusDuration.hours ?? 0}h ${
     focusDuration.minutes ?? 0

@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation } from "../_generated/server";
-import { authenticatedUser } from "../utils/auth";
+import { currentUserId } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const joinRoom = mutation({
@@ -9,7 +9,7 @@ export const joinRoom = mutation({
   },
   handler: async (ctx, { roomId }) => {
     const room = await getDocumentOrThrow(ctx, "rooms", roomId);
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
 
     if (!room.participants.includes(userId)) {
       await ctx.db.patch(roomId, {
@@ -28,7 +28,7 @@ export const leaveRoom = mutation({
     roomId: v.id("rooms"),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
     if (!room.participants.includes(userId)) return;
@@ -44,7 +44,7 @@ export const deleteRoom = mutation({
     roomId: v.id("rooms"),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
     if (room.userId !== userId) {
@@ -72,7 +72,7 @@ export const updateRoom = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await authenticatedUser(ctx);
+    const userId = await currentUserId(ctx);
     const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
 
     if (room.userId !== userId) {
