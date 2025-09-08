@@ -14,9 +14,9 @@ export default async function Page() {
     <>
       <div className="flex min-h-screen flex-col">
         <Navbar user={user} />
-        <main className="container mx-auto flex max-w-prose flex-col items-center py-16 pt-8">
+        <main className="container mx-auto flex w-full max-w-prose flex-col items-center py-16 pt-8">
           <section className="space-y-3">
-            <h1 className="mb-4 text-xl">
+            <h1 className="mb-4 text-xl font-semibold">
               Focality, a multiplayer pomodoro timer
             </h1>
             <p className="text-muted-foreground">
@@ -36,10 +36,8 @@ export default async function Page() {
             </Link>
           </section>
         </main>
-        <div className="relative mx-auto w-full max-w-7xl grow">
-          <div className="absolute h-full w-full overflow-clip rounded-xl border mask-b-from-80% shadow-lg">
-            <ProductDemoImage />
-          </div>
+        <div className="relative container mx-auto w-full grow">
+          <ProductDemoImage />
         </div>
       </div>
       <Footer />
