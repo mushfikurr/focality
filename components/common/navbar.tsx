@@ -26,7 +26,7 @@ export default function Navbar({
         hidden
           ? "-translate-y-full opacity-0 blur-sm"
           : "translate-y-0 opacity-100 blur-none",
-        scrollY > 0 ? "shadow-sm" : "shadow-none",
+        scrollY > 0 ? "shadow-xs" : "shadow-none",
       )}
     >
       <div className="container mx-auto flex items-center justify-between">
