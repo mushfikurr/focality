@@ -5,7 +5,6 @@ import { buttonVariants } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import Link from "next/link";
 
 export default async function Page() {
@@ -17,7 +16,9 @@ export default async function Page() {
         <Navbar user={user} />
         <main className="container mx-auto flex max-w-prose flex-col items-center py-16 pt-8">
           <section className="space-y-3">
-            <h1 className="text-xl">Focality, a multiplayer pomodoro timer</h1>
+            <h1 className="mb-4 text-xl">
+              Focality, a multiplayer pomodoro timer
+            </h1>
             <p className="text-muted-foreground">
               Structure your time with focused work sessions that keep you on
               track.
