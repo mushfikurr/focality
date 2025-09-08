@@ -16,7 +16,7 @@ export default function Navbar({
   const user = usePreloadedQuery(preloadedUser);
 
   return (
-    <header className="bg-background/80 sticky top-0 z-50 py-2 backdrop-blur-md">
+    <header className="bg-background/60 sticky top-0 z-50 py-2 backdrop-blur-sm">
       <div className="container mx-auto flex items-center justify-between">
         <Link href="/" className="text-secondary-foreground">
           <Focus className="h-5 w-5" />
