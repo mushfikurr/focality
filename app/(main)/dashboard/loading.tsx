@@ -4,7 +4,7 @@ import { StatisticsSkeleton } from "@/components/dashboard/statistics-overview/s
 function DashboardSkeleton() {
   return (
     <div className="min-h-screen font-mono">
-      <div className="container mx-auto pt-8">
+      <div className="container mx-auto pt-4 pb-8">
         <main className="py-8">
           <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
             <div>

@@ -20,7 +20,7 @@ export default async function NewSessionPage() {
   ));
 
   return (
-    <div className="container mx-auto w-full max-w-xl space-y-3 py-8">
+    <div className="container mx-auto w-full max-w-xl space-y-3 pt-4 pb-8">
       <Card>
         <CardHeader>
           <CardTitle>Create a new session</CardTitle>

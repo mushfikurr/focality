@@ -1,9 +1,14 @@
 "use client";
 
-import { useQuery } from "convex/react";
-import { Avatar, AvatarImage } from "../ui/avatar";
-import { api } from "@/convex/_generated/api";
-import { AvatarFallback } from "@radix-ui/react-avatar";
+import { Doc } from "@/convex/_generated/dataModel";
+import { authClient } from "@/lib/auth-client";
+import { LogOut, Moon, Sun, User2 } from "lucide-react";
+import { useTheme } from "next-themes";
+import { redirect, useRouter } from "next/navigation";
+import { forwardRef, useRef } from "react";
+import { toast } from "sonner";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,15 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import { LogOut, Moon, Sun, User2 } from "lucide-react";
-import { forwardRef, useRef } from "react";
-import { Button } from "../ui/button";
 import { Skeleton } from "../ui/skeleton";
-import { toast } from "sonner";
-import { redirect, useRouter } from "next/navigation";
-import { useTheme } from "next-themes";
-import { authClient } from "@/lib/auth-client";
-import { Doc } from "@/convex/_generated/dataModel";
 
 export default function UserNavbar({ user }: { user: Doc<"users"> }) {
   const router = useRouter();
@@ -46,7 +43,7 @@ export default function UserNavbar({ user }: { user: Doc<"users"> }) {
     <div className="flex space-x-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="outline" size="sm" className="h-full py-0 pr-0">
+          <Button variant="ghost" size="sm" className="h-full py-0.5">
             <UserTrigger user={user} ref={userNavRef} />
           </Button>
         </DropdownMenuTrigger>
@@ -77,7 +74,7 @@ const UserTrigger = forwardRef<HTMLDivElement, UserTriggerProps>(
     return (
       <div
         ref={ref}
-        className="flex h-full flex-row-reverse items-center gap-4"
+        className="flex h-full flex-row-reverse items-center gap-3"
       >
         <Avatar className="flex aspect-square h-full items-center justify-center rounded">
           <AvatarImage className="aspect-square h-full" src={user.image} />

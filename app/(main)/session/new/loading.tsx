@@ -4,7 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function NewSessionLoading() {
   return (
-    <div className="container mx-auto w-full max-w-xl py-8">
+    <div className="container mx-auto w-full max-w-xl pt-4 pb-8">
       <Card className="w-full">
         <CardContent className="space-y-8">
           {/* Card Skeleton */}

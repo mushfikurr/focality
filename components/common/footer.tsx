@@ -2,12 +2,12 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="border-t py-6 mt-6">
+    <footer className="mt-6 border-t py-6">
       <div className="container mx-auto">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <div className="mb-4 md:mb-0 text-center md:text-left">
+        <div className="flex flex-col items-center justify-between md:flex-row">
+          <div className="mb-4 text-center md:mb-0 md:text-left">
             <h2 className="text-sm font-semibold italic">focality</h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               The central point of focus.
             </p>
           </div>
@@ -22,9 +22,6 @@ export default function Footer() {
               Contact
             </Link>
           </div>
-        </div>
-        <div className="mt-6 text-left text-xs italic">
-          &copy; {new Date().getFullYear()} focality
         </div>
       </div>
     </footer>

@@ -2,10 +2,10 @@ import { ConvexClientProvider } from "@/components/providers/ConvexClientProvide
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import type { Metadata } from "next";
-import { Montserrat } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const font = Montserrat({
+const font = Inter({
   weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   style: ["normal"],
   subsets: ["latin"],

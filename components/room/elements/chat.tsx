@@ -59,7 +59,6 @@ function ChatInput({
 }
 
 export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
   const lastMessageRef = useRef<HTMLDivElement>(null); // Ref for the last message
 
   useEffect(() => {
@@ -70,8 +69,8 @@ export function Chat({ messages, onSendMessage, disabled }: ChatProps) {
   }, [messages, lastMessageRef]);
 
   return (
-    <div className="flex h-full flex-col gap-2 p-6">
-      <ScrollArea className="bg-secondary border-secondary h-full space-y-2 overflow-auto rounded-md border px-3 py-2 text-sm">
+    <div className="flex h-full flex-col gap-2">
+      <ScrollArea className="h-full space-y-2 overflow-auto rounded-md border px-3 py-2 text-sm">
         {messages.length > 0 ? (
           messages.map((m) => <Message key={m.id} message={m} />)
         ) : (

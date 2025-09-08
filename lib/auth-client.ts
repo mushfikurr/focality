@@ -50,10 +50,17 @@ export function handleFormError<TFormValues extends FieldValues>(
 export const globalErrorMessages: Partial<Record<AllErrorCodes, string>> = {
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Email already exists",
   INVALID_PASSWORD: "Password does not meet requirements",
+  INVALID_EMAIL_OR_PASSWORD:
+    "Incorrect email or password. Check your credentials and try again.",
+  INVALID_EMAIL: "Email does not meet requirements",
+  PASSWORD_TOO_LONG: "Password provided was too long",
+  PASSWORD_TOO_SHORT: "Password provided was too short",
 };
 
 export const errorMap = {
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: { field: "email" },
+  INVALID_EMAIL_OR_PASSWORD: { field: "root" },
+  INVALID_EMAIL: { field: "email" },
   INVALID_PASSWORD: { field: "password" },
   PASSWORD_TOO_LONG: { field: "password" },
   PASSWORD_TOO_SHORT: { field: "password" },

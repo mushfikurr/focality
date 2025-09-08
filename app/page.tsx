@@ -1,20 +1,12 @@
 import Footer from "@/components/common/footer";
 import Navbar from "@/components/common/navbar";
-import { Timer } from "@/components/sample-timer";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import ProductDemoImage from "@/components/product-demo-image";
+import { buttonVariants } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Medal, TimerIcon, Users2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { Suspense } from "react";
 
 export default async function Page() {
   const user = await preloadWithAuth(api.auth.getCurrentUser);
@@ -23,70 +15,31 @@ export default async function Page() {
     <>
       <div className="flex min-h-screen flex-col">
         <Navbar user={user} />
-        <main className="container mx-auto flex grow flex-col">
-          <section className="flex flex-col items-center justify-center gap-4 py-24">
-            <div className="mb-6 space-y-4">
-              <h1 className="text-center text-3xl leading-[1.1] font-bold tracking-tight">
-                Stay productive together
-              </h1>
-              <p className="text-muted-foreground max-w-prose text-center text-lg text-balance">
-                Help you stay focused and accountable with others.
-              </p>
-            </div>
-            <div className="w-full max-w-2xl">
-              <Suspense
-                fallback={<Skeleton className="mb-8 h-[162px] w-full" />}
-              >
-                <Timer />
-              </Suspense>
-            </div>
-            <div className="flex gap-3">
-              <Button variant="outline">How it works</Button>
-              <Link
-                href="/dashboard"
-                className={cn(buttonVariants({ variant: "default" }))}
-              >
-                Start session <ArrowRight />
-              </Link>
-            </div>
-          </section>
-
-          <section className="flex items-center justify-center gap-4 md:flex-col">
-            <div className="flex w-full max-w-3xl flex-col gap-3 md:flex-row">
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="mb-2 flex items-center gap-3">
-                    <TimerIcon className="text-primary h-4 w-4" /> Focus
-                  </CardTitle>
-                  <CardDescription>
-                    Trackable Pomodoro sessions to maximize productivity.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="mb-2 flex items-center gap-3">
-                    <Users2 className="text-primary h-4 w-4" /> Work Rooms
-                  </CardTitle>
-                  <CardDescription>
-                    Join virtual rooms to work alongside others in real-time.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-              <Card className="w-full">
-                <CardHeader>
-                  <CardTitle className="mb-2 flex items-center gap-3">
-                    <Medal className="text-primary h-4 w-4" /> XP & Leaderboards
-                  </CardTitle>{" "}
-                  <CardDescription>
-                    Earn points and climb the leaderboard as you complete
-                    sessions.
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            </div>
+        <main className="container mx-auto flex max-w-prose flex-col items-center py-16 pt-8">
+          <section className="space-y-3">
+            <h1 className="text-xl">Focality, a multiplayer pomodoro timer</h1>
+            <p className="text-muted-foreground">
+              Structure your time with focused work sessions that keep you on
+              track.
+            </p>
+            <p className="text-muted-foreground">
+              Team up with friends or connect globally to stay accountable and
+              get things done.
+            </p>
+            <p className="text-muted-foreground">
+              Earn progress for every block you complete and climb the
+              leaderboards as you level up.
+            </p>
+            <Link className={cn(buttonVariants(), "mt-4")} href="/dashboard">
+              Start focusing
+            </Link>
           </section>
         </main>
+        <div className="relative mx-auto w-full max-w-7xl grow">
+          <div className="absolute h-full w-full overflow-clip rounded-xl border mask-b-from-80% shadow-lg">
+            <ProductDemoImage />
+          </div>
+        </div>
       </div>
       <Footer />
     </>

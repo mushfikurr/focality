@@ -14,10 +14,7 @@ export default async function DashboardLayout({
 
   return (
     <>
-      {/* <Suspense fallback={<GuestAlertSkeleton />}>
-        <GuestAlert isAuthenticated={isAuth} />
-      </Suspense> */}
-      {children}
+     {children}
     </>
   );
 }

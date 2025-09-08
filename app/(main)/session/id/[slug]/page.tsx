@@ -11,15 +11,15 @@ import Link from "next/link";
 export default async function SessionIdPage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
-  const { slug } = params;
+  const { slug } = await params;
   const data = await preloadStatistics(slug as Id<"sessions">);
 
   return (
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
       {/* Left Column */}
-      <div className="flex max-h-full flex-col gap-5 py-5 md:w-4/6">
+      <div className="flex max-h-full flex-col gap-5 pb-5 md:w-4/6">
         <div className="flex flex-1 flex-col">
           <div>
             <Link
@@ -50,7 +50,7 @@ export default async function SessionIdPage({
       </div>
 
       {/* Right Column */}
-      <div className="hidden h-full flex-col py-5 md:flex md:w-2/6">
+      <div className="hidden h-full flex-col pb-5 md:flex md:w-2/6">
         <div className="h-full">
           <SyncedRoom {...data} />
         </div>
