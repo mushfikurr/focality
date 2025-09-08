@@ -64,7 +64,7 @@ export function SyncedRoom(props: SyncedRoomProps) {
 
   return (
     <Tabs defaultValue="chat" className="flex h-full flex-col">
-      <TabsList className="shadow-sm">
+      <TabsList>
         <AnimatedTabsTrigger value="chat" icon={<MessageSquareMoreIcon />}>
           Chat
         </AnimatedTabsTrigger>

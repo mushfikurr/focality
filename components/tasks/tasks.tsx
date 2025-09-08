@@ -90,7 +90,7 @@ export default function Tasks(props: TasksProps) {
         </ScrollArea>
       </CardContent>
       <CardFooter className="hidden text-xs md:block">
-        <div className="text-muted-foreground flex h-full gap-3">
+        <div className="text-muted-foreground flex h-full gap-2">
           <div
             className={cn(
               "flex h-full items-center gap-3 pr-3",

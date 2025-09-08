@@ -44,10 +44,10 @@ export function Timer(props: TimerProps) {
             <h1>{title ? title : "Current Session"}</h1>
           </div>
 
-          <span className="text-primary flex items-center gap-2.5 text-sm font-medium">
+          <span className="text-primary flex items-center gap-2 text-sm font-medium">
             <span
               className={cn(
-                `bg-primary h-2 w-2`,
+                `bg-primary h-2 w-2 rounded`,
                 !isRunning && "bg-muted-foreground",
               )}
             ></span>

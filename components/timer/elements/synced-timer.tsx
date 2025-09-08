@@ -92,7 +92,7 @@ export function SyncedTimer({
   const nextTask =
     currentTaskIndex >= 0 ? tasks[currentTaskIndex + 1] : undefined;
   const nextTaskProp = nextTask ? nextTask : undefined;
-  const timerTitle = `${currentTask?.description}`;
+  const timerTitle = currentTask?.description ?? "Waiting for task";
 
   return (
     <Timer
