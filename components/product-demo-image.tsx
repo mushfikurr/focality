@@ -1,18 +1,24 @@
-"use client";
-import { useTheme } from "next-themes";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 
 function ProductDemoImage() {
-  const theme = useTheme();
-  const dark = theme.theme === "dark";
+  const baseStyle = "w-full rounded-lg border shadow-lg mask-b-from-80%";
 
   return (
-    <Image
-      src={dark ? "/focality-screenshot.png" : "/focality-screenshot-light.png"}
-      alt="Screenshot of the dashboard page in focality"
-      className="object-cover object-top"
-      fill
-    />
+    <>
+      <Image
+        src="/focality-screenshot-light.png"
+        alt="Screenshot of the dashboard page in focality"
+        className={cn(baseStyle, "object-cover object-top dark:hidden")}
+        fill
+      />
+      <Image
+        src="/focality-screenshot.png"
+        alt="Screenshot of the dashboard page in focality"
+        className={cn(baseStyle, "hidden object-cover object-top dark:block")}
+        fill
+      />
+    </>
   );
 }
 

@@ -2,10 +2,10 @@ import Link from "next/link";
 
 export default function Footer() {
   return (
-    <footer className="mt-6 border-t py-6">
+    <footer className="bg-secondary/30 mt-6 py-6">
       <div className="container mx-auto">
         <div className="flex flex-col items-center justify-between md:flex-row">
-          <div className="mb-4 text-center md:mb-0 md:text-left">
+          <div className="mb-4 text-center md:text-left">
             <h2 className="text-sm font-semibold italic">focality</h2>
             <p className="text-muted-foreground text-xs">
               The central point of focus.

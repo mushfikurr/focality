@@ -7,6 +7,8 @@ import { Focus } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import UserNavbar from "./user-navbar";
+import { Badge } from "../ui/badge";
+import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 
 export default function Navbar({
   user: preloadedUser,
@@ -14,12 +16,32 @@ export default function Navbar({
   user: Preloaded<typeof api.auth.getCurrentUser>;
 }) {
   const user = usePreloadedQuery(preloadedUser);
+  const { hidden, scrollY } = useHideOnScroll({ scrollOffset: 10 });
 
   return (
-    <header className="bg-background/60 sticky top-0 z-50 py-2 backdrop-blur-sm">
+    <header
+      className={cn(
+        "bg-background/90 sticky top-0 z-50 py-3 backdrop-blur-sm",
+        "transition-[transform_300ms,opacity_300ms,filter_300ms,box-shadow] duration-300 ease-out",
+        hidden
+          ? "-translate-y-full opacity-0 blur-sm"
+          : "translate-y-0 opacity-100 blur-none",
+        scrollY > 0 ? "shadow-sm" : "shadow-none",
+      )}
+    >
       <div className="container mx-auto flex items-center justify-between">
-        <Link href="/" className="text-secondary-foreground">
+        <Link
+          href="/"
+          className="text-secondary-foreground flex items-center gap-3"
+        >
           <Focus className="h-5 w-5" />
+          <Badge
+            title="This project is currently under heavy development and some features may not be implemented yet."
+            variant="secondary"
+            className="text-xs"
+          >
+            Alpha
+          </Badge>
         </Link>
         {user ? (
           <UserNavbar user={user} />

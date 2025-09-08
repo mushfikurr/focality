@@ -18,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Skeleton } from "../ui/skeleton";
+import { getLevelFromXP } from "@/lib/client-level";
+import { Badge } from "../ui/badge";
 
 export default function UserNavbar({ user }: { user: Doc<"users"> }) {
   const router = useRouter();
@@ -71,18 +73,19 @@ interface UserTriggerProps {
 
 const UserTrigger = forwardRef<HTMLDivElement, UserTriggerProps>(
   ({ user }, ref) => {
+    const level = getLevelFromXP(user.xp ?? 0);
     return (
-      <div
-        ref={ref}
-        className="flex h-full flex-row-reverse items-center gap-3"
-      >
-        <Avatar className="flex aspect-square h-full items-center justify-center rounded">
+      <div ref={ref} className="flex h-full items-center gap-3 py-0.5">
+        <Avatar className="flex aspect-square h-6 w-6 items-center justify-center rounded">
           <AvatarImage className="aspect-square h-full" src={user.image} />
           <AvatarFallback>{user.name?.[0]}</AvatarFallback>
         </Avatar>
         <div className="flex flex-col items-start">
           <p className="text-xs font-semibold">{user.name}</p>
         </div>
+        <Badge variant="secondary" className="text-xs">
+          Level {level}
+        </Badge>
       </div>
     );
   },
