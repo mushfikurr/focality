@@ -85,9 +85,11 @@ export function SyncedTasks({
   };
 
   const tasksQuery = usePreloadedQuery(preloadedTasks);
+  const tasksTitle = session?.session.title ?? "Session Tasks";
 
   return (
     <Tasks
+      title={tasksTitle}
       actions={{
         addBreak: handleAddBreak,
         addTask: handleAddTask,

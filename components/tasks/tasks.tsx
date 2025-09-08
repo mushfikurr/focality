@@ -35,6 +35,7 @@ type UpdateActionFunctionWithId = (
 
 interface TasksProps {
   tasks: Doc<"tasks">[];
+  title: string;
   actions: {
     addTask: ActionFunction;
     addBreak: ActionFunction;
@@ -50,7 +51,7 @@ interface TasksProps {
 }
 
 export default function Tasks(props: TasksProps) {
-  const { tasks, actions, currentTaskId, sessionId } = props;
+  const { tasks, title, actions, currentTaskId, sessionId } = props;
 
   const tasksCompleted = tasks?.filter((t) => t.completed).length;
   const tasksRemaining = tasks ? tasks.length - tasksCompleted : 0;
@@ -59,7 +60,7 @@ export default function Tasks(props: TasksProps) {
     <Card className="max-h-full min-h-0 gap-0 overflow-hidden md:gap-3">
       <CardHeader>
         <CardTitle className="flex items-center justify-between gap-3">
-          <h3>Session Tasks</h3>
+          <h3>{title}</h3>
           <div className="-mr-2 hidden gap-0 text-xs md:flex">
             <AddBreakButton sessionId={sessionId} />
             <AddTaskButton sessionId={sessionId} />

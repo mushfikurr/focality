@@ -92,10 +92,11 @@ export function SyncedTimer({
   const nextTask =
     currentTaskIndex >= 0 ? tasks[currentTaskIndex + 1] : undefined;
   const nextTaskProp = nextTask ? nextTask : undefined;
+  const timerTitle = `${currentTask?.description}`;
 
   return (
     <Timer
-      title={session.title}
+      title={timerTitle}
       isRunning={session.running}
       timer={currentTask ? localTimeLeft / 1000 : 0}
       currentTask={currentTaskProp}
