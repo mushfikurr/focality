@@ -17,7 +17,7 @@ export default async function Page() {
         <main className="container mx-auto flex w-full max-w-prose flex-col items-center py-16 pt-8">
           <section className="space-y-3">
             <h1 className="mb-4 text-xl font-semibold">
-              Focality, a multiplayer pomodoro timer
+              Focality - A multiplayer pomodoro timer
             </h1>
             <p className="text-muted-foreground">
               Structure your time with focused work sessions that keep you on

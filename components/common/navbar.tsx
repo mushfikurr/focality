@@ -9,6 +9,7 @@ import { buttonVariants } from "../ui/button";
 import UserNavbar from "./user-navbar";
 import { Badge } from "../ui/badge";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
+import { getLevelFromXP } from "@/lib/client-level";
 
 export default function Navbar({
   user: preloadedUser,
@@ -17,11 +18,12 @@ export default function Navbar({
 }) {
   const user = usePreloadedQuery(preloadedUser);
   const { hidden, scrollY } = useHideOnScroll({ scrollOffset: 10 });
+  const level = getLevelFromXP(user?.xp ?? 0);
 
   return (
     <header
       className={cn(
-        "bg-background/90 sticky top-0 z-50 py-3 backdrop-blur-sm",
+        "bg-background/90 sticky top-0 z-50 py-2 backdrop-blur-sm",
         "transition-[transform_300ms,opacity_300ms,filter_300ms,box-shadow] duration-300 ease-out",
         hidden
           ? "-translate-y-full opacity-0 blur-sm"
@@ -30,37 +32,55 @@ export default function Navbar({
       )}
     >
       <div className="container mx-auto flex items-center justify-between">
-        <Link
-          href="/"
-          className="text-secondary-foreground flex items-center gap-3"
-        >
-          <Focus className="h-5 w-5" />
+        <div className="-mx-3 flex items-center gap-2">
+          <Link
+            href="/"
+            className={cn(
+              buttonVariants({ variant: "ghost", size: "icon" }),
+              "text-secondary-foreground flex items-center gap-3",
+            )}
+          >
+            <Focus className="h-5 w-5" />
+          </Link>
+
           <Badge
             title="This project is currently under heavy development and some features may not be implemented yet."
             variant="secondary"
             className="text-xs"
           >
-            Alpha
+            Development
           </Badge>
-        </Link>
-        {user ? (
-          <UserNavbar user={user} />
-        ) : (
-          <div className="flex gap-2">
-            <Link
-              href="/login"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
-            >
-              Register
-            </Link>
-          </div>
-        )}
+        </div>
+        <div className="flex items-center gap-2">
+          {user ? (
+            <UserNavbar user={user} />
+          ) : (
+            <div className="flex gap-2">
+              <Link
+                href="/login"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                )}
+              >
+                Login
+              </Link>
+              <Link
+                href="/register"
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "sm" }),
+                )}
+              >
+                Register
+              </Link>
+            </div>
+          )}
+
+          {user && (
+            <Badge variant="secondary" className="h-fit text-xs">
+              Level {level}
+            </Badge>
+          )}
+        </div>
       </div>
     </header>
   );

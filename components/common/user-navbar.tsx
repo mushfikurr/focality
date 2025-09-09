@@ -18,8 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { Skeleton } from "../ui/skeleton";
-import { getLevelFromXP } from "@/lib/client-level";
-import { Badge } from "../ui/badge";
 
 export default function UserNavbar({ user }: { user: Doc<"users"> }) {
   const router = useRouter();
@@ -45,7 +43,7 @@ export default function UserNavbar({ user }: { user: Doc<"users"> }) {
     <div className="flex space-x-3">
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="sm" className="-mx-3 h-full py-0.5">
+          <Button variant="ghost" size="sm" className="h-full py-0.5">
             <UserTrigger user={user} ref={userNavRef} />
           </Button>
         </DropdownMenuTrigger>
@@ -73,19 +71,17 @@ interface UserTriggerProps {
 
 const UserTrigger = forwardRef<HTMLDivElement, UserTriggerProps>(
   ({ user }, ref) => {
-    const level = getLevelFromXP(user.xp ?? 0);
     return (
-      <div ref={ref} className="flex h-full items-center gap-3 py-0.5">
-        <Avatar className="flex aspect-square h-6 w-6 items-center justify-center rounded">
-          <AvatarImage className="aspect-square h-full" src={user.image} />
-          <AvatarFallback>{user.name?.[0]}</AvatarFallback>
-        </Avatar>
-        <div className="flex flex-col items-start">
-          <p className="text-xs font-semibold">{user.name}</p>
+      <div ref={ref} className="flex h-full items-center gap-4 py-0.5">
+        <div className="flex items-center gap-1.5">
+          <Avatar className="flex aspect-square h-6 w-6 items-center justify-center rounded">
+            <AvatarImage className="aspect-square h-full" src={user.image} />
+            <AvatarFallback>{user.name?.[0]}</AvatarFallback>
+          </Avatar>
+          <div className="flex flex-col items-start">
+            <p className="text-xs font-semibold">{user.name}</p>
+          </div>
         </div>
-        <Badge variant="secondary" className="text-xs">
-          Level {level}
-        </Badge>
       </div>
     );
   },
