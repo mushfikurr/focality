@@ -4,13 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";
-import { useQuery } from "convex/react";
+import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Award, Target } from "lucide-react";
 
-export default function Achievements() {
-  const achievements = useQuery(
-    api.achievements.queries.getAchievementsForCurrentUser,
-  );
+type AchievementsProps = {
+  preloadedAchievements: Preloaded<
+    typeof api.achievements.queries.getAchievementsForCurrentUser
+  >;
+};
+
+export default function Achievements(props: AchievementsProps) {
+  return <AchievementsCollection {...props} />;
+}
+
+function AchievementsCollection({ preloadedAchievements }: AchievementsProps) {
+  const achievements = usePreloadedQuery(preloadedAchievements);
 
   return (
     <Card className="mb-8 h-fit">

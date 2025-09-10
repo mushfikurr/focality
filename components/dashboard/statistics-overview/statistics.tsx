@@ -2,20 +2,42 @@
 
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { Preloaded, usePreloadedQuery } from "convex/react";
 import { intervalToDuration } from "date-fns";
 import { CheckCheck, Clock, Flame, TrendingUp } from "lucide-react";
 import { StatisticCard, StatisticCardSkeleton } from "./statistics-card";
 
-export default function Statistics() {
-  const taskStatistics = useQuery(
-    api.statistics.tasks.queries.getTaskStatisticsForCurrentUser,
+type StatisticsProps = {
+  preloadedTasks: Preloaded<
+    typeof api.statistics.tasks.queries.getTaskStatisticsForCurrentUser
+  >;
+  preloadedSessions: Preloaded<
+    typeof api.statistics.sessions.queries.getSessionStatisticsForCurrentUser
+  >;
+  preloadedStreak: Preloaded<
+    typeof api.streaks.queries.getStreakInfoByCurrentUser
+  >;
+  preloadedLevel: Preloaded<typeof api.levels.queries.getLevelInfo>;
+};
+
+export default function Statistics(props: StatisticsProps) {
+  return (
+    <>
+      <StatisticsCollection {...props} />
+    </>
   );
-  const sessionStatistics = useQuery(
-    api.statistics.sessions.queries.getSessionStatisticsForCurrentUser,
-  );
-  const streakInfo = useQuery(api.streaks.queries.getStreakInfoByCurrentUser);
-  const levelInfo = useQuery(api.levels.queries.getLevelInfo);
+}
+
+function StatisticsCollection({
+  preloadedLevel,
+  preloadedSessions,
+  preloadedStreak,
+  preloadedTasks,
+}: StatisticsProps) {
+  const taskStatistics = usePreloadedQuery(preloadedTasks);
+  const sessionStatistics = usePreloadedQuery(preloadedSessions);
+  const streakInfo = usePreloadedQuery(preloadedStreak);
+  const levelInfo = usePreloadedQuery(preloadedLevel);
 
   if (!taskStatistics || !sessionStatistics || !streakInfo || !levelInfo) {
     return <StatisticsSkeleton />;

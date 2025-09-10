@@ -5,14 +5,22 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { formatTimestampToHS, getWeekdayNameFromUTCDay } from "@/lib/utils";
+import { Preloaded, usePreloadedQuery } from "convex/react";
 import { BarChart, Calendar, Clock } from "lucide-react";
 import PatternCard from "./pattern-card";
-import { useQuery } from "convex/react";
 
-export function ProductivityInsights() {
-  const taskStatistics = useQuery(
-    api.statistics.tasks.queries.getTaskStatisticsForCurrentUser,
-  );
+type ProductivityInsightsProps = {
+  preloadedTasks: Preloaded<
+    typeof api.statistics.tasks.queries.getTaskStatisticsForCurrentUser
+  >;
+};
+
+export function ProductivityInsights(props: ProductivityInsightsProps) {
+  return <ProductivityInsightsCollection {...props} />;
+}
+
+function ProductivityInsightsCollection({ preloadedTasks,}: ProductivityInsightsProps) {
+  const taskStatistics = usePreloadedQuery(preloadedTasks);
 
   if (!taskStatistics) {
     return <ProductivityInsightsSkeleton />;

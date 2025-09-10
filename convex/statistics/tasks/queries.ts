@@ -53,58 +53,38 @@ export const productivityPatternsByUser = async (
   const now = Date.now();
   const numDays = 30;
   const dayInMs = 24 * 60 * 60 * 1000;
-  const hourInMs = 60 * 60 * 1000;
+  const lowerBound = now - numDays * dayInMs;
+
+  const tasks = await ctx.db
+    .query("tasks")
+    .withIndex("by_user_completion_time", (q) =>
+      q
+        .eq("userId", userId)
+        .gte("completedAt", lowerBound)
+        .lte("completedAt", now),
+    )
+    .collect();
 
   const hourlyDurations = Array(24).fill(0);
   const dailyDurations = Array(7).fill(0);
 
-  let hasData = false;
-
-  for (let dayOffset = 0; dayOffset < numDays; dayOffset++) {
-    const dayStart = new Date(now - dayOffset * dayInMs);
-    dayStart.setUTCHours(0, 0, 0, 0);
-    const baseTime = dayStart.getTime();
-    const dayOfWeek = dayStart.getUTCDay();
-
-    let totalForDay = 0;
-
-    for (let hour = 0; hour < 24; hour++) {
-      const start = baseTime + hour * hourInMs;
-      const end = start + hourInMs;
-
-      const sum = await durationByUserAggregate.sum(ctx, {
-        namespace: [userId, true],
-        bounds: {
-          lower: { key: start, inclusive: true },
-          upper: { key: end, inclusive: false },
-        } as any,
-      });
-
-      if (sum > 0) hasData = true;
-
-      hourlyDurations[hour] += sum;
-      totalForDay += sum;
-    }
-
-    dailyDurations[dayOfWeek] += totalForDay;
+  for (const t of tasks) {
+    if (!t.completed || t.completedAt == null) continue;
+    const ts = t.completedAt;
+    const date = new Date(ts);
+    const h = date.getUTCHours();
+    const d = date.getUTCDay();
+    hourlyDurations[h] += t.duration || 0;
+    dailyDurations[d] += t.duration || 0;
   }
 
-  if (!hasData) {
-    return {
-      mostProductiveHour: null,
-      mostProductiveDay: null,
-    };
+  if (tasks.length === 0) {
+    return { mostProductiveHour: null, mostProductiveDay: null };
   }
-
-  const maxHourDuration = Math.max(...hourlyDurations);
-  const mostProductiveHour = hourlyDurations.indexOf(maxHourDuration);
-
-  const maxDayDuration = Math.max(...dailyDurations);
-  const mostProductiveDay = dailyDurations.indexOf(maxDayDuration);
 
   return {
-    mostProductiveHour, // 0–23
-    mostProductiveDay, // 0–6
+    mostProductiveHour: hourlyDurations.indexOf(Math.max(...hourlyDurations)), // 0–23
+    mostProductiveDay: dailyDurations.indexOf(Math.max(...dailyDurations)), // 0–6
   };
 };
 
@@ -114,9 +94,19 @@ export const dailyAveragesByUserForMonth = async (
 ) => {
   const userId = args.userId;
   const numDays = 30;
-
   const now = Date.now();
   const dayInMs = 24 * 60 * 60 * 1000;
+  const lowerBound = now - numDays * dayInMs;
+
+  const tasks = await ctx.db
+    .query("tasks")
+    .withIndex("by_user_completion_time", (q) =>
+      q
+        .eq("userId", userId)
+        .gte("completedAt", lowerBound)
+        .lte("completedAt", now),
+    )
+    .collect();
 
   const aggregatedData = {
     totalSum: 0,
@@ -125,35 +115,17 @@ export const dailyAveragesByUserForMonth = async (
     dailyCounts: Array(7).fill(0),
   };
 
-  for (let i = 0; i < numDays; i++) {
-    const current = new Date(now - i * dayInMs);
-    current.setUTCHours(0, 0, 0, 0);
+  for (const t of tasks) {
+    if (!t.completed || t.completedAt == null) continue;
+    const ts = t.completedAt;
+    const date = new Date(ts);
+    const dayOfWeek = date.getUTCDay();
+    const dur = t.duration || 0;
 
-    const dayStart = current.getTime();
-    const dayEnd = dayStart + dayInMs;
-
-    const dayOfWeek = new Date(dayStart).getUTCDay();
-
-    const dailySum = await durationByUserAggregate.sum(ctx, {
-      namespace: [userId, true],
-      bounds: {
-        lower: { key: dayStart, inclusive: true },
-        upper: { key: dayEnd, inclusive: false },
-      } as any,
-    });
-
-    const dailyCount = await durationByUserAggregate.count(ctx, {
-      namespace: [userId, true],
-      bounds: {
-        lower: { key: dayStart, inclusive: true },
-        upper: { key: dayEnd, inclusive: false },
-      } as any,
-    });
-
-    aggregatedData.totalSum += dailySum;
-    aggregatedData.totalCount += dailyCount;
-    aggregatedData.dailySums[dayOfWeek] += dailySum;
-    aggregatedData.dailyCounts[dayOfWeek] += dailyCount;
+    aggregatedData.totalSum += dur;
+    aggregatedData.totalCount += 1;
+    aggregatedData.dailySums[dayOfWeek] += dur;
+    aggregatedData.dailyCounts[dayOfWeek] += 1;
   }
 
   const dailyAverages = aggregatedData.dailySums.map((sum, index) => {

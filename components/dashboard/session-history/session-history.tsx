@@ -36,8 +36,6 @@ import { Calendar, ChevronRight, Filter, Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-// Type
-
 type Session = Awaited<
   PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
 >;
@@ -58,7 +56,7 @@ export function SessionHistorySkeleton() {
           <div className="flex items-center gap-2">
             <Calendar className="text-primary h-4 w-4" />
             <CardTitle className="text-base font-semibold">
-              Session History
+              <Skeleton className="h-4 w-20" />
             </CardTitle>
           </div>
         </div>

@@ -10,56 +10,59 @@ import SessionHistory, {
 import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
-import { buttonVariants } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
-import Link from "next/link";
+import {
+  preloadDashboardData,
+  preloadPaginatedSessions,
+} from "@/lib/data/server/dashboard-data";
 import { Suspense } from "react";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
+  const {
+    preloadedAchievements,
+    preloadedLevel,
+    preloadedSessions,
+    preloadedStreak,
+    preloadedTasks,
+    preloadedUser,
+  } = await preloadDashboardData();
+
+  let preloadedPaginatedSessions;
+  if (preloadedUser.data) {
+    preloadedPaginatedSessions = await preloadPaginatedSessions(
+      preloadedUser.data._id,
+    );
+  }
+
   return (
-    <div className="min-h-screen">
-      <main className="container mx-auto pt-4 pb-8">
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
-          <div>
-            <h1 className="mb-1 text-2xl font-semibold">Session Management</h1>
-            <p className="text-muted-foreground text-sm">
-              Track, analyze, and create your focus sessions
-            </p>
-          </div>
-          <Link
-            href="/session/new"
-            className={cn("flex items-center gap-2", buttonVariants({}))}
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Session</span>
-          </Link>
-        </div>
+    <>
+      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+        <Suspense fallback={<StatisticsSkeleton />}>
+          <Statistics
+            preloadedLevel={preloadedLevel}
+            preloadedSessions={preloadedSessions}
+            preloadedStreak={preloadedStreak}
+            preloadedTasks={preloadedTasks}
+          />
+        </Suspense>
+      </div>
 
-        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <Suspense fallback={<StatisticsSkeleton />}>
-            <Statistics />
-          </Suspense>
-        </div>
+      <div className="mb-8">
+        <Suspense fallback={<ProductivityInsightsSkeleton />}>
+          <ProductivityInsights preloadedTasks={preloadedTasks} />
+        </Suspense>
+      </div>
 
-        <div className="mb-8">
-          <Suspense fallback={<ProductivityInsightsSkeleton />}>
-            <ProductivityInsights />
-          </Suspense>
-        </div>
+      <div className="mb-8">
+        <Suspense fallback={<AchievementsSkeleton />}>
+          <Achievements preloadedAchievements={preloadedAchievements} />
+        </Suspense>
+      </div>
 
-        <div className="mb-8">
-          <Suspense fallback={<AchievementsSkeleton />}>
-            <Achievements />
-          </Suspense>
-        </div>
-
-        <div className="mb-8">
-          <Suspense fallback={<SessionHistorySkeleton />}>
-            <SessionHistory />
-          </Suspense>
-        </div>
-      </main>
-    </div>
+      <div className="mb-8">
+        <Suspense fallback={<SessionHistorySkeleton />}>
+          <SessionHistory />
+        </Suspense>
+      </div>
+    </>
   );
 }
