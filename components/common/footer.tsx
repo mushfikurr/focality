@@ -5,7 +5,7 @@ export default function Footer() {
     <footer className="bg-secondary/30 mt-6 py-6">
       <div className="container mx-auto">
         <div className="flex flex-col items-center justify-between md:flex-row">
-          <div className="mb-4 text-center md:text-left">
+          <div className="text-center md:text-left">
             <h2 className="text-sm font-semibold italic">focality</h2>
             <p className="text-muted-foreground text-xs">
               The central point of focus.
