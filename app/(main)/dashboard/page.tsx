@@ -10,10 +10,7 @@ import SessionHistory, {
 import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
-import {
-  preloadDashboardData,
-  preloadPaginatedSessions,
-} from "@/lib/data/server/dashboard-data";
+import { preloadDashboardData } from "@/lib/data/server/dashboard-data";
 import { Suspense } from "react";
 
 export default async function DashboardPage() {
@@ -23,15 +20,7 @@ export default async function DashboardPage() {
     preloadedSessions,
     preloadedStreak,
     preloadedTasks,
-    preloadedUser,
   } = await preloadDashboardData();
-
-  let preloadedPaginatedSessions;
-  if (preloadedUser.data) {
-    preloadedPaginatedSessions = await preloadPaginatedSessions(
-      preloadedUser.data._id,
-    );
-  }
 
   return (
     <>

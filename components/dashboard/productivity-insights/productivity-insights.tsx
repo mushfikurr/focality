@@ -8,6 +8,7 @@ import { formatTimestampToHS, getWeekdayNameFromUTCDay } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { BarChart, Calendar, Clock } from "lucide-react";
 import PatternCard from "./pattern-card";
+import { useEffect, useState } from "react";
 
 type ProductivityInsightsProps = {
   preloadedTasks: Preloaded<
@@ -19,7 +20,9 @@ export function ProductivityInsights(props: ProductivityInsightsProps) {
   return <ProductivityInsightsCollection {...props} />;
 }
 
-function ProductivityInsightsCollection({ preloadedTasks,}: ProductivityInsightsProps) {
+function ProductivityInsightsCollection({
+  preloadedTasks,
+}: ProductivityInsightsProps) {
   const taskStatistics = usePreloadedQuery(preloadedTasks);
 
   if (!taskStatistics) {
@@ -71,7 +74,14 @@ function ProductivityInsightsCollection({ preloadedTasks,}: ProductivityInsights
             <PatternCard
               title={"Most Productive Time"}
               icon={Clock}
-              description={fmtHour}
+              description={
+                mostProductiveHour !== null &&
+                mostProductiveHour !== undefined ? (
+                  <ClientHour hour={mostProductiveHour} />
+                ) : (
+                  "N/A"
+                )
+              }
             />
             <PatternCard
               title={"Most Productive Day"}
@@ -83,6 +93,23 @@ function ProductivityInsightsCollection({ preloadedTasks,}: ProductivityInsights
       </CardContent>
     </Card>
   );
+}
+
+function ClientHour({ hour }: { hour: number }) {
+  const [value, setValue] = useState<string>("…");
+
+  useEffect(() => {
+    const date = new Date();
+    date.setHours(hour, 0, 0, 0);
+    setValue(
+      date.toLocaleTimeString("en-GB", {
+        timeStyle: "short",
+        hour12: true,
+      }),
+    );
+  }, [hour]);
+
+  return <>{value}</>;
 }
 
 export function ProductivityInsightsSkeleton() {
