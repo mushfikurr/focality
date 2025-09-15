@@ -5,9 +5,8 @@ import { createAuth } from "./auth";
 
 export async function preloadWithAuth(
   queryFn: FunctionReference<"query">,
-  authToken?: string,
   args: any = {},
 ) {
-  const token = authToken ?? (await getToken(createAuth));
+  const token = await getToken(createAuth);
   return preloadQuery(queryFn, args, { token });
 }
