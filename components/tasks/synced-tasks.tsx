@@ -2,30 +2,22 @@
 
 import { api } from "@/convex/_generated/api";
 import { Doc, Id } from "@/convex/_generated/dataModel";
-import {
-  Preloaded,
-  useMutation,
-  usePreloadedQuery,
-  useQuery,
-} from "convex/react";
+import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import Tasks from "./tasks";
 
 interface SyncedTasksProps {
-  sessionId: Id<"sessions">;
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
   preloadedTasks: Preloaded<typeof api.tasks.queries.listTasks>;
 }
 
 export function SyncedTasks({
   preloadedSession,
-  sessionId,
   preloadedTasks,
 }: SyncedTasksProps) {
   const addTaskMtn = useMutation(api.tasks.mutations.addTask);
 
-  const session = useQuery(api.session.queries.getSession, {
-    sessionId: sessionId,
-  });
+  const session = usePreloadedQuery(preloadedSession);
+  const sessionId = session.session._id;
 
   const handleAddBreak = async () => {
     await addTaskMtn({

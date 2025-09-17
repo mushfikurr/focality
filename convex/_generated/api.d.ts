@@ -17,10 +17,9 @@ import type * as http from "../http.js";
 import type * as levels_mutations from "../levels/mutations.js";
 import type * as levels_queries from "../levels/queries.js";
 import type * as levels_utils from "../levels/utils.js";
-import type * as rooms_mutations from "../rooms/mutations.js";
-import type * as rooms_queries from "../rooms/queries.js";
 import type * as session_mutations from "../session/mutations.js";
 import type * as session_queries from "../session/queries.js";
+import type * as session_utils from "../session/utils.js";
 import type * as statistics_sessions_queries from "../statistics/sessions/queries.js";
 import type * as statistics_tasks_queries from "../statistics/tasks/queries.js";
 import type * as streaks_mutations from "../streaks/mutations.js";
@@ -57,10 +56,9 @@ declare const fullApi: ApiFromModules<{
   "levels/mutations": typeof levels_mutations;
   "levels/queries": typeof levels_queries;
   "levels/utils": typeof levels_utils;
-  "rooms/mutations": typeof rooms_mutations;
-  "rooms/queries": typeof rooms_queries;
   "session/mutations": typeof session_mutations;
   "session/queries": typeof session_queries;
+  "session/utils": typeof session_utils;
   "statistics/sessions/queries": typeof statistics_sessions_queries;
   "statistics/tasks/queries": typeof statistics_tasks_queries;
   "streaks/mutations": typeof streaks_mutations;
@@ -662,10 +660,10 @@ export declare const components: {
               }
             | {
                 data: {
-                  createdAt?: null | number;
+                  createdAt: number;
                   expiresAt: number;
                   identifier: string;
-                  updatedAt?: null | number;
+                  updatedAt: number;
                   value: string;
                 };
                 model: "verification";
@@ -834,6 +832,8 @@ export declare const components: {
                   status?: null | string;
                   stripeCustomerId?: null | string;
                   stripeSubscriptionId?: null | string;
+                  trialEnd?: null | number;
+                  trialStart?: null | number;
                 };
                 model: "subscription";
               }
@@ -1197,10 +1197,10 @@ export declare const components: {
                 sortBy?: { direction: "asc" | "desc"; field: string };
                 unique?: boolean;
                 update: {
-                  createdAt?: null | number;
+                  createdAt?: number;
                   expiresAt?: number;
                   identifier?: string;
-                  updatedAt?: null | number;
+                  updatedAt?: number;
                   value?: string;
                 };
                 where?: Array<{
@@ -1863,6 +1863,8 @@ export declare const components: {
                   status?: null | string;
                   stripeCustomerId?: null | string;
                   stripeSubscriptionId?: null | string;
+                  trialEnd?: null | number;
+                  trialStart?: null | number;
                 };
                 where?: Array<{
                   connector?: "AND" | "OR";
@@ -2108,10 +2110,10 @@ export declare const components: {
             | {
                 model: "verification";
                 update: {
-                  createdAt?: null | number;
+                  createdAt?: number;
                   expiresAt?: number;
                   identifier?: string;
-                  updatedAt?: null | number;
+                  updatedAt?: number;
                   value?: string;
                 };
                 where?: Array<{
@@ -2592,6 +2594,8 @@ export declare const components: {
                   status?: null | string;
                   stripeCustomerId?: null | string;
                   stripeSubscriptionId?: null | string;
+                  trialEnd?: null | number;
+                  trialStart?: null | number;
                 };
                 where?: Array<{
                   connector?: "AND" | "OR";

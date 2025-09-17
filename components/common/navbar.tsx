@@ -3,13 +3,14 @@
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
-import { Focus } from "lucide-react";
+import { Compass, Focus, Gauge, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { buttonVariants } from "../ui/button";
 import UserNavbar from "./user-navbar";
 import { Badge } from "../ui/badge";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { getLevelFromXP } from "@/lib/client-level";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function Navbar({
   user: preloadedUser,
@@ -32,7 +33,7 @@ export default function Navbar({
       )}
     >
       <div className="container mx-auto flex items-center justify-between">
-        <div className="-mx-3 flex items-center gap-2">
+        <div className="-mx-2.5 flex items-center gap-2">
           <Link
             href="/"
             className={cn(
@@ -50,6 +51,10 @@ export default function Navbar({
           >
             Development
           </Badge>
+        </div>
+        <div className="flex items-center gap-2">
+          <NavItem href="/dashboard" title="Dashboard" icon={Gauge} />
+          <NavItem href="/explore" title="Explore" icon={Compass} />
         </div>
         <div className="flex items-center gap-2">
           {user ? (
@@ -83,5 +88,29 @@ export default function Navbar({
         </div>
       </div>
     </header>
+  );
+}
+
+type NavItemProps = {
+  href: string;
+  title: string;
+  icon: LucideIcon;
+};
+
+function NavItem({ href, title, icon: Icon }: NavItemProps) {
+  const pathname = usePathname();
+  const isActive = pathname.split("/")[1] === href.substring(1);
+
+  return (
+    <Link
+      href={href}
+      className={cn(
+        isActive && "bg-accent",
+        buttonVariants({ size: "icon", variant: "ghost" }),
+      )}
+      title={title}
+    >
+      <Icon />
+    </Link>
   );
 }

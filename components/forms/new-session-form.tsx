@@ -51,12 +51,12 @@ export default function NewSessionForm({
   const [isLoading, setIsLoading] = useState(false);
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    const sessionId = await createSession({
+    const shareId = await createSession({
       title: values.title,
       description: values.description,
       visibility: values.visibility ? "public" : "private",
     }).finally(() => setIsLoading(false));
-    redirect(`/session/id/${sessionId}`);
+    redirect(`/session/id/${shareId}`);
   }
 
   return (
@@ -103,18 +103,24 @@ export default function NewSessionForm({
           />
           <FormField
             control={form.control}
-            name="description"
+            name="visibility"
             render={({ field }) => (
               <FormItem className="grid gap-3">
                 <div className="flex items-center gap-3">
                   <FormControl>
-                    <Checkbox id="visibility" {...field} />
+                    <Checkbox
+                      id="visibility"
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                      name={field.name}
+                      onBlur={field.onBlur}
+                      ref={field.ref}
+                    />
                   </FormControl>
-                  <FormLabel htmlFor="description">
+                  <FormLabel htmlFor="visibility">
                     Make session joinable
                   </FormLabel>
                 </div>
-
                 <FormMessage />
               </FormItem>
             )}

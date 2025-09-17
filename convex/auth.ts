@@ -42,7 +42,7 @@ export const currentUser = async (ctx: any): Promise<Doc<"users">> => {
   if (!userMetadata) {
     throw new Error("User doesnt exist");
   }
-  const user = ctx.db.get(userMetadata.userId as Id<"users">);
+  const user = await ctx.db.get(userMetadata.userId as Id<"users">);
   if (!user) {
     throw new Error("User doesnt exist");
   }
@@ -64,7 +64,7 @@ export const getCurrentUser = query({
     const userMetadata = await betterAuthComponent.getAuthUser(ctx);
     if (!userMetadata) return null;
 
-    const user = ctx.db.get(userMetadata.userId as Id<"users">);
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     return user ?? null;
   },
 });

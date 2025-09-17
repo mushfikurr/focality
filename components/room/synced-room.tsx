@@ -13,8 +13,7 @@ import { MessageSquareMoreIcon } from "../ui/animated-icons/message-square-more"
 import { UsersIcon } from "../ui/animated-icons/users-2";
 
 interface SyncedRoomProps {
-  preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
-  preloadedParticipants: Preloaded<typeof api.rooms.queries.listParticipants>;
+  preloadedParticipants: Preloaded<typeof api.session.queries.listParticipants>;
   preloadedChat: Preloaded<typeof api.chat.queries.listChatMessages>;
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
   preloadedUser: Preloaded<typeof api.user.currentUser>;
@@ -24,12 +23,10 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const {
     preloadedUser,
     preloadedParticipants,
-    preloadedRoom,
     preloadedChat,
     preloadedSession,
   } = props;
   const participants = usePreloadedQuery(preloadedParticipants);
-  const room = usePreloadedQuery(preloadedRoom);
   const chatMessages = usePreloadedQuery(preloadedChat);
   const session = usePreloadedQuery(preloadedSession);
   const user = usePreloadedQuery(preloadedUser);
@@ -49,17 +46,17 @@ export function SyncedRoom(props: SyncedRoomProps) {
     }
   });
 
-  if (!room) return null;
+  if (!session) return null;
 
   const sendChatMessage = useMutation(api.chat.mutations.createChat);
   const onSendMessage = (message: string) => {
-    sendChatMessage({ roomId: room._id, content: message });
+    sendChatMessage({ sessionId: session.session._id, content: message });
   };
 
-  const joinRoomMtn = useMutation(api.rooms.mutations.joinRoom);
+  const joinSessionMtn = useMutation(api.session.mutations.joinSession);
   // TODO: Create actual joining mechanism, this is for now.
   useEffect(() => {
-    joinRoomMtn({ roomId: room._id });
+    joinSessionMtn({ sessionId: session.session._id });
   }, []);
 
   return (

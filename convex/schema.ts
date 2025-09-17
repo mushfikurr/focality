@@ -9,13 +9,13 @@ const schema = defineSchema({
     name: v.optional(v.string()),
     image: v.optional(v.string()),
     email: v.optional(v.string()),
-    roomId: v.optional(v.id("rooms")),
+    sessionId: v.optional(v.id("sessions")),
     lastActive: v.optional(v.number()),
     xp: v.optional(v.number()),
     highestStreak: v.optional(v.number()),
   })
     .index("email", ["email"])
-    .index("by_room", ["roomId"]),
+    .index("by_session", ["sessionId"]),
 
   achievementDefinitions: defineTable({
     title: v.string(),
@@ -39,35 +39,26 @@ const schema = defineSchema({
 
   sessions: defineTable({
     hostId: v.id("users"),
-    userIds: v.array(v.id("users")),
+    participants: v.array(v.id("users")),
     title: v.string(),
     description: v.optional(v.string()),
     startTime: v.optional(v.string()),
     running: v.boolean(),
     currentTaskId: v.optional(v.id("tasks")),
-    roomId: v.optional(v.id("rooms")),
+    shareId: v.string(),
+    visibility: v.union(v.literal("public"), v.literal("private")),
     completed: v.boolean(),
   })
     .index("by_user", ["hostId"])
-    .index("by_room", ["roomId"]),
-
-  rooms: defineTable({
-    sessionId: v.id("sessions"),
-    userId: v.id("users"),
-    title: v.string(),
-    participants: v.array(v.id("users")),
-    shareId: v.string(),
-  })
-    .index("by_user", ["userId"])
-    .index("by_shareId", ["shareId"])
-    .index("by_session", ["sessionId"]),
+    .index("by_share_id", ["shareId"])
+    .index("by_visibility", ["visibility"]),
 
   chats: defineTable({
-    roomId: v.id("rooms"),
+    sessionId: v.id("sessions"),
     userId: v.id("users"),
     content: v.string(),
   })
-    .index("by_room", ["roomId"])
+    .index("by_session", ["sessionId"])
     .index("by_user", ["userId"]),
 
   tasks: defineTable({

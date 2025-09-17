@@ -4,6 +4,7 @@ import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
 import { currentUser, currentUserId } from "../auth";
 import { getSessionExperience } from "../levels/queries";
+import { getDocumentOrThrow } from "../utils/db";
 
 const isSessionPublic = (q: any) => q.eq("visiblity", "public");
 
@@ -55,6 +56,7 @@ export const paginatedSessionsByCurrentUser = query({
         );
         return {
           id: session._id,
+          shareId: session.shareId,
           date: session._creationTime,
           title: session.title,
           time: {
@@ -71,20 +73,43 @@ export const paginatedSessionsByCurrentUser = query({
   },
 });
 
-export const listAllSessions = query({
-  args: { userId: v.id("users") },
-  handler: async (ctx) => {
-    await currentUser(ctx);
+export const paginatedPublicSessions = query({
+  args: {
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
     const sessions = await ctx.db
       .query("sessions")
-      .filter((q) => isSessionPublic(q))
-      .order("asc")
-      .collect();
+      .withIndex("by_visibility", (q) => q.eq("visibility", "public"))
+      .order("desc")
+      .paginate(args.paginationOpts);
 
-    return sessions;
+    const pageWithCounts = await Promise.all(
+      sessions.page.map(async (s) => {
+        const participantAmount = s.participants.length;
+        if (participantAmount === 0) return;
+        const host = await ctx.db.get(s.hostId);
+
+        return {
+          id: s._id,
+          creationTime: s._creationTime,
+          startTime: s.startTime,
+          participantAmount,
+          title: s.title,
+          description: s.description,
+          host,
+          running: s.running,
+          shareId: s.shareId,
+        };
+      }),
+    );
+
+    return {
+      ...sessions,
+      page: pageWithCounts.filter(Boolean),
+    };
   },
 });
-
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
     const userId = await currentUserId(ctx);
@@ -118,16 +143,48 @@ export const getSession = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
+    const session = await ctx.db.get(args.sessionId);
+    if (!session) throw new Error("Session not found");
+
+    const userId = await currentUserId(ctx);
+    if (
+      session.visibility === "private" &&
+      !session.participants.includes(userId)
+    ) {
+      throw new Error("Not authorized");
+    }
+
+    const currentTask = session.currentTaskId
+      ? await ctx.db.get(session.currentTaskId)
+      : undefined;
+
+    return {
+      session: {
+        ...session,
+      },
+      currentTask,
+    };
+  },
+});
+
+export const getSessionByShareId = query({
+  args: {
+    shareId: v.string(),
+  },
+  handler: async (ctx, args) => {
     const session = await ctx.db
       .query("sessions")
-      .withIndex("by_id", (q) => q.eq("_id", args.sessionId))
+      .withIndex("by_share_id", (q) => q.eq("shareId", args.shareId))
       .first();
     if (!session) throw new Error("Session not found");
 
     const userId = await currentUserId(ctx);
-    const isRoomPrivate = session.roomId === null;
-    if (isRoomPrivate && session.hostId !== userId)
+    if (
+      session.visibility === "private" &&
+      !session.participants.includes(userId)
+    ) {
       throw new Error("Not authorized");
+    }
 
     const currentTask = session.currentTaskId
       ? await ctx.db.get(session.currentTaskId)
@@ -152,5 +209,47 @@ export const getDriftTimeForSession = query({
 
     const dateNow = new Date().toISOString();
     return dateNow;
+  },
+});
+
+export const listParticipants = query({
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+    return await ctx.db
+      .query("users")
+      .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+      .collect();
+  },
+});
+
+export const listUserSessions = query({
+  handler: async (ctx) => {
+    const userId = await currentUserId(ctx);
+    return await ctx.db
+      .query("sessions")
+      .filter((q) => q.eq(q.field("hostId"), userId))
+      .collect();
+  },
+});
+
+export const getSessionParticipants = query({
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+
+    const users = await Promise.all(
+      session.participants.map(async (id) => {
+        const user = await ctx.db.get(id);
+        if (!user) throw new Error(`User ${id} not found`);
+        return user;
+      }),
+    );
+
+    return users;
   },
 });

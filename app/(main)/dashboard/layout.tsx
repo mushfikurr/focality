@@ -1,8 +1,3 @@
-import { api } from "@/convex/_generated/api";
-import { createAuth } from "@/lib/auth";
-import { getToken } from "@convex-dev/better-auth/nextjs";
-import { fetchQuery } from "convex/nextjs";
-import { redirect } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Plus } from "lucide-react";
@@ -11,11 +6,6 @@ import Link from "next/link";
 export default async function DashboardLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const token = await getToken(createAuth);
-  const isAuthed = await fetchQuery(api.auth.isAuthenticated, {}, { token });
-
-  if (!isAuthed) redirect("/login");
-
   return (
     <div className="min-h-screen">
       <main className="container mx-auto pt-4 pb-8">

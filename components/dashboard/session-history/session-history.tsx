@@ -85,8 +85,8 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
     );
 
   const navigate = useRouter();
-  const handleSessionClick = (sessionId: string) => {
-    navigate.push(`/session/id/${sessionId}`);
+  const handleSessionClick = (shareId: string) => {
+    navigate.push(`/session/id/${shareId}`);
   };
 
   let sessions = status === "loaded" ? currentResults.page : [];
@@ -167,7 +167,7 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
         cell: ({ row }) => (
           <Button
             variant="ghost"
-            onClick={() => handleSessionClick(row.original.id)}
+            onClick={() => handleSessionClick(row.original.shareId)}
             size="icon"
             className="h-6 w-6"
           >

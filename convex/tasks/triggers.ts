@@ -44,10 +44,9 @@ export const onTaskComplete = async (
   const session = await ctx.db.get(newDoc.sessionId);
   if (!session) return;
   // Add streaks and XP for all participants
-  if (session._id && session.roomId) {
-    const room = await getDocumentOrThrow(ctx, "rooms", session.roomId);
+  if (session) {
     await Promise.all(
-      room.participants.map(async (userId: Id<"users">) => {
+      session.participants.map(async (userId: Id<"users">) => {
         const user = await getDocumentOrThrow(ctx, "users", userId);
         const oldLevel = getLevelFromXP(user.xp ?? 0);
 

@@ -1,4 +1,4 @@
-"use server";
+"server-only";
 
 import { api } from "@/convex/_generated/api";
 import { preloadWithAuth } from "../../preload-with-auth";
@@ -36,4 +36,3 @@ export async function preloadPaginatedSessions(userId: Id<"users">) {
     { userId },
   );
 }
-

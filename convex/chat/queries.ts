@@ -6,15 +6,9 @@ export const listChatMessages = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const session = await ctx.db.get(args.sessionId);
-    if (!session?.roomId) return [];
-
-    const room = await ctx.db.get(session.roomId);
-    if (!room) return [];
-
     const messages = await ctx.db
       .query("chats")
-      .withIndex("by_room", (q) => q.eq("roomId", room._id))
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
       .collect();
 
     // Add user information to each message

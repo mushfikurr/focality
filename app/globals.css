@@ -214,7 +214,7 @@
 }
 
 @utility container {
-  padding-inline: 2rem;
+  padding-inline: 1rem;
 }
 
 @layer base {

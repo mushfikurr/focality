@@ -11,9 +11,12 @@ import Statistics, {
   StatisticsSkeleton,
 } from "@/components/dashboard/statistics-overview/statistics";
 import { preloadDashboardData } from "@/lib/data/server/dashboard-data";
+import redirectIfNotAuthenticated from "@/lib/data/server/is-authenticated";
 import { Suspense } from "react";
 
 export default async function DashboardPage() {
+  await redirectIfNotAuthenticated();
+
   const {
     preloadedAchievements,
     preloadedLevel,

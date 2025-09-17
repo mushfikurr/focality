@@ -3,30 +3,34 @@ import { SyncedRoom } from "@/components/room/synced-room";
 import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { api } from "@/convex/_generated/api";
-import { Id } from "@/convex/_generated/dataModel";
+import { createAuth } from "@/lib/auth";
+import redirectIfNotAuthenticated from "@/lib/data/server/is-authenticated";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
+import { getToken } from "@convex-dev/better-auth/nextjs";
+import { fetchQuery } from "convex/nextjs";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
 export default async function SessionIdPage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: Promise<{ shareId: string }>;
 }) {
-  const { slug } = await params;
-  const data = await preloadStatistics(slug as Id<"sessions">);
+  await redirectIfNotAuthenticated();
+  const { shareId } = await params;
+  const data = await preloadStatistics(shareId);
 
   return (
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
       {/* Left Column */}
       <div className="flex max-h-full flex-col gap-5 pb-5 md:w-4/6">
         <div className="flex flex-1 flex-col">
-          <div>
+          <div className="flex justify-between gap-2">
             <Link
               className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 px-0 py-3.5 text-xs"
               href="/dashboard"
             >
-              <ChevronLeft className="h-3 w-3" /> Back to dashboard
+              <ChevronLeft className="-ml-1 h-3 w-3" /> Back to dashboard
             </Link>
           </div>
 
@@ -38,7 +42,6 @@ export default async function SessionIdPage({
 
         <div className="min-h-0 flex-1">
           <SyncedTasks
-            sessionId={slug as Id<"sessions">}
             preloadedSession={data.preloadedSession}
             preloadedTasks={data.preloadedTasks}
           />
@@ -63,8 +66,15 @@ export default async function SessionIdPage({
   );
 }
 
-export async function preloadStatistics(slug: Id<"sessions">) {
-  const sessionIdArgs = { sessionId: slug };
+export async function preloadStatistics(shareId: string) {
+  const token = await getToken(createAuth);
+  const { session } = await fetchQuery(
+    api.session.queries.getSessionByShareId,
+    { shareId },
+    { token },
+  );
+  const sessionIdArgs = { sessionId: session._id };
+
   const preloadedUser = await preloadWithAuth(api.auth.getCurrentUser);
   const preloadedSession = await preloadWithAuth(
     api.session.queries.getSession,
@@ -79,11 +89,7 @@ export async function preloadStatistics(slug: Id<"sessions">) {
     sessionIdArgs,
   );
   const preloadedParticipants = await preloadWithAuth(
-    api.rooms.queries.listParticipants,
-    sessionIdArgs,
-  );
-  const preloadedRoom = await preloadWithAuth(
-    api.rooms.queries.getRoomBySession,
+    api.session.queries.listParticipants,
     sessionIdArgs,
   );
 
@@ -93,6 +99,5 @@ export async function preloadStatistics(slug: Id<"sessions">) {
     preloadedTasks,
     preloadedChat,
     preloadedParticipants,
-    preloadedRoom,
   };
 }

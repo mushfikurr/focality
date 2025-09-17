@@ -5,29 +5,28 @@ import { currentUserId } from "../auth";
 
 export const createChat = mutation({
   args: {
-    roomId: v.id("rooms"),
+    sessionId: v.id("sessions"),
     content: v.string(),
   },
   handler: async (ctx, args) => {
     const userId = await currentUserId(ctx);
-    const room = await getDocumentOrThrow(ctx, "rooms", args.roomId);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
-    // Validate user is a participant in the room
-    if (!room.participants.includes(userId)) {
+    // Validate user is a participant in the session
+    if (!session.participants.includes(userId)) {
       throw new Error(
-        "You must be a participant to send messages in this room",
+        "You must be a participant to send messages in this session",
       );
     }
 
     // Get and validate session status
-    const session = await getDocumentOrThrow(ctx, "sessions", room.sessionId);
     if (session.running) {
       throw new Error("Cannot send messages while session is running");
     }
 
     // Create the chat message
     const chatMessage = {
-      roomId: args.roomId,
+      sessionId: args.sessionId,
       userId: userId,
       content: args.content.trim(),
     };

@@ -7,6 +7,7 @@ import { currentUserId } from "../auth";
 import { completionByUserAggregate } from "../statistics/sessions/queries";
 import { incrementStreak } from "../streaks/mutations";
 import { getDocumentOrThrow } from "../utils/db";
+import { generateUniqueShareId } from "./utils";
 
 const _insertSession = async (
   ctx: MutationCtx,
@@ -15,7 +16,7 @@ const _insertSession = async (
   const id = await ctx.db.insert("sessions", args);
   const doc = await getDocumentOrThrow(ctx, "sessions", id);
   await completionByUserAggregate.insert(ctx, doc);
-  return doc._id;
+  return { id: doc._id, shareId: doc.shareId };
 };
 
 const _updateSession = async (
@@ -53,7 +54,7 @@ export const incrementStreakForAllUsers = async (
   sessionId: Id<"sessions">,
 ) => {
   const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
-  const userIds = session.userIds;
+  const userIds = session.participants;
   for (const userId of userIds) {
     await incrementStreak(ctx, userId);
   }
@@ -105,40 +106,25 @@ export const createSession = mutation({
   },
   handler: async (ctx, args) => {
     const userId = await currentUserId(ctx);
+    const uniqueShareId = await generateUniqueShareId(ctx);
 
     const session = {
       hostId: userId,
-      userIds: [userId],
+      participants: [userId],
       running: false,
       title: args.title,
       description: args.description,
       startTime: undefined,
+      visibility: args.visibility,
       currentTaskId: undefined,
-      roomId: undefined,
       completed: false,
+      shareId: uniqueShareId,
     };
 
-    const sessionId = await _insertSession(ctx, session);
-
-    const room = {
-      sessionId,
-      userId,
-      title: args.title,
-      participants: [userId],
-      shareId: generateUniqueShareId(),
-    } satisfies WithoutSystemFields<Doc<"rooms">>;
-
-    const roomId = await ctx.db.insert("rooms", room);
-
-    await _updateSession(ctx, sessionId, { roomId: roomId });
-
-    return sessionId;
+    const { shareId } = await _insertSession(ctx, session);
+    return shareId;
   },
 });
-
-function generateUniqueShareId(): string {
-  return Math.random().toString(36).substring(2, 15);
-}
 
 export async function getSession(ctx: MutationCtx, sessionId: Id<"sessions">) {
   const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
@@ -224,6 +210,73 @@ export const deleteSession = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
+    
+    // Delete all chat messages in the session
+    const chats = await ctx.db
+      .query("chats")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .collect();
+
+    for (const chat of chats) {
+      await ctx.db.delete(chat._id);
+    }
+
     await _removeSession(ctx, session._id);
   },
 });
+
+export const joinSession = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, { sessionId }) => {
+    const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
+    const userId = await currentUserId(ctx);
+
+    if (!session.participants.includes(userId)) {
+      await ctx.db.patch(sessionId, {
+        participants: [...session.participants, userId],
+      });
+    }
+
+    await ctx.db.patch(userId, {
+      sessionId,
+    });
+  },
+});
+
+export const leaveSession = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+  },
+  handler: async (ctx, args) => {
+    const userId = await currentUserId(ctx);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+
+    if (!session.participants.includes(userId)) return;
+
+    await ctx.db.patch(args.sessionId, {
+      participants: session.participants.filter((id) => id !== userId),
+    });
+  },
+});
+
+export const updateSession = mutation({
+  args: {
+    sessionId: v.id("sessions"),
+    title: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await currentUserId(ctx);
+    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
+
+    if (session.hostId !== userId) {
+      throw new Error("Only session host can update the session");
+    }
+
+    await ctx.db.patch(args.sessionId, {
+      title: args.title,
+    });
+  },
+});
+

@@ -17,8 +17,7 @@ import { api } from "@/convex/_generated/api";
 import ParticipantsList from "../participants-list";
 
 interface MobileActionProps {
-  preloadedRoom: Preloaded<typeof api.rooms.queries.getRoomBySession>;
-  preloadedParticipants: Preloaded<typeof api.rooms.queries.listParticipants>;
+  preloadedParticipants: Preloaded<typeof api.session.queries.listParticipants>;
   preloadedChat: Preloaded<typeof api.chat.queries.listChatMessages>;
   preloadedUser: Preloaded<typeof api.auth.getCurrentUser>;
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
@@ -26,12 +25,10 @@ interface MobileActionProps {
 
 const MobileActions: FC<MobileActionProps> = ({
   preloadedChat,
-  preloadedRoom,
   preloadedUser,
   preloadedParticipants,
   preloadedSession,
 }) => {
-  const room = usePreloadedQuery(preloadedRoom);
   const chatMessages = usePreloadedQuery(preloadedChat);
   const user = usePreloadedQuery(preloadedUser);
   const participants = usePreloadedQuery(preloadedParticipants);
@@ -53,11 +50,11 @@ const MobileActions: FC<MobileActionProps> = ({
     }
   });
 
-  if (!room) return null;
+  if (!session) return null;
 
   const sendChatMessage = useMutation(api.chat.mutations.createChat);
   const onSendMessage = (message: string) => {
-    sendChatMessage({ roomId: room._id, content: message });
+    sendChatMessage({ sessionId: session.session._id, content: message });
   };
 
   return (
