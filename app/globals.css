@@ -215,6 +215,27 @@
 
 @utility container {
   padding-inline: 1rem;
+  margin-inline: auto;
+
+  @variant sm {
+    padding-inline: 1rem;
+    max-width: 100%;
+  }
+
+  @variant md {
+    padding-inline: 2rem;
+    max-width: 100%;
+  }
+
+  @variant lg {
+    padding-inline: 2rem;
+    max-width: 100%;
+  }
+
+  @variant xl {
+    padding-inline: 2rem;
+    max-width: 100%;
+  }
 }
 
 @layer base {

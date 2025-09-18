@@ -21,7 +21,7 @@ function AchievementsCollection({ preloadedAchievements }: AchievementsProps) {
   const achievements = usePreloadedQuery(preloadedAchievements);
 
   return (
-    <Card className="mb-8 h-fit">
+    <Card className="h-full">
       <CardHeader className="pb-2">
         <div className="flex items-center gap-2">
           <Target className="text-primary h-4 w-4" />
@@ -31,18 +31,19 @@ function AchievementsCollection({ preloadedAchievements }: AchievementsProps) {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid h-fit grid-cols-1 gap-4 md:grid-cols-3">
-          {!achievements?.length && (
-            <p className="text-muted-foreground">
-              No achievements earned yet. Get focusing!
-            </p>
-          )}
-          {achievements
-            ?.filter((a): a is Doc<"achievementDefinitions"> => a !== null)
-            .map((a) => (
-              <AchievementCard key={a._id} {...a} />
-            ))}
-        </div>
+        {!achievements?.length ? (
+          <p className="text-muted-foreground">
+            No achievements earned yet. Get focusing!
+          </p>
+        ) : (
+          <div className="grid h-fit grid-cols-1 gap-4 md:grid-cols-3">
+            {achievements
+              ?.filter((a): a is Doc<"achievementDefinitions"> => a !== null)
+              .map((a) => (
+                <AchievementCard key={a._id} {...a} />
+              ))}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -59,7 +59,7 @@ function ProductivityInsightsCollection({
           </CardTitle>
         </div>
       </CardHeader>
-      <CardContent className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <CardContent className="grid grid-cols-1 gap-10 lg:grid-cols-2">
         <div>
           <h3 className="mb-3 text-sm font-medium">Weekly Focus Hours</h3>
           <div className="space-y-2">

@@ -33,7 +33,7 @@ export default function Navbar({
       )}
     >
       <div className="container mx-auto flex items-center justify-between">
-        <div className="-mx-2.5 flex items-center gap-2">
+        <div className="-ml-3 flex items-center gap-2">
           <Link
             href="/"
             className={cn(
@@ -52,10 +52,12 @@ export default function Navbar({
             Development
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
-          <NavItem href="/dashboard" title="Dashboard" icon={Gauge} />
-          <NavItem href="/explore" title="Explore" icon={Compass} />
-        </div>
+        {user && (
+          <div className="flex items-center gap-2">
+            <NavItem href="/dashboard" title="Dashboard" icon={Gauge} />
+            <NavItem href="/explore" title="Explore" icon={Compass} />
+          </div>
+        )}
         <div className="flex items-center gap-2">
           {user ? (
             <UserNavbar user={user} />

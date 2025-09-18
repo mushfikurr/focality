@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   return (
     <>
-      <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
         <Suspense fallback={<StatisticsSkeleton />}>
           <Statistics
             preloadedLevel={preloadedLevel}
@@ -37,20 +37,19 @@ export default async function DashboardPage() {
           />
         </Suspense>
       </div>
-
-      <div className="mb-8">
-        <Suspense fallback={<ProductivityInsightsSkeleton />}>
-          <ProductivityInsights preloadedTasks={preloadedTasks} />
-        </Suspense>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mb-6">
+          <Suspense fallback={<AchievementsSkeleton />}>
+            <Achievements preloadedAchievements={preloadedAchievements} />
+          </Suspense>
+        </div>
+        <div className="mb-6 lg:col-span-2">
+          <Suspense fallback={<ProductivityInsightsSkeleton />}>
+            <ProductivityInsights preloadedTasks={preloadedTasks} />
+          </Suspense>
+        </div>
       </div>
-
-      <div className="mb-8">
-        <Suspense fallback={<AchievementsSkeleton />}>
-          <Achievements preloadedAchievements={preloadedAchievements} />
-        </Suspense>
-      </div>
-
-      <div className="mb-8">
+      <div className="mb-6">
         <Suspense fallback={<SessionHistorySkeleton />}>
           <SessionHistory />
         </Suspense>

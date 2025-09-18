@@ -27,10 +27,11 @@ export default async function SessionIdPage({
         <div className="flex flex-1 flex-col">
           <div className="flex justify-between gap-2">
             <Link
-              className="text-muted-foreground hover:text-foreground inline-flex items-center gap-1 px-0 py-3.5 text-xs"
+              className="text-muted-foreground hover:text-foreground -ml-2 flex items-center gap-1 px-0 py-3.5 text-sm"
               href="/dashboard"
             >
-              <ChevronLeft className="-ml-1 h-3 w-3" /> Back to dashboard
+              <ChevronLeft className="aspect-square h-5" />
+              <span>Back to dashboard</span>
             </Link>
           </div>
 
@@ -74,7 +75,6 @@ export async function preloadStatistics(shareId: string) {
     { token },
   );
   const sessionIdArgs = { sessionId: session._id };
-
   const preloadedUser = await preloadWithAuth(api.auth.getCurrentUser);
   const preloadedSession = await preloadWithAuth(
     api.session.queries.getSession,
