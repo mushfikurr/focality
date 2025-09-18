@@ -3,12 +3,14 @@
 import { api } from "@/convex/_generated/api";
 import { Preloaded, useMutation, usePreloadedQuery } from "convex/react";
 import { useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 import { AnimatedTabsTrigger, Tabs, TabsContent, TabsList } from "../ui/tabs";
 import { Chat } from "./elements/chat";
 import ParticipantsList from "./elements/participants-list";
+import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { Users } from "lucide-react";
 import { MessageSquareMoreIcon } from "../ui/animated-icons/message-square-more";
 import { UsersIcon } from "../ui/animated-icons/users-2";
 
@@ -30,6 +32,7 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const chatMessages = usePreloadedQuery(preloadedChat);
   const session = usePreloadedQuery(preloadedSession);
   const user = usePreloadedQuery(preloadedUser);
+  const router = useRouter();
   const messages = chatMessages.filter(Boolean).map((m) => {
     if (m.sender?._id === user?._id) {
       return {
@@ -54,21 +57,42 @@ export function SyncedRoom(props: SyncedRoomProps) {
   };
 
   const joinSessionMtn = useMutation(api.session.mutations.joinSession);
-  // TODO: Create actual joining mechanism, this is for now.
+  const leaveSessionMtn = useMutation(api.session.mutations.leaveSession);
+
   useEffect(() => {
     joinSessionMtn({ sessionId: session.session._id });
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      leaveSessionMtn({ sessionId: session.session._id });
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
   }, []);
+
+  const handleLeaveSession = () => {
+    leaveSessionMtn({ sessionId: session.session._id });
+    router.push("/dashboard");
+  };
 
   return (
     <Tabs defaultValue="chat" className="flex h-full flex-col">
-      <TabsList>
-        <AnimatedTabsTrigger value="chat" icon={<MessageSquareMoreIcon />}>
-          Chat
-        </AnimatedTabsTrigger>
-        <AnimatedTabsTrigger value="participants" icon={<UsersIcon />}>
-          Participants
-        </AnimatedTabsTrigger>
-      </TabsList>
+      <div className="flex justify-between">
+        <TabsList>
+          <AnimatedTabsTrigger value="chat" icon={<MessageSquareMoreIcon />}>
+            Chat
+          </AnimatedTabsTrigger>
+          <AnimatedTabsTrigger value="participants" icon={<UsersIcon />}>
+            Participants
+          </AnimatedTabsTrigger>
+        </TabsList>
+        <Button variant="outline" size="icon" onClick={handleLeaveSession}>
+          <LogOut />
+        </Button>
+      </div>
       <TabsContent value="chat" className="flex-1 overflow-hidden shadow-sm">
         <Card className="flex h-full flex-col rounded-xl border">
           <CardContent className="flex-1 overflow-hidden">
