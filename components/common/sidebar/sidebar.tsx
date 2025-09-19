@@ -6,17 +6,62 @@ import {
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
   SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { Compass, LayoutDashboard, User2 } from "lucide-react";
 
-export function AppSidebar({ user }: { user: Preloaded<typeof api.auth.getCurrentUser> }) {
+const items = [
+  {
+    groupTitle: "Quick Access",
+    items: [
+      { icon: LayoutDashboard, title: "Dashboard", href: "/dashboard" },
+      { icon: Compass, title: "Explore Sessions", href: "/explore" },
+      { icon: User2, title: "Profile", href: "/profile" },
+    ],
+  },
+];
+
+function SidebarNav() {
+  return (
+    <>
+      {items.map((group) => (
+        <SidebarGroup key={group.groupTitle}>
+          <SidebarGroupLabel>{group.groupTitle}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {group.items.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild>
+                    <a href={item.href}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      ))}
+    </>
+  );
+}
+
+export function AppSidebar({
+  user,
+}: {
+  user: Preloaded<typeof api.auth.getCurrentUser>;
+}) {
   return (
     <Sidebar>
-      <SidebarHeader />
       <SidebarContent>
-        <SidebarGroup />
-        <SidebarGroup />
+        <SidebarNav />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

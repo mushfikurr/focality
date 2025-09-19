@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { getLevelFromXP } from "@/lib/client-level";
 
 export function NavUser({
   user: preloadedUser,
@@ -34,6 +35,7 @@ export function NavUser({
   user: Preloaded<typeof api.auth.getCurrentUser>;
 }) {
   const user = usePreloadedQuery(preloadedUser);
+  const level = getLevelFromXP(user?.xp ?? 0);
   const { isMobile } = useSidebar();
 
   if (!user) {
@@ -61,7 +63,9 @@ export function NavUser({
               </Avatar>
               <div className="grid flex-1 text-left text-sm leading-tight">
                 <span className="truncate font-medium">{userName}</span>
-                <span className="truncate text-xs">{userEmail}</span>
+                <span className="truncate text-xs">
+                  Level {level} {user.sessionId && "- In Session"}
+                </span>
               </div>
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
