@@ -88,17 +88,6 @@ export default function LoginForm() {
     }
   };
 
-  const handleGuest = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    try {
-      // await authClient.signIn.anonymous(); // Adjust to your authClient method
-      router.push("/dashboard");
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to continue as guest. Please try again.");
-    }
-  };
-
   return (
     <div className="mx-auto -mt-3 flex w-full max-w-md flex-col gap-3">
       <Button
