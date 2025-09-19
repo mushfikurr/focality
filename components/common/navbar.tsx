@@ -1,16 +1,26 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
+import { getLevelFromXP } from "@/lib/client-level";
+import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { cn } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import { Compass, Focus, Gauge, LucideIcon } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Badge } from "../ui/badge";
 import { buttonVariants } from "../ui/button";
 import UserNavbar from "./user-navbar";
-import { Badge } from "../ui/badge";
-import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
-import { getLevelFromXP } from "@/lib/client-level";
-import { usePathname, useRouter } from "next/navigation";
+import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+
+function ConditionalSidebarTrigger() {
+  try {
+    useSidebar();
+    return <SidebarTrigger />;
+  } catch {
+    return null;
+  }
+}
 
 export default function Navbar({
   user: preloadedUser,
@@ -34,6 +44,7 @@ export default function Navbar({
     >
       <div className="container mx-auto flex items-center justify-between">
         <div className="-ml-3 flex items-center gap-2">
+          <ConditionalSidebarTrigger />
           <Link
             href="/"
             className={cn(
@@ -52,13 +63,7 @@ export default function Navbar({
             Development
           </Badge>
         </div>
-        {user && (
-          <div className="flex items-center gap-2">
-            <NavItem href="/dashboard" title="Dashboard" icon={Gauge} />
-            <NavItem href="/explore" title="Explore" icon={Compass} />
-          </div>
-        )}
-        <div className="flex items-center gap-2">
+       <div className="flex items-center gap-2">
           {user ? (
             <UserNavbar user={user} />
           ) : (

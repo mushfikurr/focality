@@ -38,6 +38,12 @@ const buttonVariants = cva(
   },
 );
 
+export type ButtonProps = React.ComponentProps<"button"> &
+  VariantProps<typeof buttonVariants> & {
+    asChild?: boolean;
+    loading?: boolean;
+  };
+
 function Button({
   className,
   variant,
@@ -47,11 +53,7 @@ function Button({
   asChild = false,
   loading = false,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-    loading?: boolean;
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : "button";
 
   return (
@@ -78,7 +80,7 @@ export interface AnimatedIconHandle {
 
 interface AnimatedButtonProps
   extends React.ComponentProps<"button">,
-  VariantProps<typeof buttonVariants> {
+    VariantProps<typeof buttonVariants> {
   asChild?: boolean;
   loading?: boolean;
   icon?: React.ReactElement;
@@ -134,7 +136,7 @@ export const AnimatedButton = React.forwardRef<
 
     const clonedIcon = icon
       ? // @ts-expect-error - trust that icon supports the ref
-      React.cloneElement(icon, { ref: iconRef })
+        React.cloneElement(icon, { ref: iconRef })
       : null;
 
     return (
