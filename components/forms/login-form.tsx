@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -169,7 +168,6 @@ export default function LoginForm() {
                 <Button
                   variant="outline"
                   className="w-full"
-                  onClick={handleGuest}
                 >
                   Continue as a guest
                 </Button>
