@@ -2,7 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
-import { getCurrentUser, betterAuthComponent } from "../auth";
+import { getCurrentUser, authComponent } from "../auth";
 import { getSessionExperience } from "../levels/queries";
 import { getDocumentOrThrow } from "../utils/db";
 
@@ -12,7 +12,7 @@ export const isUserHost = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
 ) => {
-  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  const userMetadata = await authComponent.safeGetAuthUser(ctx);
   if (!userMetadata) return false;
 
   const user = await ctx.db.get(userMetadata.userId as any);
@@ -121,7 +121,7 @@ export const paginatedPublicSessions = query({
 });
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as any);
@@ -161,7 +161,7 @@ export const getSession = query({
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
 
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -197,7 +197,7 @@ export const getSessionByShareId = query({
       .first();
     if (!session) throw new Error("Session not found");
 
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -249,7 +249,7 @@ export const listParticipants = query({
 
 export const listUserSessions = query({
   handler: async (ctx) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as any);

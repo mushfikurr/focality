@@ -1,12 +1,12 @@
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
-import { betterAuthComponent } from "../auth";
+import { authComponent } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const getStreakInfoByCurrentUser = query({
   handler: async (ctx) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);

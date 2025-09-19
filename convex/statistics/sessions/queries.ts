@@ -3,7 +3,7 @@ import { subWeeks } from "date-fns";
 import { components } from "../../_generated/api";
 import { DataModel, Id } from "../../_generated/dataModel";
 import { query, QueryCtx } from "../../_generated/server";
-import { betterAuthComponent } from "../../auth";
+import { authComponent } from "../../auth";
 
 export const completionByUserAggregate = new TableAggregate<{
   Namespace: [Id<"users">, boolean];
@@ -47,7 +47,7 @@ const totalCompletionByUserForWeek = async (
 
 export const getSessionStatisticsForCurrentUser = query({
   handler: async (ctx) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);

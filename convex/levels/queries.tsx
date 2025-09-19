@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import { Doc, Id } from "../_generated/dataModel";
 import { query, QueryCtx } from "../_generated/server";
-import { betterAuthComponent } from "../auth";
+import { authComponent } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 import {
   getLevelFromXP,
@@ -12,7 +12,7 @@ import {
 export const getLevelInfo = query({
   handler: async (ctx) => {
     // Get current user safely
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);

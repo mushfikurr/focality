@@ -2,7 +2,7 @@ import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { mutation } from "../_generated/server";
 import { getDocumentOrThrow } from "../utils/db";
-import { betterAuthComponent } from "../auth";
+import { authComponent } from "../auth";
 
 export const createChat = mutation({
   args: {
@@ -10,7 +10,7 @@ export const createChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -45,7 +45,7 @@ export const deleteChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -68,7 +68,7 @@ export const updateChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);

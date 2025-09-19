@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Doc, Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
-import { betterAuthComponent } from "../auth";
+import { authComponent } from "../auth";
 import { completionByUserAggregate } from "../statistics/sessions/queries";
 import { incrementStreak } from "../streaks/mutations";
 import { getDocumentOrThrow } from "../utils/db";
@@ -107,7 +107,7 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -136,7 +136,7 @@ export const createSession = mutation({
 export async function getSession(ctx: MutationCtx, sessionId: Id<"sessions">) {
   const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
 
-  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  const userMetadata = await authComponent.safeGetAuthUser(ctx);
   if (!userMetadata) throw new Error("User not authenticated");
 
   const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -253,7 +253,7 @@ export const joinSession = mutation({
   handler: async (ctx, { sessionId }) => {
     const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
 
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -270,7 +270,7 @@ export const leaveSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
@@ -288,7 +288,7 @@ export const updateSession = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);

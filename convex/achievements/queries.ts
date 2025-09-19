@@ -1,6 +1,6 @@
 import { Id } from "../_generated/dataModel";
 import { query, QueryCtx } from "../_generated/server";
-import { betterAuthComponent } from "../auth";
+import { authComponent } from "../auth";
 
 export const getAchievementsForUser = async (
   ctx: QueryCtx,
@@ -21,7 +21,7 @@ export const getAchievementsForUser = async (
 
 export const getAchievementsForCurrentUser = query({
   handler: async (ctx) => {
-    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
     if (!userMetadata) throw new Error("User not authenticated");
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
