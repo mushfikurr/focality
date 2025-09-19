@@ -39,7 +39,6 @@ const schema = defineSchema({
 
   sessions: defineTable({
     hostId: v.id("users"),
-    participants: v.array(v.id("users")),
     title: v.string(),
     description: v.optional(v.string()),
     startTime: v.optional(v.string()),

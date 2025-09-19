@@ -1,7 +1,7 @@
 import { v } from "convex/values";
-import { Doc } from "../_generated/dataModel";
+import { Doc, Id } from "../_generated/dataModel";
 import { query, QueryCtx } from "../_generated/server";
-import { currentUserId } from "../auth";
+import { betterAuthComponent } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 import {
   getLevelFromXP,
@@ -11,8 +11,14 @@ import {
 
 export const getLevelInfo = query({
   handler: async (ctx) => {
-    const userId = await currentUserId(ctx);
-    const user = await getDocumentOrThrow(ctx, "users", userId);
+    // Get current user safely
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
 
     const totalXP = user.xp ?? 0;
     const level = getLevelFromXP(totalXP);

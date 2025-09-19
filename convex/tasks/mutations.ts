@@ -1,6 +1,7 @@
 import { v } from "convex/values";
+import { Id } from "../_generated/dataModel";
 import { internal } from "../_generated/api";
-import { currentUserId } from "../auth";
+import { betterAuthComponent } from "../auth";
 import { findAndSetCurrentTask, getSession } from "../session/mutations";
 import { getDocumentOrThrow } from "../utils/db";
 import { taskType } from "./queries";
@@ -24,7 +25,13 @@ export const addTask = triggerTaskMutation({
     description: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
     await getSession(ctx, args.sessionId);
 
     const task = {

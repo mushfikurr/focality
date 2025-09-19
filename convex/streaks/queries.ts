@@ -1,11 +1,17 @@
 import { v } from "convex/values";
+import { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
-import { currentUser } from "../auth";
+import { betterAuthComponent } from "../auth";
 import { getDocumentOrThrow } from "../utils/db";
 
 export const getStreakInfoByCurrentUser = query({
   handler: async (ctx) => {
-    const user = await currentUser(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
     const userId = user._id;
 
     const streak = await ctx.db

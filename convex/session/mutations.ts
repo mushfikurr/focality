@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { internal } from "../_generated/api";
 import { Doc, Id } from "../_generated/dataModel";
 import { mutation, MutationCtx } from "../_generated/server";
-import { currentUserId } from "../auth";
+import { betterAuthComponent } from "../auth";
 import { completionByUserAggregate } from "../statistics/sessions/queries";
 import { incrementStreak } from "../streaks/mutations";
 import { getDocumentOrThrow } from "../utils/db";
@@ -53,8 +53,11 @@ export const incrementStreakForAllUsers = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
 ) => {
-  const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
-  const userIds = session.participants;
+  const users = await ctx.db
+    .query("users")
+    .withIndex("by_session", (q) => q.eq("sessionId", sessionId))
+    .collect();
+  const userIds = users.map((u) => u._id);
   for (const userId of userIds) {
     await incrementStreak(ctx, userId);
   }
@@ -75,7 +78,6 @@ export const findAndSetCurrentTask = async (
     }
   }
 
-  // Find the next incomplete task
   const nextTask = await ctx.db
     .query("tasks")
     .withIndex("by_session", (q) => q.eq("sessionId", session._id))
@@ -105,12 +107,17 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
     const uniqueShareId = await generateUniqueShareId(ctx);
 
     const session = {
       hostId: userId,
-      participants: [userId],
       running: false,
       title: args.title,
       description: args.description,
@@ -128,7 +135,14 @@ export const createSession = mutation({
 
 export async function getSession(ctx: MutationCtx, sessionId: Id<"sessions">) {
   const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
-  if (session.hostId !== (await currentUserId(ctx))) {
+
+  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  if (!userMetadata) throw new Error("User not authenticated");
+
+  const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+  if (!user) throw new Error("User not found");
+
+  if (session.hostId !== user._id) {
     throw new Error("You are not the host of this session.");
   }
   return session;
@@ -210,8 +224,15 @@ export const deleteSession = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
-    
-    // Delete all chat messages in the session
+
+    const users = await ctx.db
+      .query("users")
+      .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
+      .collect();
+    for (const user of users) {
+      await ctx.db.patch(user._id, { sessionId: undefined });
+    }
+
     const chats = await ctx.db
       .query("chats")
       .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
@@ -231,15 +252,14 @@ export const joinSession = mutation({
   },
   handler: async (ctx, { sessionId }) => {
     const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
-    const userId = await currentUserId(ctx);
 
-    if (!session.participants.includes(userId)) {
-      await ctx.db.patch(sessionId, {
-        participants: [...session.participants, userId],
-      });
-    }
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
 
-    await ctx.db.patch(userId, {
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    await ctx.db.patch(user._id, {
       sessionId,
     });
   },
@@ -250,14 +270,15 @@ export const leaveSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
-    if (!session.participants.includes(userId)) return;
-
-    await ctx.db.patch(args.sessionId, {
-      participants: session.participants.filter((id) => id !== userId),
-    });
+    await ctx.db.patch(user._id, { sessionId: undefined });
   },
 });
 
@@ -267,10 +288,15 @@ export const updateSession = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
-    if (session.hostId !== userId) {
+    if (session.hostId !== user._id) {
       throw new Error("Only session host can update the session");
     }
 
@@ -279,4 +305,3 @@ export const updateSession = mutation({
     });
   },
 });
-

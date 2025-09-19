@@ -2,7 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
-import { currentUser, currentUserId } from "../auth";
+import { getCurrentUser, betterAuthComponent } from "../auth";
 import { getSessionExperience } from "../levels/queries";
 import { getDocumentOrThrow } from "../utils/db";
 
@@ -12,12 +12,16 @@ export const isUserHost = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
 ) => {
-  const userId = await currentUser(ctx);
+  const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+  if (!userMetadata) return false;
+
+  const user = await ctx.db.get(userMetadata.userId as any);
+  if (!user) return false;
+
   const session = await ctx.db.get(sessionId);
   if (!session) throw new Error("Session not found");
-  if (!userId) throw new Error("User not found");
 
-  return userId._id === session.hostId;
+  return user._id === session.hostId;
 };
 
 export const paginatedSessionsByCurrentUser = query({
@@ -86,7 +90,12 @@ export const paginatedPublicSessions = query({
 
     const pageWithCounts = await Promise.all(
       sessions.page.map(async (s) => {
-        const participantAmount = s.participants.length;
+        const participantAmount = (
+          await ctx.db
+            .query("users")
+            .withIndex("by_session", (q) => q.eq("sessionId", s._id))
+            .collect()
+        ).length;
         if (participantAmount === 0) return;
         const host = await ctx.db.get(s.hostId);
 
@@ -112,7 +121,13 @@ export const paginatedPublicSessions = query({
 });
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as any);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id as Id<"users">;
     const sessions = await ctx.db
       .query("sessions")
       .withIndex("by_user", (q) => q.eq("hostId", userId))
@@ -146,11 +161,15 @@ export const getSession = query({
     const session = await ctx.db.get(args.sessionId);
     if (!session) throw new Error("Session not found");
 
-    const userId = await currentUserId(ctx);
-    if (
-      session.visibility === "private" &&
-      !session.participants.includes(userId)
-    ) {
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
+
+    if (session.visibility === "private" && user?.sessionId !== session._id) {
       throw new Error("Not authorized");
     }
 
@@ -178,11 +197,14 @@ export const getSessionByShareId = query({
       .first();
     if (!session) throw new Error("Session not found");
 
-    const userId = await currentUserId(ctx);
-    if (
-      session.visibility === "private" &&
-      !session.participants.includes(userId)
-    ) {
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
+    if (session.visibility === "private" && user?.sessionId !== session._id) {
       throw new Error("Not authorized");
     }
 
@@ -227,29 +249,16 @@ export const listParticipants = query({
 
 export const listUserSessions = query({
   handler: async (ctx) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as any);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
     return await ctx.db
       .query("sessions")
       .filter((q) => q.eq(q.field("hostId"), userId))
       .collect();
-  },
-});
-
-export const getSessionParticipants = query({
-  args: {
-    sessionId: v.id("sessions"),
-  },
-  handler: async (ctx, args) => {
-    const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
-
-    const users = await Promise.all(
-      session.participants.map(async (id) => {
-        const user = await ctx.db.get(id);
-        if (!user) throw new Error(`User ${id} not found`);
-        return user;
-      }),
-    );
-
-    return users;
   },
 });

@@ -11,7 +11,6 @@ export const listChatMessages = query({
       .withIndex("by_session", (q) => q.eq("sessionId", args.sessionId))
       .collect();
 
-    // Add user information to each message
     const messagesWithSenders = await Promise.all(
       messages.map(async (message) => {
         const user = await ctx.db.get(message.userId);

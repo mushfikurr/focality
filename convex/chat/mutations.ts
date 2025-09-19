@@ -1,7 +1,8 @@
 import { v } from "convex/values";
+import { Id } from "../_generated/dataModel";
 import { mutation } from "../_generated/server";
 import { getDocumentOrThrow } from "../utils/db";
-import { currentUserId } from "../auth";
+import { betterAuthComponent } from "../auth";
 
 export const createChat = mutation({
   args: {
@@ -9,22 +10,26 @@ export const createChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id as Id<"users">;
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
-    // Validate user is a participant in the session
-    if (!session.participants.includes(userId)) {
+    const userDoc = await getDocumentOrThrow(ctx, "users", userId);
+    if (userDoc.sessionId !== session._id) {
       throw new Error(
         "You must be a participant to send messages in this session",
       );
     }
 
-    // Get and validate session status
     if (session.running) {
       throw new Error("Cannot send messages while session is running");
     }
 
-    // Create the chat message
     const chatMessage = {
       sessionId: args.sessionId,
       userId: userId,
@@ -40,10 +45,15 @@ export const deleteChat = mutation({
     chatId: v.id("chats"),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id as Id<"users">;
     const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
 
-    // Only message author can delete their messages
     if (chat.userId !== userId) {
       throw new Error("You can only delete your own messages");
     }
@@ -58,10 +68,15 @@ export const updateChat = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id as Id<"users">;
     const chat = await getDocumentOrThrow(ctx, "chats", args.chatId);
 
-    // Only message author can edit their messages
     if (chat.userId !== userId) {
       throw new Error("You can only edit your own messages");
     }

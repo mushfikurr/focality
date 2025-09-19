@@ -3,7 +3,7 @@ import { subWeeks } from "date-fns";
 import { components } from "../../_generated/api";
 import { DataModel, Id } from "../../_generated/dataModel";
 import { query, QueryCtx } from "../../_generated/server";
-import { currentUserId } from "../../auth";
+import { betterAuthComponent } from "../../auth";
 
 export const durationByUserAggregate = new TableAggregate<{
   Namespace: [Id<"users">, boolean];
@@ -149,7 +149,13 @@ export const dailyAveragesByUserForMonth = async (
 
 export const getTaskStatisticsForCurrentUser = query({
   handler: async (ctx) => {
-    const userId = await currentUserId(ctx);
+    const userMetadata = await betterAuthComponent.getAuthUser(ctx);
+    if (!userMetadata) throw new Error("User not authenticated");
+
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
     const totalFocusTime = await totalFocusTimeByUser(ctx, {
       userId,
     });

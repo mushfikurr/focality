@@ -33,42 +33,40 @@ triggers.register("tasks", async (ctx, { oldDoc, newDoc }) => {
   }
 });
 
-// Fire all events when a task is complete:
-// - Increment streaks
-// - Grant experience
-// - Check for any achievements gained
 export const onTaskComplete = async (
   ctx: MutationCtx,
   newDoc: Doc<"tasks">,
 ) => {
   const session = await ctx.db.get(newDoc.sessionId);
   if (!session) return;
-  // Add streaks and XP for all participants
+
   if (session) {
+    const participants = await ctx.db
+      .query("users")
+      .withIndex("by_session", (q) => q.eq("sessionId", session._id))
+      .collect();
+
     await Promise.all(
-      session.participants.map(async (userId: Id<"users">) => {
-        const user = await getDocumentOrThrow(ctx, "users", userId);
+      participants.map(async (user) => {
         const oldLevel = getLevelFromXP(user.xp ?? 0);
 
-        await incrementStreak(ctx, userId);
-        await grantExperience(ctx, userId, newDoc.duration);
+        await incrementStreak(ctx, user._id);
+        await grantExperience(ctx, user._id, newDoc.duration);
 
-        const newUser = await getDocumentOrThrow(ctx, "users", userId);
+        const newUser = await getDocumentOrThrow(ctx, "users", user._id);
         const newLevel = getLevelFromXP(newUser.xp ?? 0);
 
         if (newLevel > oldLevel) {
           console.log(
-            `User ${userId} leveled up from ${oldLevel} to ${newLevel}`,
+            `User ${user._id} leveled up from ${oldLevel} to ${newLevel}`,
           );
-          await insertLevelAchievements(ctx, userId, oldLevel, newLevel);
+          await insertLevelAchievements(ctx, user._id, oldLevel, newLevel);
         }
       }),
     );
   }
 };
 
-// create wrappers that replace the built-in `mutation` and `internalMutation`
-// the wrappers override `ctx` so that `ctx.db.insert`, `ctx.db.patch`, etc. run registered trigger functions
 export const triggerTaskMutation = customMutation(
   rawMutation,
   customCtx(triggers.wrapDB),
