@@ -5,13 +5,14 @@ import { getLevelFromXP } from "@/lib/client-level";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { cn } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
-import { Compass, Focus, Gauge, LucideIcon } from "lucide-react";
+import { Focus, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { buttonVariants } from "../ui/button";
-import UserNavbar from "./user-navbar";
+import { Separator } from "../ui/separator";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
+import { NavUser } from "./nav-user";
 
 function ConditionalSidebarTrigger() {
   try {
@@ -42,9 +43,10 @@ export default function Navbar({
         scrollY > 0 ? "shadow-xs" : "shadow-none",
       )}
     >
-      <div className="container mx-auto flex items-center justify-between">
-        <div className="-ml-3 flex items-center gap-2">
+      <div className="container mx-auto flex h-full items-center justify-between">
+        <div className="-ml-2 flex h-full items-center gap-2">
           <ConditionalSidebarTrigger />
+          <Separator orientation="vertical" className="max-h-6" />
           <Link
             href="/"
             className={cn(
@@ -54,7 +56,6 @@ export default function Navbar({
           >
             <Focus className="h-5 w-5" />
           </Link>
-
           <Badge
             title="This project is currently under heavy development and some features may not be implemented yet."
             variant="secondary"
@@ -63,9 +64,9 @@ export default function Navbar({
             Development
           </Badge>
         </div>
-       <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
           {user ? (
-            <UserNavbar user={user} />
+            <NavUser user={preloadedUser} />
           ) : (
             <div className="flex gap-2">
               <Link
@@ -85,12 +86,6 @@ export default function Navbar({
                 Register
               </Link>
             </div>
-          )}
-
-          {user && (
-            <Badge variant="secondary" className="h-fit text-xs">
-              Level {level}
-            </Badge>
           )}
         </div>
       </div>

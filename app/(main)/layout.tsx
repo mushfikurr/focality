@@ -12,7 +12,7 @@ export default async function MainLayout({
 
   return (
     <SidebarProvider>
-      <AppSidebar user={user} />
+      <AppSidebar />
       <SidebarInset>
         <div className="flex h-screen flex-col md:min-h-0">
           <Navbar user={user} />

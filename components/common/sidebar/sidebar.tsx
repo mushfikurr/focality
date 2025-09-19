@@ -1,20 +1,15 @@
-import { api } from "@/convex/_generated/api";
-import { Preloaded } from "convex/react";
-import { NavUser } from "./nav-user";
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
-import { Compass, LayoutDashboard, User2 } from "lucide-react";
+import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
 
 const items = [
   {
@@ -53,19 +48,21 @@ function SidebarNav() {
   );
 }
 
-export function AppSidebar({
-  user,
-}: {
-  user: Preloaded<typeof api.auth.getCurrentUser>;
-}) {
+export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
+        <SidebarGroup>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Plus /> New Session
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarGroup>
         <SidebarNav />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={user} />
-      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );
