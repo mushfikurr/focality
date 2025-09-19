@@ -18,7 +18,7 @@ interface SyncedRoomProps {
   preloadedParticipants: Preloaded<typeof api.session.queries.listParticipants>;
   preloadedChat: Preloaded<typeof api.chat.queries.listChatMessages>;
   preloadedSession: Preloaded<typeof api.session.queries.getSession>;
-  preloadedUser: Preloaded<typeof api.user.currentUser>;
+  preloadedUser: Preloaded<typeof api.auth.getCurrentUser>;
 }
 
 export function SyncedRoom(props: SyncedRoomProps) {
@@ -33,6 +33,7 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const session = usePreloadedQuery(preloadedSession);
   const user = usePreloadedQuery(preloadedUser);
   const router = useRouter();
+
   const messages = chatMessages.filter(Boolean).map((m) => {
     if (m.sender?._id === user?._id) {
       return {
@@ -61,16 +62,6 @@ export function SyncedRoom(props: SyncedRoomProps) {
 
   useEffect(() => {
     joinSessionMtn({ sessionId: session.session._id });
-
-    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
-      leaveSessionMtn({ sessionId: session.session._id });
-    };
-
-    window.addEventListener("beforeunload", handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload);
-    };
   }, []);
 
   const handleLeaveSession = () => {

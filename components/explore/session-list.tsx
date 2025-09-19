@@ -1,6 +1,11 @@
 "use client";
 import { api } from "@/convex/_generated/api";
 import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
+import { PaginatedQueryItem } from "convex/react";
+import { formatDistanceToNowStrict } from "date-fns";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { JoinSessionButton } from "../session/join-session-button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import { Button } from "../ui/button";
@@ -12,13 +17,8 @@ import {
   CardHeader,
   CardTitle,
 } from "../ui/card";
-import { PaginatedQueryItem } from "convex/react";
-import { useRouter } from "next/navigation";
-import { format, formatDistanceToNowStrict, formatDuration } from "date-fns";
-import { Skeleton } from "../ui/skeleton";
-import { useState } from "react";
 import { Input } from "../ui/input";
-import { Search } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 
 type Session = PaginatedQueryItem<
   typeof api.session.queries.paginatedPublicSessions
@@ -132,15 +132,7 @@ function SessionCardSkeleton() {
 }
 
 function SessionCard({ session }: { session?: Session }) {
-  const router = useRouter();
-
   if (!session) return null;
-
-  const handleJoin = () => {
-    if (session.shareId) {
-      router.push(`/session/id/${session.shareId}`);
-    }
-  };
 
   return (
     <Card>
@@ -173,9 +165,13 @@ function SessionCard({ session }: { session?: Session }) {
         ) : (
           <div />
         )}
-        <Button variant="secondary" size="sm" onClick={handleJoin}>
+        <JoinSessionButton
+          session={{ ...session, _id: session.id }}
+          variant="secondary"
+          size="sm"
+        >
           Join
-        </Button>
+        </JoinSessionButton>
       </CardFooter>
     </Card>
   );

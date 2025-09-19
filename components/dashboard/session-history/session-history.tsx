@@ -33,8 +33,8 @@ import {
 import { PaginatedQueryItem, useQuery } from "convex/react";
 import { format } from "date-fns";
 import { Calendar, ChevronRight, Filter, Search } from "lucide-react";
-import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { JoinSessionButton } from "@/components/session/join-session-button";
 
 type Session = Awaited<
   PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
@@ -83,11 +83,6 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
       { userId },
       { initialNumItems: 5 },
     );
-
-  const navigate = useRouter();
-  const handleSessionClick = (shareId: string) => {
-    navigate.push(`/session/id/${shareId}`);
-  };
 
   let sessions = status === "loaded" ? currentResults.page : [];
 
@@ -165,18 +160,18 @@ function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
         accessorKey: "id",
         header: "",
         cell: ({ row }) => (
-          <Button
+          <JoinSessionButton
+            session={{ ...row.original, _id: row.original.id }}
             variant="ghost"
-            onClick={() => handleSessionClick(row.original.shareId)}
             size="icon"
             className="h-6 w-6"
           >
             <ChevronRight className="h-4 w-4" />
-          </Button>
+          </JoinSessionButton>
         ),
       },
     ],
-    [navigate],
+    [],
   );
 
   const table = useReactTable({
