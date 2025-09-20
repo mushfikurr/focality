@@ -19,6 +19,7 @@ import {
 } from "../ui/card";
 import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
+import { ScrollArea } from "../ui/scroll-area/scroll-area";
 
 type Session = PaginatedQueryItem<
   typeof api.session.queries.paginatedPublicSessions
@@ -41,64 +42,74 @@ function SessionList() {
   );
 
   return (
-    <div className="space-y-4">
-      <div className="relative">
-        <Input
-          type="text"
-          placeholder="Search sessions..."
-          className="w-full max-w-xs py-1 pr-2 pl-8 text-sm"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          disabled={status !== "loaded"}
-        />
-        <Search className="text-muted-foreground absolute top-1/2 left-2 h-4 w-4 -translate-y-1/2 transform" />
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {status === "loading" &&
-          Array.from({ length: 3 }).map((_, i) => (
-            <SessionCardSkeleton key={i} />
-          ))}
-        {status === "loaded" &&
-          filteredSessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
-          ))}
-      </div>
-
-      {status === "loaded" && filteredSessions.length === 0 && (
-        <div className="flex h-40 items-center justify-center">
-          <p className="text-muted-foreground">
-            {searchQuery ? "No sessions found." : "No public sessions to view."}
-          </p>
+    <div className="flex h-full flex-col gap-3">
+      <div className="bg-background sticky top-0 z-10 py-2">
+        <div className="flex items-center gap-2">
+          <Search className="text-muted-foreground mr-2 h-4 w-4" />
+          <Input
+            type="text"
+            placeholder="Search sessions..."
+            className="w-full max-w-xs py-1 pr-2 text-sm"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            disabled={status !== "loaded"}
+          />
         </div>
-      )}
+      </div>
+
+      <div className="flex min-h-0 flex-1 flex-col">
+        <ScrollArea className="flex-1">
+          <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-3 lg:grid-cols-4">
+            {status === "loading" &&
+              Array.from({ length: 3 }).map((_, i) => (
+                <SessionCardSkeleton key={i} />
+              ))}
+            {status === "loaded" &&
+              filteredSessions.map((session) => (
+                <SessionCard key={session.id} session={session} />
+              ))}
+          </div>
+        </ScrollArea>
+
+        {status === "loaded" && filteredSessions.length === 0 && (
+          <div className="flex h-40 items-center justify-center">
+            <p className="text-muted-foreground">
+              {searchQuery
+                ? "No sessions found."
+                : "No public sessions to view."}
+            </p>
+          </div>
+        )}
+      </div>
 
       {status === "loaded" && sessions.length > 0 && (
-        <div className="mt-4 flex items-center justify-between">
-          <span className="text-muted-foreground text-xs">
-            Page {currentPageNum}
-          </span>
+        <div className="bg-background sticky bottom-0 z-10 py-4">
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground text-xs">
+              Page {currentPageNum}
+            </span>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => loadPrev?.()}
-              disabled={!loadPrev || status !== "loaded"}
-            >
-              Prev
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => loadPrev?.()}
+                disabled={!loadPrev || status !== "loaded"}
+              >
+                Prev
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              className="h-7 text-xs"
-              onClick={() => loadNext?.()}
-              disabled={!loadNext || status !== "loaded"}
-            >
-              Next
-            </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => loadNext?.()}
+                disabled={!loadNext || status !== "loaded"}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       )}
