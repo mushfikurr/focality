@@ -1,17 +1,18 @@
+"use client";
 import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Compass, Focus, LayoutDashboard, Plus, User2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 const items = [
   {
@@ -25,6 +26,7 @@ const items = [
 ];
 
 function SidebarNav() {
+  const pathname = usePathname();
   return (
     <>
       {items.map((group) => (
@@ -34,7 +36,13 @@ function SidebarNav() {
             <SidebarMenu>
               {group.items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
+                  <SidebarMenuButton
+                    className={cn(
+                      item.href.startsWith(pathname) &&
+                        "bg-sidebar-accent text-sidebar-accent-foreground",
+                    )}
+                    asChild
+                  >
                     <a href={item.href}>
                       <item.icon />
                       <span>{item.title}</span>
