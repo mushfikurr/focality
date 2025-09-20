@@ -64,36 +64,31 @@ export default function Navbar({
             Development
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
-          {user ? (
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <Award className="text-muted-foreground size-4" />
-                <p>1</p>
-              </div>
-              <NavUser user={preloadedUser} />
+        {user ? (
+          <div className="flex h-full items-center gap-4">
+            <div className="flex items-center justify-center gap-1.5 rounded border px-2 pl-1.5 drop-shadow-xs">
+              <Award className="size-4" strokeWidth={2.5} />
+              <p>{level}</p>
             </div>
-          ) : (
-            <div className="flex gap-2">
-              <Link
-                href="/login"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                )}
-              >
-                Login
-              </Link>
-              <Link
-                href="/register"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "sm" }),
-                )}
-              >
-                Register
-              </Link>
-            </div>
-          )}
-        </div>
+            <Separator orientation="vertical" className="max-h-6" />
+            <NavUser user={preloadedUser} />
+          </div>
+        ) : (
+          <div className="flex gap-2">
+            <Link
+              href="/login"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className={cn(buttonVariants({ variant: "outline", size: "sm" }))}
+            >
+              Register
+            </Link>
+          </div>
+        )}
       </div>
     </header>
   );
