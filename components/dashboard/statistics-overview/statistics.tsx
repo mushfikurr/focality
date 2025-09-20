@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { api } from "@/convex/_generated/api";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Authenticated, Preloaded, usePreloadedQuery } from "convex/react";
 import { intervalToDuration } from "date-fns";
 import { CheckCheck, Clock, Flame, TrendingUp } from "lucide-react";
 import { StatisticCard, StatisticCardSkeleton } from "./statistics-card";
@@ -22,9 +22,9 @@ type StatisticsProps = {
 
 export default function Statistics(props: StatisticsProps) {
   return (
-    <>
+    <Authenticated>
       <StatisticsCollection {...props} />
-    </>
+    </Authenticated>
   );
 }
 

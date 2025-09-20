@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Authenticated, Preloaded, usePreloadedQuery } from "convex/react";
 import { Award, Target } from "lucide-react";
 
 type AchievementsProps = {
@@ -14,7 +14,11 @@ type AchievementsProps = {
 };
 
 export default function Achievements(props: AchievementsProps) {
-  return <AchievementsCollection {...props} />;
+  return (
+    <Authenticated>
+      <AchievementsCollection {...props} />
+    </Authenticated>
+  );
 }
 
 function AchievementsCollection({ preloadedAchievements }: AchievementsProps) {

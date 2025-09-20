@@ -1,4 +1,5 @@
 "use client";
+import { JoinSessionButton } from "@/components/session/join-session-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -30,22 +31,30 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { PaginatedQueryItem, useQuery } from "convex/react";
+import {
+  Authenticated,
+  PaginatedQueryItem,
+  Preloaded,
+  usePreloadedQuery,
+} from "convex/react";
 import { format } from "date-fns";
 import { Calendar, ChevronRight, Filter, Search } from "lucide-react";
 import { useMemo, useState } from "react";
-import { JoinSessionButton } from "@/components/session/join-session-button";
 
 type Session = Awaited<
   PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
 >;
 
-export default function SessionHistory() {
-  const user = useQuery(api.auth.getCurrentUser);
-
-  if (!user) return <SessionHistorySkeleton />;
-
-  return <SessionHistoryTable userId={user._id} />;
+export default function SessionHistory({
+  user: preloadedUser,
+}: {
+  user: Preloaded<typeof api.auth.getCurrentUser>;
+}) {
+  return (
+    <Authenticated>
+      <SessionHistoryTable user={preloadedUser} />
+    </Authenticated>
+  );
 }
 
 export function SessionHistorySkeleton() {
@@ -69,18 +78,21 @@ export function SessionHistorySkeleton() {
 }
 
 type SessionHistoryTableProps = {
-  userId: Id<"users">;
+  user: Preloaded<typeof api.auth.getCurrentUser>;
 };
 
-function SessionHistoryTable({ userId }: SessionHistoryTableProps) {
+function SessionHistoryTable({
+  user: preloadedUser,
+}: SessionHistoryTableProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [showCompletedOnly, setShowCompletedOnly] = useState(false);
+  const user = usePreloadedQuery(preloadedUser);
 
   const { status, loadNext, loadPrev, currentPageNum, currentResults } =
     useSimplePaginatedQuery(
       api.session.queries.paginatedSessionsByCurrentUser,
-      { userId },
+      { userId: user?._id as Id<"users"> },
       { initialNumItems: 5 },
     );
 

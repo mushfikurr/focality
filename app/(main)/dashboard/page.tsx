@@ -23,6 +23,7 @@ export default async function DashboardPage() {
     preloadedSessions,
     preloadedStreak,
     preloadedTasks,
+    preloadedUser,
   } = await preloadDashboardData();
 
   return (
@@ -51,7 +52,7 @@ export default async function DashboardPage() {
       </div>
       <div className="mb-6">
         <Suspense fallback={<SessionHistorySkeleton />}>
-          <SessionHistory />
+          <SessionHistory user={preloadedUser} />
         </Suspense>
       </div>
     </>
