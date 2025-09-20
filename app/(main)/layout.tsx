@@ -1,6 +1,5 @@
-import { AppSidebar } from "@/components/common/sidebar/sidebar";
 import Navbar from "@/components/common/navbar";
-import { SidebarLayoutProvider } from "@/components/providers/SidebarLayoutProvider";
+import { AppSidebar } from "@/components/common/sidebar/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { api } from "@/convex/_generated/api";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
