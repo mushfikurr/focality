@@ -1,10 +1,9 @@
 "use client";
 import { api } from "@/convex/_generated/api";
+import { authClient, errorMap, handleError } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
+import { Preloaded, usePreloadedQuery } from "convex/react";
 import {
-  Activity,
-  Award,
   Cog,
   LogOut,
   MonitorCog,
@@ -14,6 +13,7 @@ import {
   User2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
 import {
@@ -31,6 +31,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { useRouter } from "next/navigation";
 
 type NavUserProps = {
   user: Preloaded<typeof api.auth.getCurrentUser>;
@@ -38,15 +39,31 @@ type NavUserProps = {
 
 export function NavUser({ user: preloadedUser }: NavUserProps) {
   const user = usePreloadedQuery(preloadedUser);
-  const session = useQuery(api.session.queries.getSession, {
-    sessionId: user.sessionId,
-  });
+  const router = useRouter();
   if (!user) return;
 
   const theme = useTheme();
 
   const handleThemeChange = (newTheme: string) => {
     theme.setTheme(newTheme);
+  };
+
+  const handleLogout = async () => {
+    const signInPromise = (async () => {
+      const { data, error } = await authClient.signOut();
+      if (error) {
+        const message = handleError(error.code, errorMap);
+        throw new Error(message);
+      }
+      return data;
+    })();
+
+    toast.promise(signInPromise, {
+      loading: "Logging out...",
+      success: "Successfully logged out",
+      error: (err) => err.message,
+    });
+    router.push("/login");
   };
 
   return (
@@ -116,7 +133,7 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
           </DropdownMenuSub>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleLogout}>
           <LogOut /> Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
