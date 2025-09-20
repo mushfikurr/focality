@@ -25,9 +25,8 @@ export const addTask = triggerTaskMutation({
     description: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 

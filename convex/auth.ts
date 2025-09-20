@@ -6,7 +6,7 @@ import {
 import { convex } from "@convex-dev/better-auth/plugins";
 import { requireEnv } from "@convex-dev/better-auth/utils";
 import { betterAuth } from "better-auth";
-import { api, components, internal } from "./_generated/api";
+import { components, internal } from "./_generated/api";
 import type { DataModel, Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
 
@@ -42,11 +42,8 @@ export const authComponent = createClient<DataModel>(components.betterAuth, {
 export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
 export const currentUser = async (ctx: any): Promise<Doc<"users">> => {
-  const userMetadata = await authComponent.safeGetAuthUser(ctx);
-  if (!userMetadata) {
-    throw new Error("Not authenticated");
-  }
-  const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+  const userMetadata = await authComponent.getAuthUser(ctx);
+  const user = await ctx.db.get(userMetadata.userId);
   if (!user) {
     throw new Error("User doesnt exist");
   }

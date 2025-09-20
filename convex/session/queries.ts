@@ -121,10 +121,9 @@ export const paginatedPublicSessions = query({
 });
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
-    const user = await ctx.db.get(userMetadata.userId as any);
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
     const userId = user._id as Id<"users">;
@@ -249,10 +248,9 @@ export const listParticipants = query({
 
 export const listUserSessions = query({
   handler: async (ctx) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
-    const user = await ctx.db.get(userMetadata.userId as any);
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
     const userId = user._id;

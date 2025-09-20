@@ -1,5 +1,5 @@
 import { v } from "convex/values";
-import { api } from "../_generated/api";
+import { Id } from "../_generated/dataModel";
 import { query } from "../_generated/server";
 import { authComponent } from "../auth";
 
@@ -10,10 +10,9 @@ export const listTasks = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
-    const user = await ctx.db.get(userMetadata.userId as any);
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
     console.log(user);
@@ -34,10 +33,9 @@ export const getCurrentTaskCandidate = query({
     type: v.union(v.literal("task"), v.literal("break")),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
-    const user = await ctx.db.get(userMetadata.userId as any);
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
     const task = await ctx.db

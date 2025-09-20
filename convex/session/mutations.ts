@@ -107,9 +107,8 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
@@ -253,9 +252,8 @@ export const joinSession = mutation({
   handler: async (ctx, { sessionId }) => {
     const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
 
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
@@ -270,9 +268,8 @@ export const leaveSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
@@ -288,9 +285,8 @@ export const updateSession = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
-
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 
