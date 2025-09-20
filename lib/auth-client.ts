@@ -47,6 +47,23 @@ export function handleFormError<TFormValues extends FieldValues>(
   return message;
 }
 
+export function handleError<TFormValues extends FieldValues>(
+  code:
+    | keyof typeof authClient.$ERROR_CODES
+    | ExtraErrorCodes
+    | string
+    | undefined,
+  errorMap?: ErrorCodeToFormField<any>,
+): string {
+  const mapped = errorMap?.[code as keyof typeof errorMap];
+  const message =
+    mapped?.message ??
+    globalErrorMessages[code as keyof typeof globalErrorMessages] ??
+    "We could not process your request.";
+
+  return message;
+}
+
 export const globalErrorMessages: Partial<Record<AllErrorCodes, string>> = {
   USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL: "Email already exists",
   INVALID_PASSWORD: "Password does not meet requirements",
