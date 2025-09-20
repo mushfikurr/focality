@@ -33,6 +33,7 @@ import {
 } from "@tanstack/react-table";
 import {
   Authenticated,
+  AuthLoading,
   PaginatedQueryItem,
   Preloaded,
   usePreloadedQuery,
@@ -51,9 +52,14 @@ export default function SessionHistory({
   user: Preloaded<typeof api.auth.getCurrentUser>;
 }) {
   return (
-    <Authenticated>
-      <SessionHistoryTable user={preloadedUser} />
-    </Authenticated>
+    <>
+      <AuthLoading>
+        <SessionHistorySkeleton />
+      </AuthLoading>
+      <Authenticated>
+        <SessionHistoryTable user={preloadedUser} />
+      </Authenticated>
+    </>
   );
 }
 

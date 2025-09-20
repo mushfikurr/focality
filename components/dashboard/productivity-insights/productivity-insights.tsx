@@ -5,7 +5,12 @@ import { Progress } from "@/components/ui/progress";
 import { Skeleton } from "@/components/ui/skeleton";
 import { api } from "@/convex/_generated/api";
 import { formatTimestampToHS, getWeekdayNameFromUTCDay } from "@/lib/utils";
-import { Authenticated, Preloaded, usePreloadedQuery } from "convex/react";
+import {
+  Authenticated,
+  AuthLoading,
+  Preloaded,
+  usePreloadedQuery,
+} from "convex/react";
 import { BarChart, Calendar, Clock } from "lucide-react";
 import PatternCard from "./pattern-card";
 import { useEffect, useState } from "react";
@@ -18,9 +23,14 @@ type ProductivityInsightsProps = {
 
 export function ProductivityInsights(props: ProductivityInsightsProps) {
   return (
-    <Authenticated>
-      <ProductivityInsightsCollection {...props} />
-    </Authenticated>
+    <>
+      <AuthLoading>
+        <ProductivityInsightsSkeleton />
+      </AuthLoading>
+      <Authenticated>
+        <ProductivityInsightsCollection {...props} />
+      </Authenticated>
+    </>
   );
 }
 
