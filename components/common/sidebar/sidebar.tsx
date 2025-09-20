@@ -4,12 +4,14 @@ import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
+  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarSeparator,
 } from "@/components/ui/sidebar";
-import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
+import { Compass, Focus, LayoutDashboard, Plus, User2 } from "lucide-react";
 
 const items = [
   {
@@ -52,15 +54,11 @@ export function AppSidebar() {
   return (
     <Sidebar>
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Plus /> New Session
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        </SidebarGroup>
+        <div className="p-2 pb-0">
+          <SidebarMenuButton variant="outline">
+            <Plus /> New Session
+          </SidebarMenuButton>
+        </div>
         <SidebarNav />
       </SidebarContent>
       <SidebarRail />

@@ -5,7 +5,7 @@ import { getLevelFromXP } from "@/lib/client-level";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { cn } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
-import { Focus, LucideIcon } from "lucide-react";
+import { Award, Focus, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
@@ -66,7 +66,13 @@ export default function Navbar({
         </div>
         <div className="flex items-center gap-2">
           {user ? (
-            <NavUser user={preloadedUser} />
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2">
+                <Award className="text-muted-foreground size-4" />
+                <p>1</p>
+              </div>
+              <NavUser user={preloadedUser} />
+            </div>
           ) : (
             <div className="flex gap-2">
               <Link

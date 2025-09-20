@@ -1,7 +1,21 @@
 "use client";
 import { api } from "@/convex/_generated/api";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { cn } from "@/lib/utils";
+import { Preloaded, usePreloadedQuery, useQuery } from "convex/react";
+import {
+  Activity,
+  Award,
+  Cog,
+  LogOut,
+  MonitorCog,
+  Moon,
+  Paintbrush,
+  Sun,
+  User2,
+} from "lucide-react";
+import { useTheme } from "next-themes";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Badge } from "../ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,16 +31,6 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
-import {
-  Cog,
-  LogOut,
-  MonitorCog,
-  Moon,
-  Paintbrush,
-  Sun,
-  User2,
-} from "lucide-react";
-import { useTheme } from "next-themes";
 
 type NavUserProps = {
   user: Preloaded<typeof api.auth.getCurrentUser>;
@@ -34,6 +38,9 @@ type NavUserProps = {
 
 export function NavUser({ user: preloadedUser }: NavUserProps) {
   const user = usePreloadedQuery(preloadedUser);
+  const session = useQuery(api.session.queries.getSession, {
+    sessionId: user.sessionId,
+  });
   if (!user) return;
 
   const theme = useTheme();
@@ -45,34 +52,30 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <Avatar className="h-7 w-7">
-          <AvatarImage src={user.image} alt="Users avatar" />
-          <AvatarFallback>{user.name?.charAt(0) ?? " "}</AvatarFallback>
-        </Avatar>
+        <div className="flex items-center gap-5">
+          <Avatar
+            className={cn(user.sessionId && "drop-shadow-green-500", "h-7 w-7")}
+          >
+            <AvatarImage src={user.image} alt="Users avatar" />
+            <AvatarFallback>{user.name?.charAt(0) ?? " "}</AvatarFallback>
+          </Avatar>
+        </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
-        className="max-w-72 min-w-56"
+        className="max-w-72 min-w-64"
         side="bottom"
         sideOffset={8}
         align="end"
       >
         <DropdownMenuGroup>
-          <div className="text-muted-foreground space-y-0">
-            <DropdownMenuLabel className="truncate font-normal first:pb-0">
-              {user.name}
+          <div className="text-muted-foreground text-sm">
+            <DropdownMenuLabel className="flex items-center justify-between gap-2">
+              <h1 className="truncate">{user.name}</h1>
+              {user.sessionId && <Badge>In Session</Badge>}
             </DropdownMenuLabel>
-            <DropdownMenuLabel className="truncate pt-0 font-normal">
-              {user.email}
-            </DropdownMenuLabel>
-            {user.sessionId && (
-              <DropdownMenuLabel className="text-foreground truncate font-normal last:pt-0">
-                In session
-              </DropdownMenuLabel>
-            )}
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User2 /> Profile
