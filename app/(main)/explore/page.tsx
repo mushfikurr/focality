@@ -7,7 +7,7 @@ export default async function ExplorePage() {
   return (
     <div className="flex h-full flex-col">
       <div className="container mx-auto flex-shrink-0">
-        <div className="space-y-1 py-8 pt-3">
+        <div className="space-y-1 py-8 pt-3 pb-6">
           <h1 className="text-2xl font-semibold tracking-tight">Explore</h1>
           <p className="text-muted-foreground">
             Stay on track with group focus sessions
