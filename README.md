@@ -5,16 +5,3 @@ A virtual study/work platform that uses the Pomodoro technique. Users can join o
 
 **Target Audience:**  
 Students, remote workers, and anyone interested in staying productive by leveraging community and gamification.
-
-![image](https://github.com/user-attachments/assets/cc4a043f-0ee7-4eea-96e1-8c202183459b)
-
-# Roadmap
-
-- **Core Pomodoro Timer:**  
-   Build and test a robust timer with session control that syncs for participants.
-- **Session Functionality:**  
-   Implement session creation, joining, and basic chat features.
-- [x] **User Authentication:**  
-       Simple email/password or OAuth sign-in.
-- **Basic Leaderboards:**  
-   Display session counts and simple metrics.
