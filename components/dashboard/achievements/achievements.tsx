@@ -4,48 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { api } from "@/convex/_generated/api";
 import { Doc } from "@/convex/_generated/dataModel";
 import { AchievementType } from "@/convex/schema";
-import {
-  Authenticated,
-  AuthLoading,
-  Preloaded,
-  usePreloadedQuery,
-} from "convex/react";
 import { Award, Target } from "lucide-react";
 
 type AchievementsProps = {
-  preloadedAchievements: Preloaded<
-    typeof api.achievements.queries.getAchievementsForCurrentUser
-  >;
+  achivements: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["achievements"];
 };
 
 export default function Achievements(props: AchievementsProps) {
-  return (
-    <>
-      <AuthLoading>
-        <Card className="h-full">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Target className="text-primary h-4 w-4" />
-              <CardTitle className="text-base font-semibold">
-                Recent Achievements
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-muted h-32 w-full animate-pulse rounded-lg" />
-          </CardContent>
-        </Card>
-      </AuthLoading>
-      <Authenticated>
-        <AchievementsCollection {...props} />
-      </Authenticated>
-    </>
-  );
+  return <AchievementsCollection {...props} />;
 }
 
-function AchievementsCollection({ preloadedAchievements }: AchievementsProps) {
-  const achievements = usePreloadedQuery(preloadedAchievements);
-
+function AchievementsCollection({
+  achivements: preloadedAchievements,
+}: AchievementsProps) {
+  const achievements = preloadedAchievements;
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">

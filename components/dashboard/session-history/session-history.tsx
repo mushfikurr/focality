@@ -31,13 +31,7 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  Authenticated,
-  AuthLoading,
-  PaginatedQueryItem,
-  Preloaded,
-  usePreloadedQuery,
-} from "convex/react";
+import { PaginatedQueryItem } from "convex/react";
 import { format } from "date-fns";
 import { Calendar, ChevronRight, Filter, Search } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -46,21 +40,14 @@ type Session = Awaited<
   PaginatedQueryItem<typeof api.session.queries.paginatedSessionsByCurrentUser>
 >;
 
+type SessionHistoryProps = {
+  user: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["user"];
+};
+
 export default function SessionHistory({
   user: preloadedUser,
-}: {
-  user: Preloaded<typeof api.auth.getCurrentUser>;
-}) {
-  return (
-    <>
-      <AuthLoading>
-        <SessionHistorySkeleton />
-      </AuthLoading>
-      <Authenticated>
-        <SessionHistoryTable user={preloadedUser} />
-      </Authenticated>
-    </>
-  );
+}: SessionHistoryProps) {
+  return <SessionHistoryTable user={preloadedUser} />;
 }
 
 export function SessionHistorySkeleton() {
@@ -84,7 +71,7 @@ export function SessionHistorySkeleton() {
 }
 
 type SessionHistoryTableProps = {
-  user: Preloaded<typeof api.auth.getCurrentUser>;
+  user: any;
 };
 
 function SessionHistoryTable({
@@ -93,7 +80,7 @@ function SessionHistoryTable({
   const [searchQuery, setSearchQuery] = useState("");
   const [sorting, setSorting] = useState<SortingState>([]);
   const [showCompletedOnly, setShowCompletedOnly] = useState(false);
-  const user = usePreloadedQuery(preloadedUser);
+  const user = preloadedUser;
 
   const { status, loadNext, loadPrev, currentPageNum, currentResults } =
     useSimplePaginatedQuery(

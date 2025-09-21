@@ -16,7 +16,7 @@ export const completionByUserAggregate = new TableAggregate<{
   sumValue: (doc) => (doc.completed ? 1 : 0),
 });
 
-const totalCompletionByUser = async (
+export const totalCompletionByUser = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
 ) => {
@@ -27,7 +27,7 @@ const totalCompletionByUser = async (
   return result;
 };
 
-const totalCompletionByUserForWeek = async (
+export const totalCompletionByUserForWeek = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
 ) => {

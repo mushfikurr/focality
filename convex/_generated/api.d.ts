@@ -13,6 +13,7 @@ import type * as achievements_queries from "../achievements/queries.js";
 import type * as auth from "../auth.js";
 import type * as chat_mutations from "../chat/mutations.js";
 import type * as chat_queries from "../chat/queries.js";
+import type * as dashboard_queries from "../dashboard/queries.js";
 import type * as http from "../http.js";
 import type * as levels_mutations from "../levels/mutations.js";
 import type * as levels_queries from "../levels/queries.js";
@@ -52,6 +53,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   "chat/mutations": typeof chat_mutations;
   "chat/queries": typeof chat_queries;
+  "dashboard/queries": typeof dashboard_queries;
   http: typeof http;
   "levels/mutations": typeof levels_mutations;
   "levels/queries": typeof levels_queries;

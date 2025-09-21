@@ -24,5 +24,4 @@ function DashboardSkeleton() {
     </>
   );
 }
-
 export default DashboardSkeleton;

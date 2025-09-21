@@ -16,7 +16,7 @@ export const durationByUserAggregate = new TableAggregate<{
   sumValue: (doc) => (doc.completed ? doc.duration : 0),
 });
 
-const totalFocusTimeByUser = async (
+export const totalFocusTimeByUser = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
 ) => {
@@ -27,7 +27,7 @@ const totalFocusTimeByUser = async (
   return result;
 };
 
-const totalFocusTimeByUserForWeek = async (
+export const totalFocusTimeByUserForWeek = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
 ) => {
