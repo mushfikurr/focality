@@ -7,8 +7,7 @@ import { getLevelFromXP, getXPToNextLevel } from "../levels/utils";
 import {
   totalFocusTimeByUser,
   totalFocusTimeByUserForWeek,
-  productivityPatternsByUser,
-  dailyAveragesByUserForMonth,
+  getTaskStatsForUser,
 } from "../statistics/tasks/queries";
 
 import {
@@ -60,17 +59,16 @@ export const getDashboardData = query({
         const totalFocusTimeByWeek = await totalFocusTimeByUserForWeek(ctx, {
           userId,
         });
-        const dailyAveragesByMonth = await dailyAveragesByUserForMonth(ctx, {
-          userId,
-        });
-        const productivityPatterns = await productivityPatternsByUser(ctx, {
-          userId,
-        });
+        const taskStatsResult = await getTaskStatsForUser(ctx, { userId });
         return {
           totalFocusTime,
           totalFocusTimeByWeek,
-          dailyAveragesByMonth,
-          productivityPatterns,
+          dailyAveragesByMonth: {
+            totalSum: taskStatsResult.totalSum,
+            totalCount: taskStatsResult.totalCount,
+            dailyAverages: taskStatsResult.dailyAverages,
+          },
+          productivityPatterns: taskStatsResult.productivityPatterns,
         };
       })(),
       (async () => {

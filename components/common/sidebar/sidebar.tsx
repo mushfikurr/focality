@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
 import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 const items = [
@@ -43,10 +44,10 @@ function SidebarNav() {
                     )}
                     asChild
                   >
-                    <a href={item.href}>
+                    <Link href={item.href}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}

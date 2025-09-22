@@ -147,6 +147,89 @@ export const dailyAveragesByUserForMonth = async (
   };
 };
 
+export const getTaskStatsForUser = async (
+  ctx: QueryCtx,
+  args: { userId: Id<"users"> },
+) => {
+  const userId = args.userId;
+  const now = Date.now();
+  const numDays = 30;
+  const dayInMs = 24 * 60 * 60 * 1000;
+  const lowerBound = now - numDays * dayInMs;
+
+  const tasks = await ctx.db
+    .query("tasks")
+    .withIndex("by_user_completion_time", (q) =>
+      q
+        .eq("userId", userId)
+        .gte("completedAt", lowerBound)
+        .lte("completedAt", now),
+    )
+    .collect();
+
+  // Compute productivity patterns
+  const hourlyDurations = Array(24).fill(0);
+  const dailyDurations = Array(7).fill(0);
+
+  // Compute daily averages
+  const aggregatedData = {
+    totalSum: 0,
+    totalCount: 0,
+    dailySums: Array(7).fill(0),
+    dailyCounts: Array(7).fill(0),
+  };
+
+  for (const t of tasks) {
+    if (!t.completed || t.completedAt == null) continue;
+    const ts = t.completedAt;
+    const date = new Date(ts);
+    const h = date.getUTCHours();
+    const d = date.getUTCDay();
+    const dur = t.duration || 0;
+
+    // For productivity patterns
+    hourlyDurations[h] += dur;
+    dailyDurations[d] += dur;
+
+    // For daily averages
+    aggregatedData.totalSum += dur;
+    aggregatedData.totalCount += 1;
+    aggregatedData.dailySums[d] += dur;
+    aggregatedData.dailyCounts[d] += 1;
+  }
+
+  const productivityPatterns =
+    tasks.length === 0
+      ? { mostProductiveHour: null, mostProductiveDay: null }
+      : {
+          mostProductiveHour: hourlyDurations.indexOf(
+            Math.max(...hourlyDurations),
+          ),
+          mostProductiveDay: dailyDurations.indexOf(
+            Math.max(...dailyDurations),
+          ),
+        };
+
+  const dailyAverages = aggregatedData.dailySums.map((sum, index) => {
+    const count = aggregatedData.dailyCounts[index];
+    return {
+      dayOfWeek: index,
+      sum,
+      count,
+      average: count > 0 ? sum / count : 0,
+      percentage:
+        aggregatedData.totalSum > 0 ? (sum / aggregatedData.totalSum) * 100 : 0,
+    };
+  });
+
+  return {
+    totalSum: aggregatedData.totalSum,
+    totalCount: aggregatedData.totalCount,
+    dailyAverages,
+    productivityPatterns,
+  };
+};
+
 export const getTaskStatisticsForCurrentUser = query({
   handler: async (ctx) => {
     const userMetadata = await authComponent.getAuthUser(ctx);
@@ -161,17 +244,18 @@ export const getTaskStatisticsForCurrentUser = query({
     const totalFocusTimeByWeek = await totalFocusTimeByUserForWeek(ctx, {
       userId,
     });
-    const dailyAveragesByMonth = await dailyAveragesByUserForMonth(ctx, {
-      userId,
-    });
-    const productivityPatterns = await productivityPatternsByUser(ctx, {
+    const taskStats = await getTaskStatsForUser(ctx, {
       userId,
     });
     return {
       totalFocusTime,
       totalFocusTimeByWeek,
-      dailyAveragesByMonth,
-      productivityPatterns,
+      dailyAveragesByMonth: {
+        totalSum: taskStats.totalSum,
+        totalCount: taskStats.totalCount,
+        dailyAverages: taskStats.dailyAverages,
+      },
+      productivityPatterns: taskStats.productivityPatterns,
     };
   },
 });
