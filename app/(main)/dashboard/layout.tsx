@@ -9,7 +9,7 @@ export default async function DashboardLayout({
   return (
     <div className="min-h-screen">
       <main className="container mx-auto pt-4 pb-8">
-        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+        <div className="mb-6 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="mb-1 text-2xl font-semibold">Session Management</h1>
             <p className="text-muted-foreground text-sm">
