@@ -16,7 +16,7 @@ export const getAchievementsForUser = async (
       return def;
     }),
   );
-  return definitions;
+  return definitions.filter(Boolean);
 };
 
 export const getAchievementsForCurrentUser = query({

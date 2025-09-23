@@ -80,13 +80,21 @@ export const paginatedSessionsByCurrentUser = query({
 export const paginatedPublicSessions = query({
   args: {
     paginationOpts: paginationOptsValidator,
+    search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const sessions = await ctx.db
+    let sessionsQuery = ctx.db
       .query("sessions")
       .withIndex("by_visibility", (q) => q.eq("visibility", "public"))
-      .order("desc")
-      .paginate(args.paginationOpts);
+      .order("desc");
+
+    if (args.search && args.search.trim()) {
+      sessionsQuery = sessionsQuery.filter((q) =>
+        q.eq(q.field("title"), args.search),
+      );
+    }
+
+    const sessions = await sessionsQuery.paginate(args.paginationOpts);
 
     const pageWithCounts = await Promise.all(
       sessions.page.map(async (s) => {

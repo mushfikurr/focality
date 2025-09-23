@@ -1,21 +1,13 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex-helpers/react/cache/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { convexQuery } from "@convex-dev/react-query";
 import { Authenticated, AuthLoading } from "convex/react";
-import { Suspense } from "react";
 import Achievements from "./achievements/achievements";
-import { AchievementsSkeleton } from "./achievements/skeleton";
-import {
-  ProductivityInsights,
-  ProductivityInsightsSkeleton,
-} from "./productivity-insights/productivity-insights";
-import SessionHistory, {
-  SessionHistorySkeleton,
-} from "./session-history/session-history";
-import Statistics, {
-  StatisticsSkeleton,
-} from "./statistics-overview/statistics";
+import { ProductivityInsights } from "./productivity-insights/productivity-insights";
+import SessionHistory from "./session-history/session-history";
+import Statistics from "./statistics-overview/statistics";
 import DashboardSkeleton from "@/app/(main)/dashboard/loading";
 
 export default function DashboardDataProvider() {
@@ -25,16 +17,25 @@ export default function DashboardDataProvider() {
         <DashboardSkeleton />
       </AuthLoading>
       <Authenticated>
-        <Suspense fallback={<DashboardSkeleton />}>
-          <DashboardDataCollection />
-        </Suspense>
+        <DashboardDataCollection />
       </Authenticated>
     </>
   );
 }
 
 function DashboardDataCollection() {
-  const dashboardData = useQuery(api.dashboard.queries.getDashboardData);
+  const {
+    data: dashboardData,
+    isPending,
+    error,
+  } = useQuery(convexQuery(api.dashboard.queries.getDashboardData, {}));
+
+  if (isPending) return <DashboardSkeleton />;
+
+  if (error) {
+    console.error("Dashboard query error:", error);
+    return <DashboardSkeleton />;
+  }
 
   if (!dashboardData) return <DashboardSkeleton />;
 
@@ -50,31 +51,23 @@ function DashboardDataCollection() {
   return (
     <>
       <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-        <Suspense fallback={<StatisticsSkeleton />}>
-          <Statistics
-            level={preloadedLevel}
-            sessions={preloadedSessions}
-            streaks={preloadedStreak}
-            tasks={preloadedTasks}
-          />
-        </Suspense>
+        <Statistics
+          level={preloadedLevel}
+          sessions={preloadedSessions}
+          streaks={preloadedStreak}
+          tasks={preloadedTasks}
+        />
       </div>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         <div className="mb-6">
-          <Suspense fallback={<AchievementsSkeleton />}>
-            <Achievements achivements={preloadedAchievements} />
-          </Suspense>
+          <Achievements achivements={preloadedAchievements} />
         </div>
         <div className="mb-6 lg:col-span-2">
-          <Suspense fallback={<ProductivityInsightsSkeleton />}>
-            <ProductivityInsights preloadedTasks={preloadedTasks} />
-          </Suspense>
+          <ProductivityInsights preloadedTasks={preloadedTasks} />
         </div>
       </div>
       <div className="mb-6">
-        <Suspense fallback={<SessionHistorySkeleton />}>
-          <SessionHistory user={preloadedUser} />
-        </Suspense>
+        <SessionHistory user={preloadedUser} />
       </div>
     </>
   );

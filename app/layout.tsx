@@ -1,5 +1,5 @@
 import { ConvexClientProvider } from "@/components/providers/ConvexClientProvider";
-import { ConvexQueryCacheProvider } from "convex-helpers/react/cache/provider";
+import { TanStackProvider } from "@/components/providers/TanStackProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import type { Metadata } from "next";
@@ -25,12 +25,12 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${font.className} relative antialiased`}>
         <ConvexClientProvider>
-          <ConvexQueryCacheProvider>
+          <TanStackProvider>
             <ThemeProvider defaultTheme="system" attribute="class">
               {children}
               <Toaster />
             </ThemeProvider>
-          </ConvexQueryCacheProvider>
+          </TanStackProvider>
         </ConvexClientProvider>
       </body>
     </html>

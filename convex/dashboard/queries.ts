@@ -27,7 +27,7 @@ export const getStreakInfoForUser = async (
     .first();
   const user = await ctx.db.get(userId);
   const highestStreak = user?.highestStreak ?? 0;
-  return { streak, highestStreak };
+  return { streak: streak || null, highestStreak };
 };
 
 export const getLevelInfoForUser = (user: any) => {
@@ -55,42 +55,91 @@ export const getDashboardData = query({
       currentUser,
     ] = await Promise.all([
       (async () => {
-        const totalFocusTime = await totalFocusTimeByUser(ctx, { userId });
-        const totalFocusTimeByWeek = await totalFocusTimeByUserForWeek(ctx, {
-          userId,
-        });
-        const taskStatsResult = await getTaskStatsForUser(ctx, { userId });
-        return {
-          totalFocusTime,
-          totalFocusTimeByWeek,
-          dailyAveragesByMonth: {
-            totalSum: taskStatsResult.totalSum,
-            totalCount: taskStatsResult.totalCount,
-            dailyAverages: taskStatsResult.dailyAverages,
-          },
-          productivityPatterns: taskStatsResult.productivityPatterns,
-        };
+        try {
+          const totalFocusTime = await totalFocusTimeByUser(ctx, { userId });
+          const totalFocusTimeByWeek = await totalFocusTimeByUserForWeek(ctx, {
+            userId,
+          });
+          const taskStatsResult = await getTaskStatsForUser(ctx, { userId });
+          return {
+            totalFocusTime: totalFocusTime || 0,
+            totalFocusTimeByWeek: totalFocusTimeByWeek || 0,
+            dailyAveragesByMonth: {
+              totalSum: taskStatsResult?.totalSum || 0,
+              totalCount: taskStatsResult?.totalCount || 0,
+              dailyAverages: taskStatsResult?.dailyAverages || [],
+            },
+            productivityPatterns: taskStatsResult?.productivityPatterns || {
+              mostProductiveHour: null,
+              mostProductiveDay: null,
+            },
+          };
+        } catch (e) {
+          console.error("Task stats error:", e);
+          return {
+            totalFocusTime: 0,
+            totalFocusTimeByWeek: 0,
+            dailyAveragesByMonth: {
+              totalSum: 0,
+              totalCount: 0,
+              dailyAverages: [],
+            },
+            productivityPatterns: {
+              mostProductiveHour: null,
+              mostProductiveDay: null,
+            },
+          };
+        }
       })(),
       (async () => {
-        const totalCompletion = await totalCompletionByUser(ctx, { userId });
-        const totalCompletionByWeek = await totalCompletionByUserForWeek(ctx, {
-          userId,
-        });
-        return { totalCompletion, totalCompletionByWeek };
+        try {
+          const totalCompletion = await totalCompletionByUser(ctx, { userId });
+          const totalCompletionByWeek = await totalCompletionByUserForWeek(
+            ctx,
+            {
+              userId,
+            },
+          );
+          return {
+            totalCompletion: totalCompletion || 0,
+            totalCompletionByWeek: totalCompletionByWeek || 0,
+          };
+        } catch (e) {
+          console.error("Session stats error:", e);
+          return { totalCompletion: 0, totalCompletionByWeek: 0 };
+        }
       })(),
-      getStreakInfoForUser(ctx, userId),
-      Promise.resolve(getLevelInfoForUser(user)),
-      getAchievementsForUser(ctx, userId),
+      (async () => {
+        try {
+          const info = await getStreakInfoForUser(ctx, userId);
+          return info || { streak: null, highestStreak: 0 };
+        } catch (e) {
+          console.error("Streak info error:", e);
+          return { streak: null, highestStreak: 0 };
+        }
+      })(),
+      Promise.resolve(
+        getLevelInfoForUser(user) || { totalXP: 0, level: 1, xpToNextLevel: 0 },
+      ),
+      (async () => {
+        try {
+          const ach = await getAchievementsForUser(ctx, userId);
+          return ach || [];
+        } catch (e) {
+          console.error("Achievements error:", e);
+          return [];
+        }
+      })(),
       Promise.resolve(user),
     ]);
 
     return {
-      tasks: taskStats,
-      sessions: sessionStats,
-      streaks: streakInfo,
-      levels: levelInfo,
-      achievements: achievements,
-      user: currentUser,
+      tasks: taskStats || {},
+      sessions: sessionStats || {},
+      streaks: streakInfo || { streak: null, highestStreak: 0 },
+      levels: levelInfo || { totalXP: 0, level: 1, xpToNextLevel: 0 },
+      achievements: achievements || [],
+      user: currentUser || null,
     };
   },
 });
