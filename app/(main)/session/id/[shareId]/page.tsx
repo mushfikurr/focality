@@ -18,7 +18,7 @@ export default async function SessionIdPage({
 }) {
   await redirectIfNotAuthenticated();
   const { shareId } = await params;
-  const data = await preloadStatistics(shareId);
+  const data = await preloadSession(shareId);
 
   return (
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
@@ -67,7 +67,7 @@ export default async function SessionIdPage({
   );
 }
 
-export async function preloadStatistics(shareId: string) {
+export async function preloadSession(shareId: string) {
   const token = await getToken(createAuth);
   const { session } = await fetchQuery(
     api.session.queries.getSessionByShareId,
