@@ -1,12 +1,8 @@
 "use client";
 
 import { api } from "@/convex/_generated/api";
-import {
-  Authenticated,
-  AuthLoading,
-  Preloaded,
-  usePreloadedQuery,
-} from "convex/react";
+import { useQuery } from "convex-helpers/react/cache/hooks";
+import { Authenticated, AuthLoading } from "convex/react";
 import { Suspense } from "react";
 import Achievements from "./achievements/achievements";
 import { AchievementsSkeleton } from "./achievements/skeleton";
@@ -22,33 +18,25 @@ import Statistics, {
 } from "./statistics-overview/statistics";
 import DashboardSkeleton from "@/app/(main)/dashboard/loading";
 
-type DashboardDataProviderProps = {
-  preloadedDashboardData: Preloaded<
-    typeof api.dashboard.queries.getDashboardData
-  >;
-};
-
-export default function DashboardDataProvider({
-  preloadedDashboardData,
-}: DashboardDataProviderProps) {
+export default function DashboardDataProvider() {
   return (
     <>
       <AuthLoading>
         <DashboardSkeleton />
       </AuthLoading>
       <Authenticated>
-        <DashboardDataCollection
-          preloadedDashboardData={preloadedDashboardData}
-        />
+        <Suspense fallback={<DashboardSkeleton />}>
+          <DashboardDataCollection />
+        </Suspense>
       </Authenticated>
     </>
   );
 }
 
-function DashboardDataCollection({
-  preloadedDashboardData,
-}: DashboardDataProviderProps) {
-  const dashboardData = usePreloadedQuery(preloadedDashboardData);
+function DashboardDataCollection() {
+  const dashboardData = useQuery(api.dashboard.queries.getDashboardData);
+
+  if (!dashboardData) return <DashboardSkeleton />;
 
   const {
     achievements: preloadedAchievements,

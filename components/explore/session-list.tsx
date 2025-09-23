@@ -4,7 +4,8 @@ import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
 import { PaginatedQueryItem } from "convex/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useMemo, useCallback } from "react";
 import { JoinSessionButton } from "../session/join-session-button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -26,20 +27,53 @@ type Session = PaginatedQueryItem<
 >;
 
 function SessionList() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const page = Number(searchParams.get("page")) || 1;
+  const searchQuery = searchParams.get("search") || "";
+
   const { status, loadNext, loadPrev, currentResults, currentPageNum } =
     useSimplePaginatedQuery(
       api.session.queries.paginatedPublicSessions,
       {},
       { initialNumItems: 9 },
     );
-  const [searchQuery, setSearchQuery] = useState("");
 
-  const sessions: Session[] = status === "loaded" ? currentResults.page : [];
-
-  const filteredSessions = sessions.filter(
-    (s): s is Session =>
-      !!s?.title && s.title.toLowerCase().includes(searchQuery.toLowerCase()),
+  const sessions: Session[] = useMemo(
+    () => (status === "loaded" ? currentResults.page : []),
+    [status, currentResults.page],
   );
+
+  const filteredSessions = useMemo(
+    () =>
+      sessions.filter(
+        (s): s is Session =>
+          !!s?.title &&
+          s.title.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [sessions, searchQuery],
+  );
+
+  const updateUrl = useCallback(
+    (page: number, search: string) => {
+      const params = new URLSearchParams(searchParams);
+      params.set("page", page.toString());
+      if (search) params.set("search", search);
+      router.replace(`?${params}`, { scroll: false });
+    },
+    [searchParams, router],
+  );
+
+  const handleLoadNext = useCallback(() => {
+    loadNext?.();
+    updateUrl(currentPageNum + 1, searchQuery);
+  }, [loadNext, currentPageNum, updateUrl, searchQuery]);
+
+  const handleLoadPrev = useCallback(() => {
+    loadPrev?.();
+    updateUrl(currentPageNum - 1, searchQuery);
+  }, [loadPrev, currentPageNum, updateUrl, searchQuery]);
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -51,7 +85,10 @@ function SessionList() {
             placeholder="Search sessions..."
             className="w-full max-w-xs py-1 pr-2 text-sm"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              const newQuery = e.target.value;
+              updateUrl(page, newQuery);
+            }}
             disabled={status !== "loaded"}
           />
         </div>
@@ -94,7 +131,7 @@ function SessionList() {
                 variant="outline"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => loadPrev?.()}
+                onClick={handleLoadPrev}
                 disabled={!loadPrev || status !== "loaded"}
               >
                 Prev
@@ -104,7 +141,7 @@ function SessionList() {
                 variant="outline"
                 size="sm"
                 className="h-7 text-xs"
-                onClick={() => loadNext?.()}
+                onClick={handleLoadNext}
                 disabled={!loadNext || status !== "loaded"}
               >
                 Next

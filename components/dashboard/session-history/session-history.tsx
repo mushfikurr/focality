@@ -58,13 +58,47 @@ export function SessionHistorySkeleton() {
           <div className="flex items-center gap-2">
             <Calendar className="text-primary h-4 w-4" />
             <CardTitle className="text-base font-semibold">
-              <Skeleton className="h-4 w-20" />
+              Session History
             </CardTitle>
+          </div>
+          <div className="flex items-center gap-3">
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-8 w-20" />
           </div>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="bg-muted h-64 w-full animate-pulse rounded-lg" />
+        <div className="overflow-x-auto">
+          <div className="min-w-full">
+            <div className="border-b">
+              <div className="flex">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="flex-1 px-3 py-2">
+                    <Skeleton className="h-4 w-full" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="divide-y">
+              {Array.from({ length: 5 }).map((_, i) => (
+                <div key={i} className="flex py-3">
+                  {Array.from({ length: 6 }).map((_, j) => (
+                    <div key={j} className="flex-1 px-3">
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex items-center justify-between">
+          <Skeleton className="h-4 w-16" />
+          <div className="flex items-center gap-2">
+            <Skeleton className="h-7 w-12" />
+            <Skeleton className="h-7 w-12" />
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
