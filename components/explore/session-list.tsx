@@ -84,7 +84,7 @@ function SessionList() {
         </ScrollArea>
 
         {!isPending && filteredSessions.length === 0 && (
-          <div className="flex h-40 items-center justify-center">
+          <div className="flex h-full justify-center py-8">
             <p className="text-muted-foreground">
               {searchQuery
                 ? "No sessions found."
