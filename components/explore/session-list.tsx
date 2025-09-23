@@ -1,11 +1,8 @@
 "use client";
-import { api } from "@/convex/_generated/api";
-import { useSimplePaginatedQuery } from "@/lib/hooks/use-convex-tanstack-table";
-import { PaginatedQueryItem } from "convex/react";
 import { formatDistanceToNowStrict } from "date-fns";
 import { Search } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useMemo, useCallback } from "react";
+import { useCallback } from "react";
 import { JoinSessionButton } from "../session/join-session-button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -21,10 +18,7 @@ import {
 import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { ScrollArea } from "../ui/scroll-area/scroll-area";
-
-type Session = PaginatedQueryItem<
-  typeof api.session.queries.paginatedPublicSessions
->;
+import { useExploreSessions } from "@/hooks/use-explore-sessions";
 
 function SessionList() {
   const searchParams = useSearchParams();
@@ -33,26 +27,9 @@ function SessionList() {
   const page = Number(searchParams.get("page")) || 1;
   const searchQuery = searchParams.get("search") || "";
 
-  const { status, loadNext, loadPrev, currentResults, currentPageNum } =
-    useSimplePaginatedQuery(
-      api.session.queries.paginatedPublicSessions,
-      {},
-      { initialNumItems: 9 },
-    );
-
-  const sessions: Session[] = useMemo(
-    () => (status === "loaded" ? currentResults.page : []),
-    [status, currentResults.page],
-  );
-
-  const filteredSessions = useMemo(
-    () =>
-      sessions.filter(
-        (s): s is Session =>
-          !!s?.title &&
-          s.title.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    [sessions, searchQuery],
+  const { sessions: filteredSessions, isPending } = useExploreSessions(
+    page,
+    searchQuery,
   );
 
   const updateUrl = useCallback(
@@ -66,14 +43,12 @@ function SessionList() {
   );
 
   const handleLoadNext = useCallback(() => {
-    loadNext?.();
-    updateUrl(currentPageNum + 1, searchQuery);
-  }, [loadNext, currentPageNum, updateUrl, searchQuery]);
+    updateUrl(page + 1, searchQuery);
+  }, [page, searchQuery, updateUrl]);
 
   const handleLoadPrev = useCallback(() => {
-    loadPrev?.();
-    updateUrl(currentPageNum - 1, searchQuery);
-  }, [loadPrev, currentPageNum, updateUrl, searchQuery]);
+    updateUrl(page - 1, searchQuery);
+  }, [page, searchQuery, updateUrl]);
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -89,7 +64,7 @@ function SessionList() {
               const newQuery = e.target.value;
               updateUrl(page, newQuery);
             }}
-            disabled={status !== "loaded"}
+            disabled={isPending}
           />
         </div>
       </div>
@@ -97,18 +72,18 @@ function SessionList() {
       <div className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="flex-1">
           <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-3 lg:grid-cols-4">
-            {status === "loading" &&
+            {isPending &&
               Array.from({ length: 3 }).map((_, i) => (
                 <SessionCardSkeleton key={i} />
               ))}
-            {status === "loaded" &&
+            {!isPending &&
               filteredSessions.map((session) => (
                 <SessionCard key={session.id} session={session} />
               ))}
           </div>
         </ScrollArea>
 
-        {status === "loaded" && filteredSessions.length === 0 && (
+        {!isPending && filteredSessions.length === 0 && (
           <div className="flex h-40 items-center justify-center">
             <p className="text-muted-foreground">
               {searchQuery
@@ -119,12 +94,10 @@ function SessionList() {
         )}
       </div>
 
-      {status === "loaded" && sessions.length > 0 && (
+      {!isPending && filteredSessions.length > 0 && (
         <div className="bg-background sticky bottom-0 z-10 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-xs">
-              Page {currentPageNum}
-            </span>
+            <span className="text-muted-foreground text-xs">Page {page}</span>
 
             <div className="flex items-center gap-2">
               <Button
@@ -132,7 +105,7 @@ function SessionList() {
                 size="sm"
                 className="h-7 text-xs"
                 onClick={handleLoadPrev}
-                disabled={!loadPrev || status !== "loaded"}
+                disabled={page <= 1 || isPending}
               >
                 Prev
               </Button>
@@ -142,7 +115,7 @@ function SessionList() {
                 size="sm"
                 className="h-7 text-xs"
                 onClick={handleLoadNext}
-                disabled={!loadNext || status !== "loaded"}
+                disabled={isPending}
               >
                 Next
               </Button>
