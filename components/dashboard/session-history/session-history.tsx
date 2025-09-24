@@ -200,10 +200,15 @@ function SessionHistoryTable({
         header: "",
         cell: ({ row }) => (
           <JoinSessionButton
-            session={{ ...row.original, _id: row.original.id }}
+            session={{
+              _id: row.original.id,
+              shareId: row.original.shareId,
+              title: row.original.title,
+            }}
             variant="ghost"
             size="icon"
             className="h-6 w-6"
+            asChild
           >
             <ChevronRight className="h-4 w-4" />
           </JoinSessionButton>

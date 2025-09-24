@@ -187,7 +187,11 @@ function SessionCard({ session }: { session?: Session }) {
           <div />
         )}
         <JoinSessionButton
-          session={{ ...session, _id: session.id }}
+          session={{
+            _id: session.id,
+            title: session.title,
+            shareId: session.shareId,
+          }}
           variant="secondary"
           size="sm"
         >

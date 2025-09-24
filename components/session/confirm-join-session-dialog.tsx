@@ -12,7 +12,7 @@ import {
 } from "../ui/alert-dialog";
 
 type ConfirmJoinSessionDialog = {
-  session: Doc<"sessions">;
+  session: Pick<Doc<"sessions">, "title">;
   children: React.ReactNode;
   onConfirm: () => void;
 };
