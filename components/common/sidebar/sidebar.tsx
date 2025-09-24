@@ -64,8 +64,10 @@ export function AppSidebar() {
     <Sidebar>
       <SidebarContent>
         <div className="p-2 pb-0">
-          <SidebarMenuButton variant="outline">
-            <Plus /> New Session
+          <SidebarMenuButton variant="outline" asChild>
+            <Link href="/session/new">
+              <Plus /> New Session
+            </Link>
           </SidebarMenuButton>
         </div>
         <SidebarNav />
