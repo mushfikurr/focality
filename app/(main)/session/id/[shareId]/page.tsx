@@ -4,7 +4,6 @@ import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { api } from "@/convex/_generated/api";
 import { createAuth } from "@/lib/auth";
-import redirectIfNotAuthenticated from "@/lib/data/server/is-authenticated";
 import { preloadWithAuth } from "@/lib/preload-with-auth";
 import { getToken } from "@convex-dev/better-auth/nextjs";
 import { fetchQuery } from "convex/nextjs";
@@ -16,7 +15,6 @@ export default async function SessionIdPage({
 }: {
   params: Promise<{ shareId: string }>;
 }) {
-  await redirectIfNotAuthenticated();
   const { shareId } = await params;
   const data = await preloadSession(shareId);
 

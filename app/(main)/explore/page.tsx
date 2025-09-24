@@ -1,9 +1,6 @@
 import SessionList from "@/components/explore/session-list";
-import redirectIfNotAuthenticated from "@/lib/data/server/is-authenticated";
 
 export default async function ExplorePage() {
-  await redirectIfNotAuthenticated();
-
   return (
     <div className="flex h-full flex-col">
       <div className="container mx-auto flex-shrink-0 pt-4">

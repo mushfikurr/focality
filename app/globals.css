@@ -108,6 +108,7 @@
     0px 4px 8px -2px hsl(0 0% 0% / 0.2), 0px 8px 10px -3px hsl(0 0% 0% / 0.2);
   --shadow-2xl: 0px 4px 8px -2px hsl(0 0% 0% / 0.5);
 }
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -236,6 +237,10 @@
     padding-inline: 2rem;
     max-width: 100%;
   }
+}
+
+@utility drop-shadow-active {
+  filter: drop-shadow(0 0px 4px theme(--color-green-500 / 0.8));
 }
 
 @layer base {
