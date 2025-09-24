@@ -8,7 +8,7 @@ type Session = PaginatedQueryItem<
   typeof api.session.queries.paginatedPublicSessions
 >;
 
-export function useExploreSessions(page: number, searchQuery: string) {
+export function useExploreSessions(searchQuery: string) {
   const { data: sessionsData, isPending } = useQuery(
     convexQuery(api.session.queries.paginatedPublicSessions, {
       paginationOpts: { numItems: 9, cursor: null },
@@ -34,7 +34,5 @@ export function useExploreSessions(page: number, searchQuery: string) {
   return {
     sessions: filteredSessions,
     isPending,
-    hasMore: sessionsData?.hasMore || false,
-    totalCount: sessionsData?.totalCount || 0,
   };
 }

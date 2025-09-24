@@ -19,6 +19,7 @@ import { Input } from "../ui/input";
 import { Skeleton } from "../ui/skeleton";
 import { ScrollArea } from "../ui/scroll-area/scroll-area";
 import { useExploreSessions } from "@/hooks/use-explore-sessions";
+import SessionListSkeleton from "./session-list-skeleton";
 
 function SessionList() {
   const searchParams = useSearchParams();
@@ -27,10 +28,8 @@ function SessionList() {
   const page = Number(searchParams.get("page")) || 1;
   const searchQuery = searchParams.get("search") || "";
 
-  const { sessions: filteredSessions, isPending } = useExploreSessions(
-    page,
-    searchQuery,
-  );
+  const { sessions: filteredSessions, isPending } =
+    useExploreSessions(searchQuery);
 
   const updateUrl = useCallback(
     (page: number, search: string) => {
@@ -72,14 +71,12 @@ function SessionList() {
       <div className="flex min-h-0 flex-1 flex-col">
         <ScrollArea className="flex-1">
           <div className="grid grid-cols-1 gap-4 pb-4 md:grid-cols-3 lg:grid-cols-4">
-            {isPending &&
-              Array.from({ length: 3 }).map((_, i) => (
-                <SessionCardSkeleton key={i} />
-              ))}
+            {isPending && <SessionListSkeleton />}
             {!isPending &&
-              filteredSessions.map((session) => (
-                <SessionCard key={session.id} session={session} />
-              ))}
+              filteredSessions.map(
+                (session) =>
+                  session && <SessionCard key={session.id} session={session} />,
+              )}
           </div>
         </ScrollArea>
 
@@ -127,7 +124,7 @@ function SessionList() {
   );
 }
 
-function SessionCardSkeleton() {
+export function SessionCardSkeleton() {
   return (
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-3">
