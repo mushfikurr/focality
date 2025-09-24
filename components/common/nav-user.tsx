@@ -69,13 +69,12 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>
-        <div className="flex items-center gap-5">
-          <Avatar
-            className={cn(user.sessionId && "drop-shadow-green-500", "h-7 w-7")}
-          >
+        <div className="relative flex items-center gap-5">
+          <Avatar className={cn("h-7 w-7")}>
             <AvatarImage src={user.image} alt="Users avatar" />
             <AvatarFallback>{user.name?.charAt(0) ?? " "}</AvatarFallback>
           </Avatar>
+          <div className="drop-shadow-active absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-500"></div>
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
