@@ -15,6 +15,14 @@ const queryClient = new QueryClient({
   },
 });
 
+declare global {
+  interface Window {
+    __TANSTACK_QUERY_CLIENT__: import("@tanstack/query-core").QueryClient;
+  }
+}
+
+window.__TANSTACK_QUERY_CLIENT__ = queryClient;
+
 convexQueryClient.connect(queryClient);
 
 export function TanStackProvider({ children }: { children: ReactNode }) {
