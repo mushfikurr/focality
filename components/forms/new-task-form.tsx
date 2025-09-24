@@ -3,11 +3,13 @@
 import { z } from "zod";
 
 import { api } from "@/convex/_generated/api";
-import { Doc, Id } from "@/convex/_generated/dataModel";
+import { Id } from "@/convex/_generated/dataModel";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "@tanstack/react-query";
 import { FC } from "react";
 import { useForm } from "react-hook-form";
+import { Button } from "../ui/button";
+import { DialogClose } from "../ui/dialog";
 import {
   Form,
   FormControl,
@@ -18,8 +20,7 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { TimePickerInput } from "../ui/time-picker-input";
-import { Button } from "../ui/button";
-import { DialogClose } from "../ui/dialog";
+import { useConvexMutation } from "@convex-dev/react-query";
 
 interface NewTaskFormProps {
   sessionId: Id<"sessions">;
@@ -57,7 +58,9 @@ const NewTaskForm: FC<NewTaskFormProps> = ({ sessionId, break: isBreak }) => {
     },
   });
 
-  const createMtn = useMutation(api.tasks.mutations.addTask);
+  const { mutate: createMtn, isPending } = useMutation({
+    mutationFn: useConvexMutation(api.tasks.mutations.addTask),
+  });
 
   const handleSubmit = (data: z.infer<typeof formSchema>) => {
     const hours = data.hours.getHours();
@@ -158,7 +161,7 @@ const NewTaskForm: FC<NewTaskFormProps> = ({ sessionId, break: isBreak }) => {
           <DialogClose asChild>
             <Button variant="secondary">Cancel</Button>
           </DialogClose>
-          <Button type="submit" variant="default">
+          <Button loading={isPending} type="submit" variant="default">
             {isBreak ? "Add Break" : "Add Task"}
           </Button>
         </div>
