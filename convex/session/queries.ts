@@ -2,7 +2,7 @@ import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { Id } from "../_generated/dataModel";
 import { MutationCtx, query } from "../_generated/server";
-import { getCurrentUser, authComponent } from "../auth";
+import { authComponent } from "../auth";
 import { getSessionExperience } from "../levels/queries";
 import { getDocumentOrThrow } from "../utils/db";
 
