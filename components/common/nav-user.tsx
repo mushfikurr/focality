@@ -5,11 +5,14 @@ import { cn } from "@/lib/utils";
 import { Preloaded, usePreloadedQuery } from "convex/react";
 import {
   Cog,
+  DoorOpen,
+  Loader2,
   LogOut,
   MonitorCog,
   Moon,
   Paintbrush,
   Sun,
+  Target,
   User2,
 } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -32,6 +35,10 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { Id } from "@/convex/_generated/dataModel";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
+import { Skeleton } from "../ui/skeleton";
 
 type NavUserProps = {
   user: Preloaded<typeof api.auth.getCurrentUser>;
@@ -40,13 +47,8 @@ type NavUserProps = {
 export function NavUser({ user: preloadedUser }: NavUserProps) {
   const user = usePreloadedQuery(preloadedUser);
   const router = useRouter();
+
   if (!user) return;
-
-  const theme = useTheme();
-
-  const handleThemeChange = (newTheme: string) => {
-    theme.setTheme(newTheme);
-  };
 
   const handleLogout = async () => {
     const signInPromise = (async () => {
@@ -55,6 +57,7 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
         const message = handleError(error.code, errorMap);
         throw new Error(message);
       }
+      router.push("/login");
       return data;
     })();
 
@@ -63,7 +66,6 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
       success: "Successfully logged out",
       error: (err) => err.message,
     });
-    router.push("/login");
   };
 
   return (
@@ -74,7 +76,9 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
             <AvatarImage src={user.image} alt="Users avatar" />
             <AvatarFallback>{user.name?.charAt(0) ?? " "}</AvatarFallback>
           </Avatar>
-          <div className="drop-shadow-active absolute right-0 bottom-0 h-2 w-2 rounded-full bg-green-500"></div>
+          {user.sessionId && (
+            <UserAvatarSessionIndicator sessionId={user.sessionId} />
+          )}
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -92,6 +96,7 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
           </div>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
+        {user.sessionId && <DropdownSessionGroup sessionId={user.sessionId} />}
         <DropdownMenuGroup>
           <DropdownMenuItem>
             <User2 /> Profile
@@ -101,41 +106,130 @@ export function NavUser({ user: preloadedUser }: NavUserProps) {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-        <DropdownMenuGroup>
-          <DropdownMenuSub>
-            <DropdownMenuSubTrigger
-              arrowLeft
-              className="flex items-center gap-2"
-            >
-              <Paintbrush className="text-muted-foreground size-4" />
-              Change Theme
-            </DropdownMenuSubTrigger>
-            <DropdownMenuPortal>
-              <DropdownMenuSubContent>
-                <DropdownMenuRadioGroup
-                  value={theme.theme}
-                  onValueChange={handleThemeChange}
-                >
-                  <DropdownMenuRadioItem value="light">
-                    <Sun /> Light
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="dark">
-                    <Moon /> Dark
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="system">
-                    <MonitorCog /> System
-                  </DropdownMenuRadioItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuSubContent>
-            </DropdownMenuPortal>
-          </DropdownMenuSub>
-        </DropdownMenuGroup>
-        <DropdownMenuSeparator />
+        <DropdownPreferenceGroup />
         <DropdownMenuItem onClick={handleLogout}>
           <LogOut /> Log Out
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
+  );
+}
+
+function UserAvatarSessionIndicator({
+  sessionId,
+}: {
+  sessionId: Id<"sessions">;
+}) {
+  const { data, isPending, error } = useQuery(
+    convexQuery(api.session.queries.getSession, { sessionId }),
+  );
+
+  if (isPending || error || !data) return null;
+  const session = data.session;
+  const running = session.running;
+
+  return (
+    <div
+      className={cn(
+        running && "drop-shadow-active bg-green-500",
+        !running && "drop-shadow-inactive bg-amber-500",
+        "absolute right-0 bottom-0 h-2 w-2 rounded-full",
+        "transition-colors duration-300 ease-out",
+      )}
+    ></div>
+  );
+}
+
+function DropdownPreferenceGroup() {
+  const theme = useTheme();
+  const handleThemeChange = (newTheme: string) => {
+    theme.setTheme(newTheme);
+  };
+
+  return (
+    <>
+      <DropdownMenuLabel>Preferences</DropdownMenuLabel>
+      <DropdownMenuGroup>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger arrowLeft className="flex items-center gap-2">
+            <Paintbrush className="text-muted-foreground size-4" />
+            Change Theme
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent>
+              <DropdownMenuRadioGroup
+                value={theme.theme}
+                onValueChange={handleThemeChange}
+              >
+                <DropdownMenuRadioItem value="light">
+                  <Sun /> Light
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="dark">
+                  <Moon /> Dark
+                </DropdownMenuRadioItem>
+                <DropdownMenuRadioItem value="system">
+                  <MonitorCog /> System
+                </DropdownMenuRadioItem>
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+    </>
+  );
+}
+
+function DropdownSessionGroup({ sessionId }: { sessionId: Id<"sessions"> }) {
+  const { data, isPending, error } = useQuery(
+    convexQuery(api.session.queries.getSession, { sessionId }),
+  );
+  const router = useRouter();
+
+  const { mutate: leaveMutation, isPending: isLeaveMtnPending } = useMutation({
+    mutationFn: useConvexMutation(api.session.mutations.leaveSession),
+  });
+
+  const handleSessionLeave = () => {
+    leaveMutation({ sessionId });
+  };
+
+  const handleSessionGo = () => {
+    if (data) {
+      router.push(`/session/id/${data.session.shareId}`);
+    }
+  };
+
+  if (isPending) {
+    return (
+      <>
+        <Skeleton className="h-8 w-full px-2 py-1.5" />
+        <DropdownMenuSeparator />
+      </>
+    );
+  }
+
+  if (error) {
+    return null;
+  }
+
+  return (
+    <>
+      <DropdownMenuGroup>
+        <DropdownMenuLabel>Focus Session</DropdownMenuLabel>
+        <DropdownMenuItem onClick={handleSessionGo}>
+          <Target /> Go to
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={handleSessionLeave}>
+          {isLeaveMtnPending ? (
+            <Loader2 className="animate-spin" />
+          ) : (
+            <DoorOpen />
+          )}
+          Leave
+        </DropdownMenuItem>
+      </DropdownMenuGroup>
+      <DropdownMenuSeparator />
+    </>
   );
 }

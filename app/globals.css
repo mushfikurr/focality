@@ -243,6 +243,10 @@
   filter: drop-shadow(0 0px 4px theme(--color-green-500 / 0.8));
 }
 
+@utility drop-shadow-inactive {
+  filter: drop-shadow(0 0px 4px theme(--color-amber-500 / 0.8));
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;
