@@ -267,3 +267,25 @@ export const listUserSessions = query({
       .collect();
   },
 });
+
+export const getRecentSessionsForUser = query({
+  handler: async (ctx) => {
+    const userMetadata = await authComponent.getAuthUser(ctx);
+    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const user = await ctx.db.get(userMetadata.userId as Id<"users">);
+    if (!user) throw new Error("User not found");
+
+    const userId = user._id;
+    const sessions = await ctx.db
+      .query("sessions")
+      .withIndex("by_user", (q) => q.eq("hostId", userId))
+      .order("desc")
+      .take(20);
+
+    return sessions.map((session) => ({
+      id: session._id,
+      shareId: session.shareId,
+      title: session.title,
+    }));
+  },
+});
