@@ -82,22 +82,28 @@ export default function RegisterForm() {
 
     toast.promise(signUpPromise, {
       loading: "Registering...",
-      success: "Successfully registered",
-      error: (error) => error.message,
+      success: () => {
+        setLoading(false);
+        return "Successfully registered";
+      },
+      error: (error) => {
+        setLoading(false);
+        return error.message;
+      },
     });
-    setLoading(false);
   }
   return (
     <div className="mx-auto -mt-3 flex w-full max-w-md flex-col gap-3">
-      <Button
-        variant="link"
-        className={cn(
-          "text-foreground flex w-fit cursor-pointer items-center gap-3 p-0 text-sm",
-        )}
-        onClick={() => router.back()}
-      >
-        <ArrowLeft /> Back
-      </Button>
+      <Link href="/">
+        <Button
+          variant="link"
+          className={cn(
+            "text-foreground flex w-fit cursor-pointer items-center gap-3 p-0 text-sm",
+          )}
+        >
+          <ArrowLeft /> Back
+        </Button>
+      </Link>
       <Card className="w-full">
         <CardHeader>
           <CardTitle className="text-2xl">Register</CardTitle>
