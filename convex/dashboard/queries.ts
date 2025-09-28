@@ -2,19 +2,15 @@ import { Id } from "../_generated/dataModel";
 import { query, QueryCtx } from "../_generated/server";
 import { authComponent } from "../auth";
 import { getLevelFromXP, getXPToNextLevel } from "../levels/utils";
-
-// Import existing helpers
 import {
   totalFocusTimeByUser,
   totalFocusTimeByUserForWeek,
   getTaskStatsForUser,
 } from "../statistics/tasks/queries";
-
 import {
   totalCompletionByUser,
   totalCompletionByUserForWeek,
 } from "../statistics/sessions/queries";
-
 import { getAchievementsForUser } from "../achievements/queries";
 
 export const getStreakInfoForUser = async (

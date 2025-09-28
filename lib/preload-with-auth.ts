@@ -1,12 +1,11 @@
-import { getToken } from "@convex-dev/better-auth/nextjs";
 import { preloadQuery } from "convex/nextjs";
 import { FunctionReference } from "convex/server";
-import { createAuth } from "./auth";
+import { getToken } from "./data/server/token";
 
 export async function preloadWithAuth(
   queryFn: FunctionReference<"query">,
   args: any = {},
 ) {
-  const token = await getToken(createAuth);
+  const token = await getToken();
   return preloadQuery(queryFn, args, { token });
 }

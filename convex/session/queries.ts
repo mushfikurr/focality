@@ -6,8 +6,6 @@ import { authComponent } from "../auth";
 import { getSessionExperience } from "../levels/queries";
 import { getDocumentOrThrow } from "../utils/db";
 
-const isSessionPublic = (q: any) => q.eq("visiblity", "public");
-
 export const isUserHost = async (
   ctx: MutationCtx,
   sessionId: Id<"sessions">,
@@ -127,6 +125,7 @@ export const paginatedPublicSessions = query({
     };
   },
 });
+
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
     const userMetadata = await authComponent.getAuthUser(ctx);

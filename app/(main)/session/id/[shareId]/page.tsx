@@ -2,11 +2,7 @@ import MobileActions from "@/components/room/elements/mobile/mobile-actions";
 import { SyncedRoom } from "@/components/room/synced-room";
 import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
-import { api } from "@/convex/_generated/api";
-import { createAuth } from "@/lib/auth";
-import { preloadWithAuth } from "@/lib/preload-with-auth";
-import { getToken } from "@convex-dev/better-auth/nextjs";
-import { fetchQuery } from "convex/nextjs";
+import { preloadSession } from "@/lib/data/server/preload-session";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -56,46 +52,7 @@ export default async function SessionIdPage({
         <div className="h-full">
           <SyncedRoom {...data} />
         </div>
-
-        {/* <div className="min-h-0 flex-[1]">
-          <Stats />
-        </div> */}
       </div>
     </div>
   );
-}
-
-export async function preloadSession(shareId: string) {
-  const token = await getToken(createAuth);
-  const { session } = await fetchQuery(
-    api.session.queries.getSessionByShareId,
-    { shareId },
-    { token },
-  );
-  const sessionIdArgs = { sessionId: session._id };
-  const preloadedUser = await preloadWithAuth(api.auth.getCurrentUser);
-  const preloadedSession = await preloadWithAuth(
-    api.session.queries.getSession,
-    sessionIdArgs,
-  );
-  const preloadedTasks = await preloadWithAuth(
-    api.tasks.queries.listTasks,
-    sessionIdArgs,
-  );
-  const preloadedChat = await preloadWithAuth(
-    api.chat.queries.listChatMessages,
-    sessionIdArgs,
-  );
-  const preloadedParticipants = await preloadWithAuth(
-    api.session.queries.listParticipants,
-    sessionIdArgs,
-  );
-
-  return {
-    preloadedUser,
-    preloadedSession,
-    preloadedTasks,
-    preloadedChat,
-    preloadedParticipants,
-  };
 }

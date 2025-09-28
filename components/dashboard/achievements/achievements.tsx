@@ -7,17 +7,10 @@ import { AchievementType } from "@/convex/schema";
 import { Award, Target } from "lucide-react";
 
 type AchievementsProps = {
-  achivements: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["achievements"];
+  achievements: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["achievements"];
 };
 
-export default function Achievements(props: AchievementsProps) {
-  return <AchievementsCollection {...props} />;
-}
-
-function AchievementsCollection({
-  achivements: preloadedAchievements,
-}: AchievementsProps) {
-  const achievements = preloadedAchievements;
+export function Achievements({ achievements }: AchievementsProps) {
   return (
     <Card className="h-full">
       <CardHeader className="pb-2">

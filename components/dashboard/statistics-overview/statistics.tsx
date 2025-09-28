@@ -13,11 +13,7 @@ type StatisticsProps = {
   level: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["levels"];
 };
 
-export default function Statistics(props: StatisticsProps) {
-  return <StatisticsCollection {...props} />;
-}
-
-function StatisticsCollection({
+export default function Statistics({
   level: preloadedLevel,
   sessions: preloadedSessions,
   streaks: preloadedStreak,

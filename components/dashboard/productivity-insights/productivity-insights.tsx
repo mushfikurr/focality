@@ -7,27 +7,13 @@ import { formatTimestampToHS, getWeekdayNameFromUTCDay } from "@/lib/utils";
 import { BarChart, Calendar, Clock } from "lucide-react";
 import PatternCard from "./pattern-card";
 import { useEffect, useState } from "react";
-import { Authenticated, AuthLoading } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 type ProductivityInsightsProps = {
   preloadedTasks: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["tasks"];
 };
 
-export function ProductivityInsights(props: ProductivityInsightsProps) {
-  return (
-    <>
-      <AuthLoading>
-        <ProductivityInsightsSkeleton />
-      </AuthLoading>
-      <Authenticated>
-        <ProductivityInsightsCollection {...props} />
-      </Authenticated>
-    </>
-  );
-}
-
-function ProductivityInsightsCollection({
+export default function ProductivityInsights({
   preloadedTasks,
 }: ProductivityInsightsProps) {
   const taskStatistics = preloadedTasks;

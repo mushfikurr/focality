@@ -1,13 +1,12 @@
 import Navbar from "@/components/common/navbar";
 import { AppSidebar } from "@/components/common/sidebar/sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
-import { api } from "@/convex/_generated/api";
-import { preloadWithAuth } from "@/lib/preload-with-auth";
+import { preloadUser } from "@/lib/data/server/preload-user";
 
 export default async function MainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = await preloadWithAuth(api.auth.getCurrentUser);
+  const user = await preloadUser();
 
   return (
     <SidebarProvider>

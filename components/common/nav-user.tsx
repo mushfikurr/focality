@@ -41,14 +41,13 @@ import { convexQuery, useConvexMutation } from "@convex-dev/react-query";
 import { Skeleton } from "../ui/skeleton";
 
 type NavUserProps = {
-  user: Preloaded<typeof api.auth.getCurrentUser>;
+  user: typeof api.auth.getCurrentUser._returnType;
 };
 
-export function NavUser({ user: preloadedUser }: NavUserProps) {
-  const user = usePreloadedQuery(preloadedUser);
+export function NavUser({ user }: NavUserProps) {
   const router = useRouter();
 
-  if (!user) return;
+  if (!user) return null;
 
   const handleLogout = async () => {
     const signInPromise = (async () => {

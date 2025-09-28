@@ -4,7 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { getLevelFromXP } from "@/lib/client-level";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { cn } from "@/lib/utils";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+import { Preloaded, useConvexAuth, usePreloadedQuery } from "convex/react";
 import { Award, Focus, LucideIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -13,6 +13,7 @@ import { buttonVariants } from "../ui/button";
 import { Separator } from "../ui/separator";
 import { SidebarTrigger, useSidebar } from "../ui/sidebar";
 import { NavUser } from "./nav-user";
+import { useEffect, useState } from "react";
 
 function ConditionalSidebarTrigger() {
   try {
@@ -28,9 +29,17 @@ export default function Navbar({
 }: {
   user: Preloaded<typeof api.auth.getCurrentUser>;
 }) {
+  const { isLoading } = useConvexAuth();
   const user = usePreloadedQuery(preloadedUser);
+  const [currentUser, setCurrentUser] = useState(user);
+  useEffect(() => {
+    if (!isLoading) {
+      setCurrentUser(user);
+    }
+  }, [user, isLoading]);
+
   const { hidden, scrollY } = useHideOnScroll({ scrollOffset: 10 });
-  const level = getLevelFromXP(user?.xp ?? 0);
+  const level = getLevelFromXP(currentUser?.xp ?? 0);
 
   return (
     <header
@@ -64,14 +73,14 @@ export default function Navbar({
             Development
           </Badge>
         </div>
-        {user ? (
+        {currentUser ? (
           <div className="flex h-full items-center gap-4">
             <div className="flex items-center justify-center gap-1.5 rounded border px-2 pl-1.5 drop-shadow-xs">
               <Award className="size-4" strokeWidth={2.5} />
               <p>{level}</p>
             </div>
             <Separator orientation="vertical" className="max-h-6" />
-            <NavUser user={preloadedUser} />
+            <NavUser user={currentUser} />
           </div>
         ) : (
           <div className="flex gap-2">

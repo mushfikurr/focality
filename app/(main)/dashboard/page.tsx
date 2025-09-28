@@ -1,7 +1,7 @@
-import DashboardDataProvider from "@/components/dashboard/dashboard-data-provider";
-import { getToken } from "@/lib/data/server/token";
+import Dashboard from "@/components/dashboard/dashboard";
+import { preloadDashboardData } from "@/lib/data/server/preload-dashboard-data";
 
 export default async function DashboardPage() {
-  await getToken();
-  return <DashboardDataProvider />;
+  const dashboardData = await preloadDashboardData();
+  return <Dashboard preloadedDashboardData={dashboardData} />;
 }
