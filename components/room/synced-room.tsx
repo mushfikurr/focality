@@ -34,6 +34,14 @@ export function SyncedRoom(props: SyncedRoomProps) {
   const user = usePreloadedQuery(preloadedUser);
   const router = useRouter();
 
+  const sendChatMessage = useMutation(api.chat.mutations.createChat);
+  const joinSessionMtn = useMutation(api.session.mutations.joinSession);
+  const leaveSessionMtn = useMutation(api.session.mutations.leaveSession);
+
+  useEffect(() => {
+    joinSessionMtn({ sessionId: session.session._id });
+  }, [joinSessionMtn, session.session._id]);
+
   const messages = chatMessages.filter(Boolean).map((m) => {
     if (m.sender?._id === user?._id) {
       return {
@@ -52,17 +60,9 @@ export function SyncedRoom(props: SyncedRoomProps) {
 
   if (!session) return null;
 
-  const sendChatMessage = useMutation(api.chat.mutations.createChat);
   const onSendMessage = (message: string) => {
     sendChatMessage({ sessionId: session.session._id, content: message });
   };
-
-  const joinSessionMtn = useMutation(api.session.mutations.joinSession);
-  const leaveSessionMtn = useMutation(api.session.mutations.leaveSession);
-
-  useEffect(() => {
-    joinSessionMtn({ sessionId: session.session._id });
-  }, []);
 
   const handleLeaveSession = () => {
     leaveSessionMtn({ sessionId: session.session._id });

@@ -22,7 +22,7 @@ import { TimePickerInput } from "../ui/time-picker-input";
 interface UpdateTaskFormProps {
   task: Doc<"tasks">;
   children?: React.ReactNode;
-  onCancel?: any;
+  onCancel?: () => void;
   handleEditingChange: (isEditing: boolean) => void;
 }
 

@@ -111,6 +111,8 @@ export const AnimatedTabsTrigger = React.forwardRef<
   );
 });
 
+AnimatedTabsTrigger.displayName = "AnimatedTabsTrigger";
+
 function TabsContent({
   className,
   ...props

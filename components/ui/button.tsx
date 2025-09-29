@@ -166,4 +166,6 @@ export const AnimatedButton = React.forwardRef<
   },
 );
 
+AnimatedButton.displayName = "AnimatedButton";
+
 export { Button, buttonVariants };

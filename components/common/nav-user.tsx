@@ -2,7 +2,7 @@
 import { api } from "@/convex/_generated/api";
 import { authClient, errorMap, handleError } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
-import { Preloaded, usePreloadedQuery } from "convex/react";
+
 import {
   Cog,
   DoorOpen,

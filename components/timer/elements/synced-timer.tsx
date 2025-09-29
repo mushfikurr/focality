@@ -7,7 +7,7 @@ import {
   usePreloadedQuery,
   useQuery,
 } from "convex/react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Timer } from "./timer";
 
 interface SyncedTimerProps {
@@ -45,7 +45,7 @@ export function SyncedTimer({
     }
   }, [serverNow]);
 
-  const calculateTimeLeft = () => {
+  const calculateTimeLeft = useCallback(() => {
     if (!currentTask) return 0;
 
     const now = Date.now() + timeOffset; // Adjust for clock drift
@@ -61,13 +61,13 @@ export function SyncedTimer({
     const totalElapsed = previouslyElapsed + elapsedSinceStart;
 
     return Math.max(0, taskDuration - totalElapsed);
-  };
+  }, [currentTask, session, timeOffset]);
 
   // Sync timer on initial render and when session/task changes
   useEffect(() => {
     const initialTimeLeft = calculateTimeLeft();
     setLocalTimeLeft(initialTimeLeft);
-  }, [session, currentTask]);
+  }, [session, currentTask, calculateTimeLeft]);
 
   // Setup ticking interval
   useEffect(() => {
@@ -84,7 +84,15 @@ export function SyncedTimer({
 
     intervalRef.current = setInterval(tick, 250);
     return () => clearInterval(intervalRef.current!);
-  }, [session.running, session.startTime, currentTask?.elapsed]);
+  }, [
+    session.running,
+    session.startTime,
+    currentTask?.elapsed,
+    calculateTimeLeft,
+    completeIfElapsed,
+    currentTask,
+    session._id,
+  ]);
 
   const currentTaskProp = currentTask ?? undefined;
 

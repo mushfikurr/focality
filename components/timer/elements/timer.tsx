@@ -17,9 +17,9 @@ interface TimerProps {
   isRunning: boolean;
   title?: string;
   actions: {
-    startTimer: any;
-    pauseTimer: any;
-    resetTimer: any;
+    startTimer: () => void;
+    pauseTimer: () => void;
+    resetTimer: () => void;
   };
   currentTask?: Doc<"tasks">;
   nextTask?: Doc<"tasks">;
@@ -121,19 +121,11 @@ export function Timer(props: TimerProps) {
 type TimerToggleButtonProps = {
   isRunning: boolean;
   timer: number;
-  currentTask: any;
+  currentTask?: Doc<"tasks">;
   actions: {
     startTimer: () => void;
     pauseTimer: () => void;
   };
-};
-
-const transition = {
-  type: "spring",
-  stiffness: 400,
-  damping: 20,
-  mass: 0.5,
-  visualDuration: 0.1,
 };
 
 export const TimerToggleButton: React.FC<TimerToggleButtonProps> = ({

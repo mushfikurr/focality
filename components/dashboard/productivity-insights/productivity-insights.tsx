@@ -127,8 +127,8 @@ export function ProductivityInsightsSkeleton() {
 
 type DayProps = {
   dayOfWeek: number;
-  sum: any;
-  count: any;
+  sum: number;
+  count: number;
   average: number;
   percentage: number;
 };

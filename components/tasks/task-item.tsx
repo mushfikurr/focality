@@ -1,18 +1,13 @@
 "use client";
 
 import { Doc } from "@/convex/_generated/dataModel";
-import {
-  cn,
-  formatTimeFromSecondsToMMSS,
-  formatTimeFromMsToHHMMSS,
-  formatTimestampToHS,
-} from "@/lib/utils";
+import { cn, formatTimeFromSecondsToMMSS } from "@/lib/utils";
 import { Fragment, useState } from "react";
 import UpdateTaskForm from "../forms/update-task-form";
 import { DeleteIcon } from "../ui/animated-icons/delete-icon";
 import { FilePenLineIcon } from "../ui/animated-icons/file-pen-line";
 import { Badge } from "../ui/badge";
-import { AnimatedButton, Button, buttonVariants } from "../ui/button";
+import { AnimatedButton, Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import {
   Dialog,
@@ -29,8 +24,8 @@ import { formatDistanceToNow } from "date-fns";
 import { CheckCheck } from "lucide-react";
 
 interface TaskItemProps {
-  removeTask: any;
-  updateTask: any;
+  removeTask: (taskId: string) => void;
+  updateTask: (taskId: string, task: Partial<Doc<"tasks">>) => void;
   task: Doc<"tasks">;
   pending?: boolean;
   currentTaskId?: string;

@@ -26,7 +26,7 @@ export function useHideOnScroll({
     window.addEventListener("scroll", handleScroll);
 
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+  }, [scrollOffset]);
 
   return { scrollY, hidden, setHidden };
 }

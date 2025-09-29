@@ -23,11 +23,11 @@ interface Session {
 }
 
 interface RecentSessionsListProps {
-  sessions: Session[];
+  sessions?: Session[];
 }
 
 export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
-  if (sessions.length === 0) return null;
+  if (!sessions || sessions?.length === 0) return null;
 
   return (
     <Collapsible defaultOpen className="group/collapsible">

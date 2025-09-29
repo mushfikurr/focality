@@ -13,7 +13,7 @@ export type AllErrorCodes =
   | ExtraErrorCodes
   | keyof typeof authClient.$ERROR_CODES;
 
-export type ErrorCodeToFormField<T extends z.ZodType<any>> = Partial<
+export type ErrorCodeToFormField<T extends z.ZodType> = Partial<
   Record<
     AllErrorCodes,
     {
@@ -30,7 +30,7 @@ export function handleFormError<TFormValues extends FieldValues>(
     | ExtraErrorCodes
     | string
     | undefined,
-  errorMap?: ErrorCodeToFormField<any>,
+  errorMap?: ErrorCodeToFormField<z.ZodType>,
 ): string {
   const mapped = errorMap?.[code as keyof typeof errorMap];
   const message =
@@ -47,13 +47,13 @@ export function handleFormError<TFormValues extends FieldValues>(
   return message;
 }
 
-export function handleError<TFormValues extends FieldValues>(
+export function handleError(
   code:
     | keyof typeof authClient.$ERROR_CODES
     | ExtraErrorCodes
     | string
     | undefined,
-  errorMap?: ErrorCodeToFormField<any>,
+  errorMap?: ErrorCodeToFormField<z.ZodType>,
 ): string {
   const mapped = errorMap?.[code as keyof typeof errorMap];
   const message =

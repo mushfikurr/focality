@@ -22,7 +22,7 @@ function AuthenticatedStats() {
         <ScrollArea className="h-full max-h-full overflow-auto text-sm">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
-              <span>Today's Focus Time</span>
+              <span>Today&apos;s Focus Time</span>
               <span className="font-medium">1h 15m</span>
             </div>
 

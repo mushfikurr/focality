@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Drawer,
   DrawerContent,
-  DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
@@ -34,6 +33,8 @@ const MobileActions: FC<MobileActionProps> = ({
   const participants = usePreloadedQuery(preloadedParticipants);
   const session = usePreloadedQuery(preloadedSession);
 
+  const sendChatMessage = useMutation(api.chat.mutations.createChat);
+
   const messages = chatMessages.filter(Boolean).map((m) => {
     if (m.sender?._id === user?._id) {
       return {
@@ -51,8 +52,6 @@ const MobileActions: FC<MobileActionProps> = ({
   });
 
   if (!session) return null;
-
-  const sendChatMessage = useMutation(api.chat.mutations.createChat);
   const onSendMessage = (message: string) => {
     sendChatMessage({ sessionId: session.session._id, content: message });
   };

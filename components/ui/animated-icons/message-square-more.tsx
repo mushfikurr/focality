@@ -87,6 +87,7 @@ const MessageSquareMoreIcon = forwardRef<
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      className={className}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       {...props}

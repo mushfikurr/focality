@@ -26,7 +26,7 @@ interface NewTaskFormProps {
   sessionId: Id<"sessions">;
   break?: boolean;
   children?: React.ReactNode;
-  onCancel?: any;
+  onCancel?: () => void;
 }
 
 const formSchema = z.object({

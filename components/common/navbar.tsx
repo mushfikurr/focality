@@ -5,9 +5,8 @@ import { getLevelFromXP } from "@/lib/client-level";
 import { useHideOnScroll } from "@/lib/hooks/use-hide-on-scroll";
 import { cn } from "@/lib/utils";
 import { Preloaded, useConvexAuth, usePreloadedQuery } from "convex/react";
-import { Award, Focus, LucideIcon } from "lucide-react";
+import { Award, Focus } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Badge } from "../ui/badge";
 import { buttonVariants } from "../ui/button";
 import { Separator } from "../ui/separator";
@@ -100,29 +99,5 @@ export default function Navbar({
         )}
       </div>
     </header>
-  );
-}
-
-type NavItemProps = {
-  href: string;
-  title: string;
-  icon: LucideIcon;
-};
-
-function NavItem({ href, title, icon: Icon }: NavItemProps) {
-  const pathname = usePathname();
-  const isActive = pathname.split("/")[1] === href.substring(1);
-
-  return (
-    <Link
-      href={href}
-      className={cn(
-        isActive && "bg-accent",
-        buttonVariants({ size: "icon", variant: "ghost" }),
-      )}
-      title={title}
-    >
-      <Icon />
-    </Link>
   );
 }

@@ -59,7 +59,7 @@ export function SyncedTasks({
   const completeTaskMtn = useMutation(
     api.tasks.mutations.completeTaskIfElapsed,
   );
-  const handleCompleteTask = async (taskId: string) => {
+  const handleCompleteTask = async () => {
     await completeTaskMtn({ sessionId: sessionId as Id<"sessions"> });
   };
 

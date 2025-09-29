@@ -1,4 +1,4 @@
-import { CoffeeIcon, Minus, Plus } from "lucide-react";
+import { CoffeeIcon, Plus } from "lucide-react";
 import { Button } from "../ui/button";
 import {
   DropdownMenu,
@@ -8,7 +8,11 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-export function MobileAddButton({ actions }: { actions: any }) {
+export function MobileAddButton({
+  actions,
+}: {
+  actions: { addTask: () => void; addBreak: () => void };
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger className="flex md:hidden" asChild>

@@ -105,7 +105,7 @@ export function SessionHistorySkeleton() {
 }
 
 type SessionHistoryTableProps = {
-  user: any;
+  user: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["user"];
 };
 
 function SessionHistoryTable({
@@ -178,7 +178,7 @@ function SessionHistoryTable({
             {formatTimeFromMsToHHMMSS(row.original.time.focusedTime)}
           </span>
         ),
-        sortingFn: (rowA, rowB, columnId) => {
+        sortingFn: (rowA, rowB) => {
           return (
             rowA.original.time.focusedTime - rowB.original.time.focusedTime
           );
