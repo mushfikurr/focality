@@ -10,15 +10,14 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
-import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
+import { Preloaded, useConvexAuth, usePreloadedQuery } from "convex/react";
+import { Compass, LayoutDashboard, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useConvexAuth, usePreloadedQuery } from "convex/react";
-import { Preloaded } from "convex/react";
-import { RecentSessionsList } from "./recent-sessions-list";
-import { api } from "@/convex/_generated/api";
 import { useEffect, useState } from "react";
+import { RecentSessionsList } from "./recent-sessions-list";
 
 const items = [
   {
@@ -26,7 +25,6 @@ const items = [
     items: [
       { icon: LayoutDashboard, title: "Dashboard", href: "/dashboard" },
       { icon: Compass, title: "Explore Sessions", href: "/explore" },
-      { icon: User2, title: "Profile", href: "/profile" },
     ],
   },
 ];
