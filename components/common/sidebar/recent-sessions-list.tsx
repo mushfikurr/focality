@@ -1,5 +1,10 @@
 "use client";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -7,6 +12,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { SessionMenu } from "./session-menu";
 
@@ -24,25 +30,36 @@ export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
   if (sessions.length === 0) return null;
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Recent Sessions</SidebarGroupLabel>
-      <SidebarGroupContent>
-        <SidebarMenu>
-          {sessions.map((session) => (
-            <SidebarMenuItem key={session.id}>
-              <SidebarMenuButton asChild>
-                <Link
-                  className="flex items-center justify-between gap-3"
-                  href={`/session/id/${session.shareId}`}
-                >
-                  <span>{session.title}</span>
-                  <SessionMenu session={session} />
-                </Link>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          ))}
-        </SidebarMenu>
-      </SidebarGroupContent>
-    </SidebarGroup>
+    <Collapsible defaultOpen className="group/collapsible">
+      <SidebarGroup>
+        <CollapsibleTrigger asChild>
+          <button className="cursor-pointer">
+            <SidebarGroupLabel className="hover:text-foreground flex items-center justify-between transition-colors duration-150">
+              Recent Sessions
+              <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+            </SidebarGroupLabel>
+          </button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {sessions.map((session) => (
+                <SidebarMenuItem key={session.id}>
+                  <SidebarMenuButton asChild>
+                    <Link
+                      className="flex items-center justify-between gap-3"
+                      href={`/session/id/${session.shareId}`}
+                    >
+                      <span>{session.title}</span>
+                      <SessionMenu session={session} />
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </CollapsibleContent>
+      </SidebarGroup>
+    </Collapsible>
   );
 }
