@@ -5,6 +5,7 @@ import { SyncedTimer } from "@/components/timer/elements/synced-timer";
 import { preloadSession } from "@/lib/data/server/preload-session";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export default async function SessionIdPage({
   params,
@@ -13,6 +14,9 @@ export default async function SessionIdPage({
 }) {
   const { shareId } = await params;
   const data = await preloadSession(shareId);
+
+  // TODO: If no session data, show an error page?
+  if (!data) redirect("/");
 
   return (
     <div className="container mx-auto flex h-full min-h-0 flex-col gap-4 md:flex-row">
