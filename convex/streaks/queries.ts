@@ -7,10 +7,10 @@ import { getDocumentOrThrow } from "../utils/db";
 export const getStreakInfoByCurrentUser = query({
   handler: async (ctx) => {
     const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
+    if (!userMetadata) return null;
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
 

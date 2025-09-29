@@ -25,10 +25,10 @@ export const addTask = triggerTaskMutation({
     description: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
     await getSession(ctx, args.sessionId);
@@ -99,6 +99,7 @@ export const deleteTask = triggerTaskMutation({
   handler: async (ctx, args) => {
     const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
     const session = await getSession(ctx, task.sessionId);
+    if (!session) return null;
     const isCurrent = session.currentTaskId === task._id;
 
     await ctx.db.delete(args.taskId);
@@ -123,7 +124,8 @@ export const updateTask = triggerTaskMutation({
   handler: async (ctx, args) => {
     console.log("📌 Running updateTask mutation");
     const task = await getDocumentOrThrow(ctx, "tasks", args.taskId);
-    await getSession(ctx, task.sessionId);
+    const session = await getSession(ctx, task.sessionId);
+    if (!session) return null;
 
     const { taskId, ...toUpdate } = args;
     await ctx.runMutation(internal.tasks.mutations._updateTask, {

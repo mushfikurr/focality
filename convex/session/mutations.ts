@@ -107,10 +107,10 @@ export const createSession = mutation({
     visibility: v.union(v.literal("public"), v.literal("private")),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
     const uniqueShareId = await generateUniqueShareId(ctx);
@@ -136,7 +136,7 @@ export async function getSession(ctx: MutationCtx, sessionId: Id<"sessions">) {
   const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
 
   const userMetadata = await authComponent.safeGetAuthUser(ctx);
-  if (!userMetadata) throw new Error("User not authenticated");
+  if (!userMetadata) return null;
 
   const user = await ctx.db.get(userMetadata.userId as Id<"users">);
   if (!user) throw new Error("User not found");
@@ -153,6 +153,7 @@ export const startSession = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
+    if (!session) return null;
     if (!session.startTime) {
       await _updateSession(ctx, args.sessionId, {
         startTime: new Date().toISOString(),
@@ -171,6 +172,7 @@ export const pauseSession = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
+    if (!session) return null;
 
     if (session.currentTaskId && session.startTime) {
       const startTime = new Date(session.startTime);
@@ -202,6 +204,7 @@ export const resetSessionTimer = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
+    if (!session) return null;
 
     if (session.currentTaskId) {
       const currentTask = await ctx.db.get(session.currentTaskId);
@@ -223,6 +226,7 @@ export const deleteSession = mutation({
   },
   handler: async (ctx, args) => {
     const session = await getSession(ctx, args.sessionId);
+    if (!session) return null;
 
     const users = await ctx.db
       .query("users")
@@ -252,10 +256,10 @@ export const joinSession = mutation({
   handler: async (ctx, { sessionId }) => {
     const session = await getDocumentOrThrow(ctx, "sessions", sessionId);
 
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     await ctx.db.patch(user._id, {
       sessionId,
@@ -268,10 +272,10 @@ export const leaveSession = mutation({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const session = await getDocumentOrThrow(ctx, "sessions", args.sessionId);
 
@@ -285,8 +289,8 @@ export const updateSession = mutation({
     title: v.string(),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
 

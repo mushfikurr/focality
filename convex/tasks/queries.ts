@@ -10,10 +10,10 @@ export const listTasks = query({
     sessionId: v.id("sessions"),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     console.log(user);
 
@@ -33,10 +33,10 @@ export const getCurrentTaskCandidate = query({
     type: v.union(v.literal("task"), v.literal("break")),
   },
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const task = await ctx.db
       .query("tasks")

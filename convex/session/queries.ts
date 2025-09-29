@@ -128,10 +128,10 @@ export const paginatedPublicSessions = query({
 
 export const listSessionsByCurrentUser = query({
   handler: async (ctx, args) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id as Id<"users">;
     const sessions = await ctx.db
@@ -168,7 +168,7 @@ export const getSession = query({
     if (!session) throw new Error("Session not found");
 
     const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
+    if (!userMetadata) return null;
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
@@ -204,7 +204,7 @@ export const getSessionByShareId = query({
     if (!session) throw new Error("Session not found");
 
     const userMetadata = await authComponent.safeGetAuthUser(ctx);
-    if (!userMetadata) throw new Error("User not authenticated");
+    if (!userMetadata) return null;
 
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
     if (!user) throw new Error("User not found");
@@ -255,10 +255,10 @@ export const listParticipants = query({
 
 export const listUserSessions = query({
   handler: async (ctx) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
     return await ctx.db
@@ -270,10 +270,10 @@ export const listUserSessions = query({
 
 export const getRecentSessionsForUser = query({
   handler: async (ctx) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
     const sessions = await ctx.db

@@ -41,20 +41,19 @@ export const authComponent = createClient<DataModel>(components.betterAuth, {
 
 export const { onCreate, onUpdate, onDelete } = authComponent.triggersApi();
 
-export const currentUser = async (ctx: any): Promise<Doc<"users">> => {
-  const userMetadata = await authComponent.getAuthUser(ctx);
+export const currentUser = async (ctx: any): Promise<Doc<"users"> | null> => {
+  const userMetadata = await authComponent.safeGetAuthUser(ctx);
+  if (!userMetadata) return null;
   const user = await ctx.db.get(userMetadata.userId);
   if (!user) {
-    throw new Error("User doesnt exist");
+    return null;
   }
   return user;
 };
 
-export const currentUserId = async (ctx: any): Promise<Id<"users">> => {
+export const currentUserId = async (ctx: any): Promise<Id<"users"> | null> => {
   const userMetadata = await authComponent.safeGetAuthUser(ctx);
-  if (!userMetadata) {
-    throw new Error("User doesnt exist");
-  }
+  if (!userMetadata) return null;
   return userMetadata.userId as Id<"users">;
 };
 

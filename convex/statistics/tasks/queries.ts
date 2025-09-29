@@ -232,10 +232,10 @@ export const getTaskStatsForUser = async (
 
 export const getTaskStatisticsForCurrentUser = query({
   handler: async (ctx) => {
-    const userMetadata = await authComponent.getAuthUser(ctx);
-    if (!userMetadata.userId) throw new Error("User not authenticated");
+    const userMetadata = await authComponent.safeGetAuthUser(ctx);
+    if (!userMetadata) return null;
     const user = await ctx.db.get(userMetadata.userId as Id<"users">);
-    if (!user) throw new Error("User not found");
+    if (!user) return null;
 
     const userId = user._id;
     const totalFocusTime = await totalFocusTimeByUser(ctx, {
