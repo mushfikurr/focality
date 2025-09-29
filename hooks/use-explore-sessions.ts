@@ -8,11 +8,13 @@ type Session = PaginatedQueryItem<
   typeof api.session.queries.paginatedPublicSessions
 >;
 
-export function useExploreSessions(searchQuery: string) {
+export function useExploreSessions(
+  searchQuery: string,
+  cursor: string | null = null,
+) {
   const { data: sessionsData, isPending } = useQuery(
     convexQuery(api.session.queries.paginatedPublicSessions, {
-      paginationOpts: { numItems: 9, cursor: null },
-      search: searchQuery,
+      paginationOpts: { numItems: 9, cursor },
     }),
   );
 
@@ -21,12 +23,14 @@ export function useExploreSessions(searchQuery: string) {
     [sessionsData],
   );
 
+  // Filter sessions: remove those without titles and apply search filtering
   const filteredSessions = useMemo(
     () =>
       sessions.filter(
         (s): s is Session =>
           !!s?.title &&
-          s.title.toLowerCase().includes(searchQuery.toLowerCase()),
+          (!searchQuery ||
+            s.title.toLowerCase().includes(searchQuery.toLowerCase())),
       ),
     [sessions, searchQuery],
   );
@@ -34,5 +38,7 @@ export function useExploreSessions(searchQuery: string) {
   return {
     sessions: filteredSessions,
     isPending,
+    isDone: sessionsData?.isDone ?? false,
+    continueCursor: sessionsData?.continueCursor ?? null,
   };
 }

@@ -2,7 +2,7 @@
 import { formatDistanceToNowStrict } from "date-fns";
 import { Search } from "lucide-react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { JoinSessionButton } from "../session/join-session-button";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Badge } from "../ui/badge";
@@ -25,29 +25,55 @@ function SessionList() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const page = Number(searchParams.get("page")) || 1;
+  const [currentCursor, setCurrentCursor] = useState<string | null>(null);
+  const [pageHistory, setPageHistory] = useState<(string | null)[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+
   const searchQuery = searchParams.get("search") || "";
 
-  const { sessions: filteredSessions, isPending } =
-    useExploreSessions(searchQuery);
+  const {
+    sessions: filteredSessions,
+    isPending,
+    isDone,
+    continueCursor,
+  } = useExploreSessions(searchQuery, currentCursor);
+
+  // Reset pagination when search changes
+  useEffect(() => {
+    setCurrentCursor(null);
+    setPageHistory([]);
+    setCurrentPage(1);
+  }, [searchQuery]);
 
   const updateUrl = useCallback(
     (page: number, search: string) => {
       const params = new URLSearchParams(searchParams);
       params.set("page", page.toString());
       if (search) params.set("search", search);
+      else params.delete("search");
       router.replace(`?${params}`, { scroll: false });
     },
     [searchParams, router],
   );
 
   const handleLoadNext = useCallback(() => {
-    updateUrl(page + 1, searchQuery);
-  }, [page, searchQuery, updateUrl]);
+    if (continueCursor) {
+      setPageHistory((prev) => [...prev, currentCursor]);
+      setCurrentCursor(continueCursor);
+      setCurrentPage((prev) => prev + 1);
+      updateUrl(currentPage + 1, searchQuery);
+    }
+  }, [continueCursor, currentCursor, currentPage, searchQuery, updateUrl]);
 
   const handleLoadPrev = useCallback(() => {
-    updateUrl(page - 1, searchQuery);
-  }, [page, searchQuery, updateUrl]);
+    if (pageHistory.length > 0) {
+      const prevCursor = pageHistory[pageHistory.length - 1];
+      setPageHistory((prev) => prev.slice(0, -1));
+      setCurrentCursor(prevCursor);
+      setCurrentPage((prev) => prev - 1);
+      updateUrl(currentPage - 1, searchQuery);
+    }
+  }, [pageHistory, currentPage, searchQuery, updateUrl]);
 
   return (
     <div className="flex h-full flex-col gap-3">
@@ -61,7 +87,7 @@ function SessionList() {
             value={searchQuery}
             onChange={(e) => {
               const newQuery = e.target.value;
-              updateUrl(page, newQuery);
+              updateUrl(currentPage, newQuery);
             }}
             disabled={isPending}
           />
@@ -94,7 +120,9 @@ function SessionList() {
       {!isPending && filteredSessions.length > 0 && (
         <div className="bg-background sticky bottom-0 z-10 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-muted-foreground text-xs">Page {page}</span>
+            <span className="text-muted-foreground text-xs">
+              Page {currentPage}
+            </span>
 
             <div className="flex items-center gap-2">
               <Button
@@ -102,7 +130,7 @@ function SessionList() {
                 size="sm"
                 className="h-7 text-xs"
                 onClick={handleLoadPrev}
-                disabled={page <= 1 || isPending}
+                disabled={currentPage <= 1 || isPending}
               >
                 Prev
               </Button>
@@ -112,7 +140,7 @@ function SessionList() {
                 size="sm"
                 className="h-7 text-xs"
                 onClick={handleLoadNext}
-                disabled={isPending}
+                disabled={isDone || isPending}
               >
                 Next
               </Button>
