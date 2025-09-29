@@ -1,4 +1,5 @@
 import SessionList from "@/components/explore/session-list";
+import { ComponentErrorBoundary } from "@/components/common/error-boundary";
 import { getToken } from "@/lib/data/server/token";
 import { redirect } from "next/navigation";
 
@@ -8,5 +9,9 @@ export default async function ExplorePage() {
     redirect("/");
   }
 
-  return <SessionList />;
+  return (
+    <ComponentErrorBoundary>
+      <SessionList />
+    </ComponentErrorBoundary>
+  );
 }

@@ -2,6 +2,7 @@ import MobileActions from "@/components/room/elements/mobile/mobile-actions";
 import { SyncedRoom } from "@/components/room/synced-room";
 import { SyncedTasks } from "@/components/tasks/synced-tasks";
 import { SyncedTimer } from "@/components/timer/elements/synced-timer";
+import { ComponentErrorBoundary } from "@/components/common/error-boundary";
 import { preloadSession } from "@/lib/data/server/preload-session";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
@@ -33,17 +34,21 @@ export default async function SessionIdPage({
             </Link>
           </div>
 
-          <SyncedTimer
-            preloadedTasks={data.preloadedTasks}
-            preloadedSession={data.preloadedSession}
-          />
+          <ComponentErrorBoundary>
+            <SyncedTimer
+              preloadedTasks={data.preloadedTasks}
+              preloadedSession={data.preloadedSession}
+            />
+          </ComponentErrorBoundary>
         </div>
 
         <div className="min-h-0 flex-1">
-          <SyncedTasks
-            preloadedSession={data.preloadedSession}
-            preloadedTasks={data.preloadedTasks}
-          />
+          <ComponentErrorBoundary>
+            <SyncedTasks
+              preloadedSession={data.preloadedSession}
+              preloadedTasks={data.preloadedTasks}
+            />
+          </ComponentErrorBoundary>
         </div>
 
         <div className="flex w-full md:hidden">
@@ -54,7 +59,9 @@ export default async function SessionIdPage({
       {/* Right Column */}
       <div className="hidden h-full flex-col pb-5 md:flex md:w-2/6">
         <div className="h-full">
-          <SyncedRoom {...data} />
+          <ComponentErrorBoundary>
+            <SyncedRoom {...data} />
+          </ComponentErrorBoundary>
         </div>
       </div>
     </div>

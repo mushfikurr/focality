@@ -6,6 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ComponentErrorBoundary } from "@/components/common/error-boundary";
 import { api } from "@/convex/_generated/api";
 import { createAuth } from "@/lib/auth";
 import { getToken } from "@convex-dev/better-auth/nextjs";
@@ -34,7 +35,9 @@ export default async function NewSessionPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <NewSessionForm authenticated={authenticated} />
+          <ComponentErrorBoundary>
+            <NewSessionForm authenticated={authenticated} />
+          </ComponentErrorBoundary>
         </CardContent>
       </Card>
     </div>
