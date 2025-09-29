@@ -54,7 +54,7 @@ export function SessionMenu({ session }: SessionMenuProps) {
             variant="ghost"
             size="sm"
             className={cn(
-              "h-6 w-6 p-0",
+              "-mr-0.5 h-6 w-6 p-0",
               dropdownOpen
                 ? "bg-accent text-accent-foreground"
                 : "active:bg-accent-foreground/10 hover:bg-accent-foreground/10",
@@ -64,7 +64,7 @@ export function SessionMenu({ session }: SessionMenuProps) {
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+        <DropdownMenuContent align="start">
           <DropdownMenuItem
             onClick={(e) => {
               e.stopPropagation();
@@ -88,7 +88,6 @@ export function SessionMenu({ session }: SessionMenuProps) {
               e.stopPropagation();
               handleDelete();
             }}
-            className="text-destructive"
           >
             <Trash2 className="mr-2 h-4 w-4" />
             Delete
