@@ -14,10 +14,11 @@ import { cn } from "@/lib/utils";
 import { Compass, LayoutDashboard, Plus, User2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { usePreloadedQuery } from "convex/react";
+import { useConvexAuth, usePreloadedQuery } from "convex/react";
 import { Preloaded } from "convex/react";
 import { RecentSessionsList } from "./recent-sessions-list";
 import { api } from "@/convex/_generated/api";
+import { useEffect, useState } from "react";
 
 const items = [
   {
@@ -69,13 +70,20 @@ function SidebarNav({
 }
 
 export function AppSidebar({
-  preloadedSessions,
+  preloadedSessions: preloadedSessionsQuery,
 }: {
   preloadedSessions: Preloaded<
     typeof api.session.queries.getRecentSessionsForUser
   >;
 }) {
-  const sessions = usePreloadedQuery(preloadedSessions);
+  const { isLoading } = useConvexAuth();
+  const preloadedSessions = usePreloadedQuery(preloadedSessionsQuery);
+  const [sessions, setSessions] = useState(preloadedSessions);
+  useEffect(() => {
+    if (!isLoading) {
+      setSessions(preloadedSessions);
+    }
+  }, [preloadedSessions, isLoading]);
 
   return (
     <Sidebar>
