@@ -47,7 +47,7 @@ type NavUserProps = {
 export function NavUser({ user }: NavUserProps) {
   const router = useRouter();
 
-  if (!user) return null;
+  if (!user) return <UserAvatarSkeleton />;
 
   const handleLogout = async () => {
     const signInPromise = (async () => {
@@ -71,6 +71,7 @@ export function NavUser({ user }: NavUserProps) {
     <DropdownMenu>
       <DropdownMenuTrigger>
         <div className="relative flex items-center gap-5">
+          {!user && <UserAvatarSkeleton />}
           <Avatar className={cn("h-7 w-7")}>
             <AvatarImage src={user.image} alt="Users avatar" />
             <AvatarFallback>{user.name?.charAt(0) ?? " "}</AvatarFallback>
@@ -113,6 +114,10 @@ export function NavUser({ user }: NavUserProps) {
     </DropdownMenu>
   );
 }
+
+const UserAvatarSkeleton = () => {
+  return <Skeleton className="h-7 w-7 rounded-full"></Skeleton>;
+};
 
 function UserAvatarSessionIndicator({
   sessionId,
