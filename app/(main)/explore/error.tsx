@@ -17,7 +17,7 @@ export default function Error({
   return (
     <NextErrorBoundary
       error={error}
-      reset={reset}
+      resetAction={reset}
       title=":("
       message="We couldn&apos;t load the session list. Please check your connection and try again."
     />

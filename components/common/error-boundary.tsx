@@ -140,7 +140,7 @@ export function ComponentErrorBoundary({
 // Wrapper for Next.js error.tsx files to use our ErrorBoundary
 export function NextErrorBoundary({
   error,
-  reset,
+  resetAction,
   title = ":(",
   message,
   showRetry = true,
@@ -148,7 +148,7 @@ export function NextErrorBoundary({
   backHref = "/dashboard",
 }: {
   error: Error & { digest?: string };
-  reset: () => void;
+  resetAction: () => void;
   title?: string;
   message?: string;
   showRetry?: boolean;
@@ -169,7 +169,7 @@ export function NextErrorBoundary({
       </div>
       <div className="flex items-center gap-3">
         {showRetry && (
-          <Button onClick={reset}>
+          <Button onClick={resetAction}>
             <RefreshCw className="mr-2 h-4 w-4" />
             Retry
           </Button>
