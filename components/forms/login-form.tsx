@@ -20,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { authClient, errorMap, handleFormError } from "@/lib/auth-client";
-import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -83,7 +82,6 @@ export default function LoginForm() {
   const handleGoogleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     try {
-      // await authClient.signIn.google(); // Adjust to your authClient method
       router.push("/dashboard");
     } catch (err) {
       console.error(err);
