@@ -33,6 +33,7 @@ function DashboardLayout({
   dashboardData: (typeof api.dashboard.queries.getDashboardData)["_returnType"];
 }) {
   if (!dashboardData) return null;
+
   const { achievements, levels, sessions, streaks, tasks, user } =
     dashboardData;
 
