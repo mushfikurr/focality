@@ -9,13 +9,19 @@ function ProductDemoImage() {
       <Image
         src="/focality-screenshot-light.png"
         alt="Screenshot of the dashboard page in focality"
-        className={cn(baseStyle, "object-cover object-top dark:hidden")}
+        className={cn(
+          baseStyle,
+          "object-cover object-left sm:object-top dark:hidden",
+        )}
         fill
       />
       <Image
         src="/focality-screenshot.png"
         alt="Screenshot of the dashboard page in focality"
-        className={cn(baseStyle, "hidden object-cover object-top dark:block")}
+        className={cn(
+          baseStyle,
+          "hidden object-cover object-left sm:object-top dark:block",
+        )}
         fill
       />
     </>

@@ -7,8 +7,8 @@ import Link from "next/link";
 export default async function Page() {
   return (
     <>
-      <div className="flex min-h-screen flex-col">
-        <main className="mx-auto mt-8 flex w-full max-w-prose flex-col items-center px-8 py-16 pt-8">
+      <div className="container flex min-h-screen flex-col">
+        <main className="mx-auto mt-8 flex w-full max-w-prose flex-col items-center px-4 py-16 pt-8 md:px-8">
           <section className="space-y-3">
             <h1 className="mb-4 text-xl font-semibold">
               Focality - A multiplayer pomodoro timer
@@ -30,7 +30,7 @@ export default async function Page() {
             </Link>
           </section>
         </main>
-        <div className="relative mx-auto w-full max-w-6xl grow">
+        <div className="relative w-full grow">
           <ProductDemoImage />
         </div>
       </div>
