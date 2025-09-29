@@ -29,19 +29,6 @@ export default function ProductivityInsights({
     ? getWeekdayNameFromUTCDay(mostProductiveDay)
     : "N/A";
 
-  const hourDate = new Date();
-  if (mostProductiveHour) {
-    hourDate.setHours(mostProductiveHour);
-    hourDate.setMinutes(0);
-    hourDate.setSeconds(0);
-  }
-  const fmtHour = mostProductiveHour
-    ? hourDate.toLocaleTimeString("en-GB", {
-        timeStyle: "short",
-        hour12: true,
-      })
-    : "N/A";
-
   return (
     <Card>
       <CardHeader className="pb-2">
@@ -93,7 +80,7 @@ function ClientHour({ hour }: { hour: number }) {
 
   useEffect(() => {
     const date = new Date();
-    date.setHours(hour, 0, 0, 0);
+    date.setUTCHours(hour, 0, 0, 0);
     setValue(
       date.toLocaleTimeString("en-GB", {
         timeStyle: "short",
