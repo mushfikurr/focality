@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -93,15 +93,14 @@ export default function LoginForm() {
 
   return (
     <div className="mx-auto -mt-3 flex w-full max-w-md flex-col gap-3">
-      <Link href="/">
-        <Button
-          variant="link"
-          className={cn(
-            "text-foreground flex w-fit cursor-pointer items-center gap-3 p-0 text-sm",
-          )}
-        >
-          <ArrowLeft /> Back
-        </Button>
+      <Link
+        href="/"
+        className={
+          (buttonVariants({ variant: "link" }),
+          "text-muted-foreground hover:text-foreground flex w-fit cursor-pointer items-center gap-3 p-0 text-sm transition-colors duration-150 ease-in-out")
+        }
+      >
+        <ArrowLeft className="mt-0.5 h-4 w-4" /> <span>Back</span>
       </Link>
       <Card className="w-full">
         <CardHeader>
