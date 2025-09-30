@@ -1,3 +1,4 @@
+import { ComponentErrorBoundary } from "@/components/common/error-boundary";
 import NewSessionForm from "@/components/forms/new-session-form";
 import {
   Card,
@@ -6,12 +7,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ComponentErrorBoundary } from "@/components/common/error-boundary";
 import { api } from "@/convex/_generated/api";
 import { createAuth } from "@/lib/auth";
 import { getToken } from "@convex-dev/better-auth/nextjs";
 import { fetchQuery } from "convex/nextjs";
-import { redirect } from "next/navigation";
 
 export default async function NewSessionPage() {
   const token = await getToken(createAuth);
@@ -20,7 +19,6 @@ export default async function NewSessionPage() {
     {},
     { token },
   ));
-  if (!token) redirect("/login");
 
   return (
     <div className="container mx-auto w-full max-w-xl space-y-3 pt-4 pb-8">

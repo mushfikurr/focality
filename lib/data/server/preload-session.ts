@@ -1,15 +1,12 @@
 import { api } from "@/convex/_generated/api";
-import { getToken } from "./token";
+import { preloadWithAuth } from "@/lib/preload-with-auth";
 import { fetchQuery } from "convex/nextjs";
 import { preloadUser } from "./preload-user";
-import { preloadWithAuth } from "@/lib/preload-with-auth";
-import { redirect } from "next/navigation";
+import { getToken } from "./token";
 
 export async function preloadSession(shareId: string) {
   const token = await getToken();
-  if (!token) {
-    redirect("/");
-  }
+
   const sessionByShareIdQuery = await fetchQuery(
     api.session.queries.getSessionByShareId,
     { shareId },
