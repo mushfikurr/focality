@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { Achievements } from "./achievements/achievements";
 import FocusActivity from "./productivity-insights/focus-activity";
 import DashboardSkeleton from "@/app/(main)/dashboard/loading";
+import SuggestedCard from "./suggested/suggested-card";
 
 export default function Dashboard({
   preloadedDashboardData: preloadedDashboardDataQuery,
@@ -25,7 +26,7 @@ export default function Dashboard({
     }
   }, [preloadedDashboardData, isLoading]);
 
-  if (isLoading) return <DashboardSkeleton />;
+  if (isLoading || !dashboard) return <DashboardSkeleton />;
   return <DashboardLayout dashboardData={dashboard} />;
 }
 
@@ -52,6 +53,9 @@ function DashboardLayout({
         />
       </div>
       <div className="flex w-full gap-4">
+        <div className="mb-6 grow">
+          <SuggestedCard />
+        </div>
         <div className="mb-6">
           <FocusActivity preloadedTasks={tasks} />
         </div>
