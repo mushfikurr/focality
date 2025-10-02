@@ -45,49 +45,6 @@ export const totalFocusTimeByUserForWeek = async (
   return totalFocusTimeForWeek;
 };
 
-export const productivityPatternsByUser = async (
-  ctx: QueryCtx,
-  args: { userId: Id<"users"> },
-) => {
-  const userId = args.userId;
-  const now = Date.now();
-  const numDays = 30;
-  const dayInMs = 24 * 60 * 60 * 1000;
-  const lowerBound = now - numDays * dayInMs;
-
-  const tasks = await ctx.db
-    .query("tasks")
-    .withIndex("by_user_completion_time", (q) =>
-      q
-        .eq("userId", userId)
-        .gte("completedAt", lowerBound)
-        .lte("completedAt", now),
-    )
-    .collect();
-
-  const hourlyDurations = Array(24).fill(0);
-  const dailyDurations = Array(7).fill(0);
-
-  for (const t of tasks) {
-    if (!t.completed || t.completedAt == null) continue;
-    const ts = t.completedAt;
-    const date = new Date(ts);
-    const h = date.getUTCHours();
-    const d = date.getUTCDay();
-    hourlyDurations[h] += t.duration || 0;
-    dailyDurations[d] += t.duration || 0;
-  }
-
-  if (tasks.length === 0) {
-    return { mostProductiveHour: null, mostProductiveDay: null };
-  }
-
-  return {
-    mostProductiveHour: hourlyDurations.indexOf(Math.max(...hourlyDurations)), // 0–23
-    mostProductiveDay: dailyDurations.indexOf(Math.max(...dailyDurations)), // 0–6
-  };
-};
-
 export const dailyAveragesByUserForMonth = async (
   ctx: QueryCtx,
   args: { userId: Id<"users"> },
@@ -168,9 +125,6 @@ export const getTaskStatsForUser = async (
     .collect();
 
   // Compute productivity patterns
-  const hourlyDurations = Array(24).fill(0);
-  const dailyDurations = Array(7).fill(0);
-
   // Compute daily averages
   const aggregatedData = {
     totalSum: 0,
@@ -183,13 +137,8 @@ export const getTaskStatsForUser = async (
     if (!t.completed || t.completedAt == null) continue;
     const ts = t.completedAt;
     const date = new Date(ts);
-    const h = date.getUTCHours();
     const d = date.getUTCDay();
     const dur = t.duration || 0;
-
-    // For productivity patterns
-    hourlyDurations[h] += dur;
-    dailyDurations[d] += dur;
 
     // For daily averages
     aggregatedData.totalSum += dur;
@@ -197,18 +146,6 @@ export const getTaskStatsForUser = async (
     aggregatedData.dailySums[d] += dur;
     aggregatedData.dailyCounts[d] += 1;
   }
-
-  const productivityPatterns =
-    tasks.length === 0
-      ? { mostProductiveHour: null, mostProductiveDay: null }
-      : {
-          mostProductiveHour: hourlyDurations.indexOf(
-            Math.max(...hourlyDurations),
-          ),
-          mostProductiveDay: dailyDurations.indexOf(
-            Math.max(...dailyDurations),
-          ),
-        };
 
   const dailyAverages = aggregatedData.dailySums.map((sum, index) => {
     const count = aggregatedData.dailyCounts[index];
@@ -226,8 +163,41 @@ export const getTaskStatsForUser = async (
     totalSum: aggregatedData.totalSum,
     totalCount: aggregatedData.totalCount,
     dailyAverages,
-    productivityPatterns,
   };
+};
+
+export const getWeeklyFocusHours = async (
+  ctx: QueryCtx,
+  args: { userId: Id<"users"> },
+) => {
+  const userId = args.userId;
+  const now = Date.now();
+  const numWeeks = 52;
+  const weekInMs = 7 * 24 * 60 * 60 * 1000;
+  const lowerBound = now - numWeeks * weekInMs;
+
+  const tasks = await ctx.db
+    .query("tasks")
+    .withIndex("by_user_completion_time", (q) =>
+      q
+        .eq("userId", userId)
+        .gte("completedAt", lowerBound)
+        .lte("completedAt", now),
+    )
+    .collect();
+
+  const weeklyData = Array(numWeeks).fill(0);
+
+  for (const t of tasks) {
+    if (!t.completed || t.completedAt == null) continue;
+    const ts = t.completedAt;
+    const weeksAgo = Math.floor((now - ts) / weekInMs);
+    if (weeksAgo < numWeeks) {
+      weeklyData[numWeeks - 1 - weeksAgo] += t.duration || 0;
+    }
+  }
+
+  return weeklyData.map((hours) => Math.round((hours / 3600000) * 100) / 100); // convert to hours
 };
 
 export const getTaskStatisticsForCurrentUser = query({
@@ -247,6 +217,9 @@ export const getTaskStatisticsForCurrentUser = query({
     const taskStats = await getTaskStatsForUser(ctx, {
       userId,
     });
+    const weeklyFocusHours = await getWeeklyFocusHours(ctx, {
+      userId,
+    });
     return {
       totalFocusTime,
       totalFocusTimeByWeek,
@@ -255,7 +228,7 @@ export const getTaskStatisticsForCurrentUser = query({
         totalCount: taskStats.totalCount,
         dailyAverages: taskStats.dailyAverages,
       },
-      productivityPatterns: taskStats.productivityPatterns,
+      weeklyFocusHours,
     };
   },
 });

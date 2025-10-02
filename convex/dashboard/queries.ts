@@ -6,6 +6,7 @@ import {
   totalFocusTimeByUser,
   totalFocusTimeByUserForWeek,
   getTaskStatsForUser,
+  getWeeklyFocusHours,
 } from "../statistics/tasks/queries";
 import {
   totalCompletionByUser,
@@ -57,6 +58,7 @@ export const getDashboardData = query({
             userId,
           });
           const taskStatsResult = await getTaskStatsForUser(ctx, { userId });
+          const weeklyFocusHours = await getWeeklyFocusHours(ctx, { userId });
           return {
             totalFocusTime: totalFocusTime || 0,
             totalFocusTimeByWeek: totalFocusTimeByWeek || 0,
@@ -65,10 +67,7 @@ export const getDashboardData = query({
               totalCount: taskStatsResult?.totalCount || 0,
               dailyAverages: taskStatsResult?.dailyAverages || [],
             },
-            productivityPatterns: taskStatsResult?.productivityPatterns || {
-              mostProductiveHour: null,
-              mostProductiveDay: null,
-            },
+            weeklyFocusHours: weeklyFocusHours || [],
           };
         } catch (e) {
           console.error("Task stats error:", e);
@@ -80,10 +79,7 @@ export const getDashboardData = query({
               totalCount: 0,
               dailyAverages: [],
             },
-            productivityPatterns: {
-              mostProductiveHour: null,
-              mostProductiveDay: null,
-            },
+            weeklyFocusHours: [],
           };
         }
       })(),

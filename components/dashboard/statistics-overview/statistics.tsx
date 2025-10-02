@@ -7,10 +7,18 @@ import { CheckCheck, Clock, Flame, TrendingUp } from "lucide-react";
 import { StatisticCard, StatisticCardSkeleton } from "./statistics-card";
 
 type StatisticsProps = {
-  tasks: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["tasks"];
-  sessions: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["sessions"];
-  streaks: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["streaks"];
-  level: (typeof api.dashboard.queries.getDashboardData)["_returnType"]["levels"];
+  tasks: NonNullable<
+    (typeof api.dashboard.queries.getDashboardData)["_returnType"]
+  >["tasks"];
+  sessions: NonNullable<
+    (typeof api.dashboard.queries.getDashboardData)["_returnType"]
+  >["sessions"];
+  streaks: NonNullable<
+    (typeof api.dashboard.queries.getDashboardData)["_returnType"]
+  >["streaks"];
+  level: NonNullable<
+    (typeof api.dashboard.queries.getDashboardData)["_returnType"]
+  >["levels"];
 };
 
 export default function Statistics({
