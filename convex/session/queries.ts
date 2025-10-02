@@ -168,7 +168,11 @@ export const getSession = query({
 
     const userId = user._id;
 
-    if (session.visibility === "private" && user?.sessionId !== session._id) {
+    if (
+      session.visibility === "private" &&
+      userId !== session.hostId &&
+      user?.sessionId !== session._id
+    ) {
       throw new Error("Not authorized");
     }
 
@@ -203,7 +207,11 @@ export const getSessionByShareId = query({
     if (!user) throw new Error("User not found");
 
     const userId = user._id;
-    if (session.visibility === "private" && user?.sessionId !== session._id) {
+    if (
+      session.visibility === "private" &&
+      userId !== session.hostId &&
+      user?.sessionId !== session._id
+    ) {
       throw new Error("Not authorized");
     }
 
