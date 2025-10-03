@@ -24,7 +24,7 @@ export default function FocusActivity({ preloadedTasks }: FocusActivityProps) {
   const weeklyFocusHours = taskStatistics.weeklyFocusHours || [];
 
   return (
-    <Card>
+    <Card className="h-full">
       <CardHeader>
         <div className="flex items-center gap-2">
           <BarChart className="text-primary h-4 w-4" />
@@ -34,8 +34,10 @@ export default function FocusActivity({ preloadedTasks }: FocusActivityProps) {
         </div>
       </CardHeader>
       <CardContent className="flex gap-6">
-        <div className="flex-1">
-          <ActivityGraph weeklyData={weeklyFocusHours || []} />
+        <div className="w-full overflow-hidden">
+          <ScrollArea className="h-full">
+            <ActivityGraph weeklyData={weeklyFocusHours || []} />
+          </ScrollArea>
         </div>
       </CardContent>
     </Card>

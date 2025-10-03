@@ -9,7 +9,9 @@ export default async function MainLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await preloadUser();
-  const preloadedSessions = await preloadWithAuth(api.session.queries.getRecentSessionsForUser);
+  const preloadedSessions = await preloadWithAuth(
+    api.session.queries.getRecentSessionsForUser,
+  );
 
   return (
     <SidebarProvider>

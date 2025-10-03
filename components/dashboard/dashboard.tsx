@@ -43,8 +43,8 @@ function DashboardLayout({
     dashboardData;
 
   return (
-    <>
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+    <div className="flex grow flex-col gap-6">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Statistics
           level={levels}
           sessions={sessions}
@@ -52,20 +52,20 @@ function DashboardLayout({
           tasks={tasks}
         />
       </div>
-      <div className="flex w-full gap-4">
-        <div className="mb-6 grow">
+      <div className="flex w-full flex-col gap-4 xl:flex-row xl:items-stretch">
+        <div className="max-h-60 grow">
           <SuggestedCard />
         </div>
-        <div className="mb-6">
+        <div className="max-h-60">
           <FocusActivity preloadedTasks={tasks} />
         </div>
-        <div className="mb-6">
+        <div className="max-h-60 xl:max-w-md xl:min-w-md">
           <Achievements achievements={achievements} />
         </div>
       </div>
-      <div className="mb-6">
+      <div className="grow">
         <SessionHistory user={user} />
       </div>
-    </>
+    </div>
   );
 }

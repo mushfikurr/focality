@@ -7,12 +7,31 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useEffect, useRef } from "react";
 
 type ActivityGraphProps = {
   weeklyData: number[];
 };
 
 export default function ActivityGraph({ weeklyData }: ActivityGraphProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      const el = scrollRef.current;
+      const tolerance = 20;
+
+      const atEnd =
+        el.scrollWidth - el.clientWidth - el.scrollLeft <= tolerance;
+
+      if (atEnd) {
+        el.scrollTo({
+          left: el.scrollWidth,
+          behavior: "smooth",
+        });
+      }
+    }
+  }, []);
   const totalWeeks = weeklyData.length;
   const now = new Date();
 
@@ -70,8 +89,8 @@ export default function ActivityGraph({ weeklyData }: ActivityGraphProps) {
   const months = getMonths();
 
   return (
-    <ScrollArea className="w-full">
-      <div className="flex gap-2">
+    <ScrollArea className="w-full rounded">
+      <div ref={scrollRef} className="flex justify-between gap-2">
         {months.map((monthData, monthIndex) => (
           <div key={monthIndex} className="flex flex-col items-center gap-2">
             <div className="text-muted-foreground text-xs">

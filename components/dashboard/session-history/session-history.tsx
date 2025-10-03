@@ -1,7 +1,13 @@
 "use client";
 import { JoinSessionButton } from "@/components/session/join-session-button";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -53,7 +59,7 @@ export default function SessionHistory({
 export function SessionHistorySkeleton() {
   return (
     <Card>
-      <CardHeader className="pb-2">
+      <CardHeader>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Calendar className="text-primary h-4 w-4" />
@@ -232,7 +238,7 @@ function SessionHistoryTable({
   });
 
   return (
-    <Card>
+    <Card className="flex h-full flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
@@ -253,8 +259,8 @@ function SessionHistoryTable({
         </div>
       </CardHeader>
 
-      <CardContent>
-        <ScrollArea className="overflow-x-auto">
+      <CardContent className="grow">
+        <ScrollArea className="h-full overflow-x-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -318,8 +324,9 @@ function SessionHistoryTable({
             </TableBody>
           </Table>
         </ScrollArea>
-
-        <div className="mt-4 flex items-center justify-between">
+      </CardContent>
+      <CardFooter className="w-full">
+        <div className="flex w-full items-center justify-between">
           <span className="text-muted-foreground text-xs">
             Page {currentPageNum}
           </span>
@@ -346,7 +353,7 @@ function SessionHistoryTable({
             </Button>
           </div>
         </div>
-      </CardContent>
+      </CardFooter>
     </Card>
   );
 }
@@ -411,7 +418,7 @@ function SearchAndFilter({
       <Popover>
         <PopoverTrigger asChild>
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             className="flex h-8 items-center gap-1 text-xs"
             disabled={disabled}
@@ -420,7 +427,7 @@ function SearchAndFilter({
             <span>Filter</span>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-40">
+        <PopoverContent align="end" sideOffset={8} className="w-40">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="completedOnly"
