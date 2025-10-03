@@ -15,6 +15,8 @@ import {
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { SessionMenu } from "./session-menu";
+import { JoinSessionButton } from "@/components/session/join-session-button";
+import { Id } from "@/convex/_generated/dataModel";
 
 interface Session {
   id: string;
@@ -45,15 +47,20 @@ export function RecentSessionsList({ sessions }: RecentSessionsListProps) {
             <SidebarMenu>
               {sessions.map((session) => (
                 <SidebarMenuItem key={session.id}>
-                  <SidebarMenuButton asChild>
-                    <Link
-                      className="flex items-center justify-between gap-3"
-                      href={`/session/id/${session.shareId}`}
-                    >
+                  <JoinSessionButton
+                    session={{
+                      title: session.title,
+                      _id: session.id as Id<"sessions">,
+                      shareId: session.shareId,
+                    }}
+                    asChild
+                    className="flex items-center justify-between gap-3"
+                  >
+                    <SidebarMenuButton>
                       <span>{session.title}</span>
                       <SessionMenu session={session} />
-                    </Link>
-                  </SidebarMenuButton>
+                    </SidebarMenuButton>
+                  </JoinSessionButton>
                 </SidebarMenuItem>
               ))}
             </SidebarMenu>
